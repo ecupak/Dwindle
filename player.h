@@ -31,18 +31,22 @@ namespace Tmpl8 {
 
 	class Player : public Collidable
 	{
-	public:		
-		Player(Surface* screen);
-		void update(float deltaTime, keyState& leftKey, keyState& rightKey, keyState& upKey, keyState& downKey);
-		void draw(Surface* screen);
-		//void internalDraw();
-		void SetPosition(int x, int y);
-		std::vector<Collidable*> GetCollisionBoxes();
+	public:
+		// Methods.
+		// Structor.
+		Player(Surface* screen, vec2& start_position);
+		
+		void Update(float deltaTime, keyState& leftKey, keyState& rightKey, keyState& upKey, keyState& downKey);
+		void Draw(Surface* screen);
+		void SetPosition(vec2 start_position);
+		
+		std::vector<DetectorPoint>& GetCollisionPoints();
 		virtual void ResolveCollision(Collidable*& collision);
 		void ProcessCollisions();
 		
 		// Point method test.
 		std::vector<DetectorPoint> points;
+		std::vector<DetectorPoint*> point_ptrs;
 		void SetPointPositions();
 		void UpdatePointPositions();
 
@@ -89,7 +93,6 @@ namespace Tmpl8 {
 		template <typename T> int GetSign(T val);
 		template <typename T> T GetAbsoluteMax(T val1, T val2);
 
-		void ApplySpeedToPosition();
 
 		/* ATTRIBUTES */
 
@@ -103,7 +106,7 @@ namespace Tmpl8 {
 		int half_size;
 
 		// State change tracker.
-		Mode mode{ Mode::AIR };
+		Mode mode{ Mode::NONE };
 
 
 		float m_delta_time{ 0.0f };

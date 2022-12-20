@@ -5,8 +5,6 @@
 #include "surface.h"
 #include "level.h"
 
-#define not !
-
 
 namespace Tmpl8
 {
@@ -20,7 +18,10 @@ namespace Tmpl8
 	// -----------------------------------------------------------
 	Game::Game(Surface* surface) :
 		screen{ surface },
-		current_level{ screen }
+		level{ 1 },
+		player{ surface, level.m_player_start_position },
+		viewport{},
+		collision_manager{ viewport, player }
 	{	}
 
 	// -----------------------------------------------------------
@@ -35,7 +36,7 @@ namespace Tmpl8
 		switch (key)
 		{
 		case 80: // LEFT.
-			if (not leftKey.isPressed)
+			if (!leftKey.isPressed)
 			{
 				leftKey.isActive = true;
 				leftKey.isPressed = true;
@@ -43,7 +44,7 @@ namespace Tmpl8
 			}
 			break;
 		case 79: // RIGHT.
-			if (not rightKey.isPressed)
+			if (!rightKey.isPressed)
 			{
 				rightKey.isActive = true;
 				rightKey.isPressed = true;
@@ -51,7 +52,7 @@ namespace Tmpl8
 			}
 			break;
 		case 82: // UP.
-			if (not upKey.isPressed)
+			if (!upKey.isPressed)
 			{
 				upKey.isActive = true;
 				upKey.isPressed = true;
@@ -59,7 +60,7 @@ namespace Tmpl8
 			}
 			break;
 		case 81: // DOWN.
-			if (not downKey.isPressed)
+			if (!downKey.isPressed)
 			{
 				downKey.isActive = true;
 				downKey.isPressed = true;
@@ -74,8 +75,6 @@ namespace Tmpl8
 		switch (key)
 		{
 		case 80: // LEFT.
-			startloop = true;
-
 			leftKey.isActive = false;
 			leftKey.isPressed = false;
 			break;
@@ -99,16 +98,30 @@ namespace Tmpl8
 	// -----------------------------------------------------------
 	void Game::Init()
 	{
-		Surface new_window(400, 400);
-
-		// Prepare next level.
-		BuildNextLevel();
+		PrepareNextLevel();
 	}
 
-	void Game::BuildNextLevel()
+	void Game::PrepareNextLevel()
+	{
+		//BuildLevel();
+		//SetPlayerStartPosition(); // may not need
+		RegisterLevelCollidables();
+	}
+
+	void Game::BuildLevel()
 	{
 		level_id = 1;
-		current_level.CreateLevel(level_id); // starts at 1.
+		level.CreateLevel(level_id); // starts at 1.
+	}
+
+	void Game::SetPlayerStartPosition()
+	{
+		player.SetPosition(level.m_player_start_position);
+	}
+
+	void Game::RegisterLevelCollidables()
+	{
+		collision_manager.SetNewLevel(level);
 	}
 
 	// -----------------------------------------------------------
@@ -119,32 +132,19 @@ namespace Tmpl8
 
 	// -----------------------------------------------------------
 	// Main application tick function
-	// -----------------------------------------------------------
-	
+	// -----------------------------------------------------------	
 	void Game::Tick(float deltaTime)
 	{
-		// clear screen.
 		// Convert to seconds.
 		deltaTime *= 0.001;
 		deltaTime = Clamp(deltaTime, 0.0f, 0.02f);
 
-		if (true)
-		{
-			current_level.Update(deltaTime, leftKey, rightKey, upKey, downKey);
-			current_level.CollisionLoop();
+		player.Update(deltaTime, leftKey, rightKey, upKey, downKey);
+		//level.Update(deltaTime, leftKey, rightKey, upKey, downKey);
+		//level.CollisionLoop();
+		collision_manager.UpdateCollisions();
 
-			/*switch (loop_switch)
-			{
-			case -1:
-				current_level.Update(deltaTime, leftKey, rightKey, upKey, downKey);
-				break;
-			case 1:
-				current_level.CollisionLoop();
-				break;
-			}
-			loop_switch *= -1;*/
-		}
-
-		current_level.Draw();
+		level.Draw(screen);
+		player.Draw(screen);
 	}
 };

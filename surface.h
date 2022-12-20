@@ -36,7 +36,7 @@ inline Pixel MixAlpha(Pixel over_color, float over_color_opacity, Pixel under_co
 	// Credit: Jeremiah :P
 	unsigned int nR = (int)((oR * over_color_opacity) + (uR * (1.0f - over_color_opacity))) << 16;
 	unsigned int nG = (int)((oG * over_color_opacity) + (uG * (1.0f - over_color_opacity))) << 8;
-	unsigned int nB = ((oB * over_color_opacity) + (uB * (1.0f - over_color_opacity)));
+	unsigned int nB = (int)((oB * over_color_opacity) + (uB * (1.0f - over_color_opacity)));
 
 	return (nR + nG + nB);
 }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <forward_list>
 
 #include "key_state.h"
 #include "collidable.h"
@@ -18,18 +19,20 @@ namespace Tmpl8
 	class Level
 	{
 	public:
-		Level(Surface* screen);		
+		Level(int level_id);		
 		void CreateLevel(int level_id);
-		void Update(float deltaTime, keyState& leftKey, keyState& rightKey, keyState& upKey, keyState& downKey);
-		void Draw();
-		void CheckForCollisions();
+		void Draw(Surface* screen);
 
-		void CollisionLoop();
+		std::vector<Collidable*>& GetViewportCollidables();
+		std::vector<Collidable*>& GetPlayerCollidables();
+
+		vec2 m_player_start_position{ 0.0f, 0.0f };
+
 
 	private:
 		// METHODS
 		void CreateComponents();
-		void CreatePlayer(int x, int y);
+		void SetPlayerStartPosition(int x, int y);
 		void CreateObstacle(int x, int y, Pixel hex_type);
 		/* Setup autotiles */
 		int GetAutotileId(int x, int y);
@@ -37,23 +40,17 @@ namespace Tmpl8
 		void CleanupAutotileId(int& autotile_id);		
 		CollidableType GetCollidableType(int autotile_id, Pixel hex_type);
 		int GetFrameId(int autotile_id);
-		/* Collision checking process. */
-		std::vector<std::vector<Collidable*>> GetXAxisOverlaps();
-		void SortCollidablesOnXAxis();
-		std::vector<std::vector<Collidable*>> GetCollisions(std::vector<std::vector<Collidable*>>& x_overlaps);
-		void NotifyCollisionPairs(std::vector<std::vector<Collidable*>>& collisions);
-
 		
-
 		// ATTRIBUTES
-		Surface* m_screen{ nullptr };
 		Surface m_blueprints{ "assets/level-t.png" };
 		Surface m_background{ "assets/noise-robson.png" }; // credit: https://robson.plus/white-noise-image-generator/	
 		Surface m_tilemap_smooth{"assets/tilemap_smooth_64x.png"};
-		Surface m_tilemap_rough{ "assets/tilemap_rough.png" };
-		Player m_player;
-		std::vector<Collidable*> collidables;
-		std::vector<Obstacle> obstacles;
+		Surface m_tilemap_rough{ "assets/tilemap_rough.png" };		
+
+		std::vector<Obstacle> m_obstacles;
+		std::vector<Collidable*> m_player_collidables;
+		std::vector<Collidable*> m_viewport_collidables;
+
 		level_blueprint m_current_level_blueprint{ 0, 0, 10, 10 };
 		int m_level_id{ 0 };
 	};

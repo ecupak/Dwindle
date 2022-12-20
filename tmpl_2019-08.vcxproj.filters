@@ -13,6 +13,8 @@
     <ClCompile Include="collidable.cpp" />
     <ClCompile Include="player.cpp" />
     <ClCompile Include="detector_point.cpp" />
+    <ClCompile Include="collision_manager.cpp" />
+    <ClCompile Include="viewport.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="game.h" />
@@ -30,6 +32,8 @@
     <ClInclude Include="detector_point.h" />
     <ClInclude Include="standard_form.h" />
     <ClInclude Include="intersection.h" />
+    <ClInclude Include="collision_manager.h" />
+    <ClInclude Include="viewport.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="template code">

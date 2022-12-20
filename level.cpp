@@ -27,20 +27,14 @@ namespace Tmpl8
 	constexpr unsigned int BOTTOM_RIGHT = 128;
 	
 	// Constructor.
-	Level::Level(Surface* screen) :
-		m_screen{ screen },
-		m_player{ Player{screen} }
+	Level::Level(int level_id)
 	{
 		m_current_level_blueprint.height = BLUEPRINT_SIZE;
 		m_current_level_blueprint.width = BLUEPRINT_SIZE;
 
 		m_background.Bar(0, 0, m_background.GetWidth(), m_background.GetHeight(), 0xff000000, true, 0.8f);
 
-		std::vector<Collidable*> points{ m_player.GetCollisionBoxes() };
-		for (Collidable*& point : points)
-		{
-			collidables.push_back(point);
-		}
+		CreateLevel(level_id);
 	}
 
 
@@ -53,45 +47,31 @@ namespace Tmpl8
 	}
 
 
-	void Level::Update(float deltaTime, keyState& leftKey, keyState& rightKey, keyState& upKey, keyState& downKey)
+	void Level::Draw(Surface* screen)
 	{
-		int x{ -leftKey.isActive + rightKey.isActive };
-		int y{ -upKey.isActive + downKey.isActive };
-
-		// Move player.
-		m_player.update(deltaTime, leftKey, rightKey, upKey, downKey);
-		/*
-		if (x != 0 || y != 0)
-			m_player.Move(x * deltaTime, y * deltaTime);
-		*/
-	}
-
-
-	void Level::CollisionLoop()
-	{
-		// Detect collision.
-		CheckForCollisions();
-		m_player.ProcessCollisions();
-	}
-
-
-	void Level::Draw()
-	{
-		// Draw background.
-		//m_background.CopyTo(m_screen, 0, 0);
-		m_screen->Clear(0xFF000000);
+		//m_background.CopyTo(screen, 0, 0);
+		screen->Clear(0);
 
 		// Draw level components. (will mix with glow Surface first).
-		for (Obstacle& obstacle : obstacles)
+		for (Obstacle& obstacle : m_obstacles)
 		{
-			obstacle.Draw(m_screen);
+			obstacle.Draw(screen);
 		}
-
-		// Draw ball. 
-		m_player.draw(m_screen);
 	}
 
-	
+
+	std::vector<Collidable*>& Level::GetViewportCollidables()
+	{
+		return m_viewport_collidables;
+	}
+
+
+	std::vector<Collidable*>& Level::GetPlayerCollidables()
+	{
+		return m_player_collidables;
+	}
+
+
 	// Create and place components.
 	void Level::CreateComponents()
 	{
@@ -114,7 +94,7 @@ namespace Tmpl8
 					break;
 				case STARTING_HEX:
 					// Set player x,y.
-					CreatePlayer(x, y);
+					SetPlayerStartPosition(x, y);
 					break;
 				default:
 					break;
@@ -124,17 +104,19 @@ namespace Tmpl8
 		}
 
 		// Add obstacles that can interact with player to collidables list.
-		for (Obstacle& obstacle : obstacles)
+		for (Obstacle& obstacle : m_obstacles)
 		{
 			if (obstacle.m_object_type != CollidableType::UNREACHABLE)
-				collidables.push_back(&obstacle);
+				m_player_collidables.push_back(&obstacle);
 		}
 	}
 
 
-	void Level::CreatePlayer(int x, int y)
+	void Level::SetPlayerStartPosition(int x, int y)
 	{
-		m_player.SetPosition(x * TILE_SIZE, y * TILE_SIZE);
+		m_player_start_position = vec2{
+			static_cast<float>(x * TILE_SIZE), static_cast<float>(y * TILE_SIZE)
+		};
 	}
 
 
@@ -150,7 +132,7 @@ namespace Tmpl8
 		Surface* tilemap{ hex_type == SMOOTH_HEX ? &m_tilemap_smooth : &m_tilemap_rough };
 		Obstacle obstacle{ x, y, TILE_SIZE, type, tilemap, AUTOTILE_MAP_FRAME_COUNT, frame_id };
 				
-		obstacles.push_back(obstacle);
+		m_obstacles.push_back(obstacle);
 	}
 
 
@@ -315,104 +297,4 @@ namespace Tmpl8
 		default:	return 27; // isolated wall (case 0).
 		}
 	}
-
-	
-
-	/*
-		Collision checking for all collidables processed here.
-		When a colliding pair is found, each collidable is passed
-		a pointer to the thing it collided with.
-
-		With a very many thanks to YulyaLesheva for the example code and explanatory graphic
-		of the sweep and prune method: https://github.com/YulyaLesheva/Sweep-And-Prune-algorithm
-	*/
-
-	void Level::CheckForCollisions()
-	{
-		// Sort by x-axis first.
-		SortCollidablesOnXAxis();
-
-		// Get list of overlaps.
-		std::vector<std::vector<Collidable*>> x_overlaps = GetXAxisOverlaps();
-
-		std::vector<std::vector<Collidable*>> collisions = GetCollisions(x_overlaps);
-
-		NotifyCollisionPairs(collisions);
-	}
-
-
-	void Level::SortCollidablesOnXAxis()
-	{
-		/* Sort by left-most x-position of each collidable. */
-
-		std::sort(collidables.begin(), collidables.end(),
-			[=](Collidable* a, Collidable* b) { return a->left < b->left; });
-	}
-
-
-	std::vector<std::vector<Collidable*>> Level::GetXAxisOverlaps()
-	{
-		/* The outer look goes through all collidables. The current collidable is the focus.
-			After the focus has been compared to its neighbors for overlap, it is put in the
-			neighboringList and will be compared against the future focused collidables.
-			If a neighboring collidable has no overlap with the focus, it is removed from the list
-			(because everything is sorted by their left-most x-component, the future focuses will only
-			move further away from it - no overlap will happen again). Otherwise, they are saved as a pair. */
-
-		std::vector<std::vector<Collidable*>> allPairs; // Collision pairs.
-		std::vector<Collidable*> neighborList; // Collidables to compare against.
-
-		for (auto focus{ 0 }; focus < collidables.size(); focus++)
-		{
-			for (auto neighbor{ 0 }; neighbor < neighborList.size(); neighbor++)	// Always things to the left of the focus.
-			{
-				if (collidables[focus]->left > neighborList[neighbor]->right)		// If [neighbor] ... [focus] <boxes with gap between>
-				{
-					neighborList.erase(neighborList.begin() + neighbor);
-					neighbor--;
-				}
-				else
-				{
-					std::vector<Collidable*> collisionPair;
-					collisionPair.push_back(collidables[focus]);
-					collisionPair.push_back(neighborList[neighbor]);
-					allPairs.push_back(collisionPair);
-				}
-			}
-			neighborList.push_back(collidables[focus]);
-		}
-		return allPairs;
-	}
-
-
-	std::vector<std::vector<Collidable*>> Level::GetCollisions(std::vector<std::vector<Collidable*>>& x_overlaps)
-	{
-		/* For each x_overlap pair (potential collisions), compare their y-values. If the collidable's
-			top is above the other's bottom, and its bottom is under the other's top, they collide. */
-
-		std::vector<std::vector<Collidable*>> allPairs; // Collision pairs.
-
-		for (std::vector<Collidable*> potentialCollision : x_overlaps)
-		{
-			if (potentialCollision.front()->top <= potentialCollision.back()->bottom
-				&& potentialCollision.front()->bottom >= potentialCollision.back()->top)
-			{				
-				allPairs.push_back(potentialCollision);
-			}
-		}
-		return allPairs;
-	}
-
-
-	void Level::NotifyCollisionPairs(std::vector<std::vector<Collidable*>>& collisions)
-	{
-		/* Notify each collidable it has collided. */
-
-		for (std::vector<Collidable*> collision : collisions)
-		{
-			collision.front()->ResolveCollision(collision.back());
-			collision.back()->ResolveCollision(collision.front());
-		}
-	}
-
 };

@@ -30,21 +30,20 @@ namespace Tmpl8
 
 
 	// Constructor.
-	Player::Player(Surface* screen) :
+	Player::Player(Surface* screen, vec2& start_position) :
 		m_screen{ screen },
 		m_sprite{ Sprite{new Surface("assets/player.png"), 6, true} },
 		half_height{ m_sprite.GetHeight() / 2 },
 		half_width{ m_sprite.GetWidth() / 2 },
 		half_size{ half_height }
 	{
-		center.x = 20.0f;
-		center.y = 200.0f;
-		
 		// Create array of points that will go around circle.
 		for (int i{ 0 }; i < POINTS; i++)
 		{
 			points.push_back(DetectorPoint{ i });
+			//point_ptrs.push_back(new DetectorPoint{ i });
 		}
+		SetPosition(start_position);
 	}
 
 
@@ -52,7 +51,7 @@ namespace Tmpl8
 	// Public methods.
 	// -----------------------------------------------------------
 
-	void Player::update(float deltaTime, keyState& leftKey, keyState& rightKey, keyState& upKey, keyState& downKey)
+	void Player::Update(float deltaTime, keyState& leftKey, keyState& rightKey, keyState& upKey, keyState& downKey)
 	{
 		m_delta_time = deltaTime;
 
@@ -79,19 +78,36 @@ namespace Tmpl8
 			updateAir(leftKey, rightKey);
 			break;
 		}
+
+		// Consider putting UpdatePointPositions() here, so it is called every update.
 	}
 
 
-	void Player::SetPosition(int x, int y)
+	void Player::Draw(Surface* screen)
 	{
-		position = vec2(x, y);
-		center = vec2(x + half_width, y + half_height);
+		for (DetectorPoint& point : points)
+		{
+			screen->Box(point.left, point.top, point.right, point.bottom, 0xFFFFFFFF);
+		}
+
+		//m_sprite.Draw(screen, position.x, position.y);
+	}
+
+
+	void Player::SetPosition(vec2 start_position)
+	{
+		position = start_position;
+		center = vec2(start_position.x + half_width, start_position.y + half_height);
 		SetPointPositions();
 	}
 
 
 	void Player::SetPointPositions()
 	{
+		/*for (DetectorPoint& point : points)
+		{
+			point.SetPosition(center, half_size);
+		}*/
 		for (DetectorPoint& point : points)
 		{
 			point.SetPosition(center, half_size);
@@ -99,17 +115,18 @@ namespace Tmpl8
 	}
 
 
-	std::vector<Collidable*> Player::GetCollisionBoxes()
+	std::vector<DetectorPoint>& Player::GetCollisionPoints()
 	{
-		// Convert DetectorPoint to Collidable* objects.
-
-		std::vector<Collidable*> collisions;
-		for (DetectorPoint& point : points)
-		{
-			collisions.push_back(&point);
-		}
-
-		return collisions;
+		//std::vector<Collidable*> collision_points;
+		//for (DetectorPoint& point : points)
+		//{
+		//	printf("DP ptr: %p\n", &point);
+		//	collision_points.push_back(&point);
+		//	printf("C ptr: %p\n", &(*(collision_points.back())));
+		//	//collision_points.push_back(&point);
+		//}
+	
+		return points;
 	}
 
 
@@ -128,7 +145,7 @@ namespace Tmpl8
 		vec2 ricochet_speed{ 0.0f, 0.0f };
 
 		// Get change in position after collision, and the new mode.
-		for (DetectorPoint& point : points)
+		for (DetectorPoint& point : points)		
 		{			
 			if (point.CheckForCollisions())
 			{
@@ -201,21 +218,10 @@ namespace Tmpl8
 	}
 
 
-
-	void Player::draw(Surface* screen)
-	{
-		for (DetectorPoint& point : points)
-		{
-			screen->Box(point.left, point.top, point.right, point.bottom, 0xFFFFFFFF);
-		}
-
-		//m_sprite.Draw(screen, position.x, position.y);
-	}
-
-
 	void Player::UpdatePointPositions()
 	{
-		ApplySpeedToPosition();
+		prev_position = position;
+		position += speed;
 
 		for (DetectorPoint& point : points)
 		{
@@ -223,12 +229,6 @@ namespace Tmpl8
 		}
 	}
 
-
-	void Player::ApplySpeedToPosition()
-	{
-		prev_position = position;
-		position += speed;
-	}
 
 	/*
 		This section covers actions while in the air (or about to collide).

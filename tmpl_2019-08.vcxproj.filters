@@ -8,13 +8,34 @@
     <ClCompile Include="template.cpp">
       <Filter>template code</Filter>
     </ClCompile>
-    <ClCompile Include="obstacle.cpp" />
-    <ClCompile Include="level.cpp" />
-    <ClCompile Include="collidable.cpp" />
-    <ClCompile Include="player.cpp" />
-    <ClCompile Include="detector_point.cpp" />
-    <ClCompile Include="collision_manager.cpp" />
     <ClCompile Include="viewport.cpp" />
+    <ClCompile Include="glow_manager.cpp">
+      <Filter>Glow Files</Filter>
+    </ClCompile>
+    <ClCompile Include="glow_orb.cpp">
+      <Filter>Glow Files</Filter>
+    </ClCompile>
+    <ClCompile Include="glow_socket.cpp">
+      <Filter>Glow Files</Filter>
+    </ClCompile>
+    <ClCompile Include="collision_manager.cpp">
+      <Filter>Collision Files</Filter>
+    </ClCompile>
+    <ClCompile Include="collidable.cpp">
+      <Filter>Collision Files</Filter>
+    </ClCompile>
+    <ClCompile Include="obstacle.cpp">
+      <Filter>Level Files</Filter>
+    </ClCompile>
+    <ClCompile Include="level.cpp">
+      <Filter>Level Files</Filter>
+    </ClCompile>
+    <ClCompile Include="player.cpp">
+      <Filter>Player Files</Filter>
+    </ClCompile>
+    <ClCompile Include="detector_point.cpp">
+      <Filter>Player Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="game.h" />
@@ -24,20 +45,57 @@
     <ClInclude Include="template.h">
       <Filter>template code</Filter>
     </ClInclude>
-    <ClInclude Include="obstacle.h" />
-    <ClInclude Include="level.h" />
-    <ClInclude Include="collidable.h" />
-    <ClInclude Include="player.h" />
     <ClInclude Include="key_state.h" />
-    <ClInclude Include="detector_point.h" />
-    <ClInclude Include="standard_form.h" />
-    <ClInclude Include="intersection.h" />
-    <ClInclude Include="collision_manager.h" />
     <ClInclude Include="viewport.h" />
+    <ClInclude Include="glow_manager.h">
+      <Filter>Glow Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glow_orb.h">
+      <Filter>Glow Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glow_socket.h">
+      <Filter>Glow Files</Filter>
+    </ClInclude>
+    <ClInclude Include="standard_form.h">
+      <Filter>Collision Files</Filter>
+    </ClInclude>
+    <ClInclude Include="intersection.h">
+      <Filter>Collision Files</Filter>
+    </ClInclude>
+    <ClInclude Include="collision_manager.h">
+      <Filter>Collision Files</Filter>
+    </ClInclude>
+    <ClInclude Include="collidable.h">
+      <Filter>Collision Files</Filter>
+    </ClInclude>
+    <ClInclude Include="level.h">
+      <Filter>Level Files</Filter>
+    </ClInclude>
+    <ClInclude Include="obstacle.h">
+      <Filter>Level Files</Filter>
+    </ClInclude>
+    <ClInclude Include="player.h">
+      <Filter>Player Files</Filter>
+    </ClInclude>
+    <ClInclude Include="detector_point.h">
+      <Filter>Player Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="template code">
       <UniqueIdentifier>{bf32dd6e-4be7-4889-8ac6-49e7ee163c40}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Glow Files">
+      <UniqueIdentifier>{30bfdf4c-5949-4dc2-a6bd-d50a2670202e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Collision Files">
+      <UniqueIdentifier>{e5ad92fe-99a8-4aa0-be4d-5bf765c27fcb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Level Files">
+      <UniqueIdentifier>{3f573535-8f20-4686-b040-b53936ce7ff3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Player Files">
+      <UniqueIdentifier>{39066450-592a-40a8-863c-b69eff6873a1}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

@@ -90,7 +90,10 @@ namespace Tmpl8
 		switch (c_group)
 		{
 		case CollidableGroup::VIEWPORT:
-			m_viewport_collidables = m_level->GetViewportCollidables();
+			for (GlowOrb& orb : m_level->GetViewportCollidables())
+			{
+				m_player_collidables.push_back(&orb);
+			}
 			break;
 		case CollidableGroup::PLAYER:			
 			m_player_collidables = m_level->GetPlayerCollidables();
@@ -113,10 +116,6 @@ namespace Tmpl8
 			for (DetectorPoint& point : m_player.GetCollisionPoints())
 			{
 				m_player_collidables.push_back(&point);
-			}
-			for (Collidable*& collidable : m_player_collidables)
-			{
-				//collidable->bottom -= 150;
 			}
 			break;
 		}

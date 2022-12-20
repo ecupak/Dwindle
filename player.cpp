@@ -30,7 +30,7 @@ namespace Tmpl8
 
 
 	// Constructor.
-	Player::Player(Surface* screen, vec2& start_position) :
+	Player::Player(Surface* screen) :
 		m_screen{ screen },
 		m_sprite{ Sprite{new Surface("assets/player.png"), 6, true} },
 		half_height{ m_sprite.GetHeight() / 2 },
@@ -43,7 +43,6 @@ namespace Tmpl8
 			points.push_back(DetectorPoint{ i });
 			//point_ptrs.push_back(new DetectorPoint{ i });
 		}
-		SetPosition(start_position);
 	}
 
 
@@ -57,7 +56,7 @@ namespace Tmpl8
 
 		/* Update position and draw sprite. */
 
-		switch (mode)
+		switch (phase)
 		{
 		case Mode::AIR:
 			updateAir(leftKey, rightKey);
@@ -94,7 +93,7 @@ namespace Tmpl8
 	}
 
 
-	void Player::SetPosition(vec2 start_position)
+	void Player::SetPosition(vec2& start_position)
 	{
 		position = start_position;
 		center = vec2(start_position.x + half_width, start_position.y + half_height);
@@ -116,17 +115,14 @@ namespace Tmpl8
 
 
 	std::vector<DetectorPoint>& Player::GetCollisionPoints()
-	{
-		//std::vector<Collidable*> collision_points;
-		//for (DetectorPoint& point : points)
-		//{
-		//	printf("DP ptr: %p\n", &point);
-		//	collision_points.push_back(&point);
-		//	printf("C ptr: %p\n", &(*(collision_points.back())));
-		//	//collision_points.push_back(&point);
-		//}
-	
+	{	
 		return points;
+	}
+
+	
+	void Player::RegisterGlowSocket(GlowSocket& glow_socket)
+	{
+		m_glow_socket = &glow_socket;
 	}
 
 
@@ -200,12 +196,18 @@ namespace Tmpl8
 		}
 		else if (is_ricochet_set)
 			speed = ricochet_speed;
+
+
+		// Update GlowSocket.
+		if (new_mode & ~(NONE))
+			m_glow_socket->SendMessage(center, false);
+		else if (is_ricochet_set)
+			m_glow_socket->SendMessage(center, true);
 	}
 
 
 	/*
-		Borrowed from the user called 'user79785' on Stack Overflow at
-		https://stackoverflow.com/questions/1903954/is-there-a-standard-sign-function-signum-sgn-in-c-c
+		Credit to user79785: https://stackoverflow.com/questions/1903954/is-there-a-standard-sign-function-signum-sgn-in-c-c
 	*/
 	template <typename T>
 	int Player::GetSign(T val) {
@@ -292,7 +294,7 @@ namespace Tmpl8
 //		direction.x = 1.0f;
 		if (direction.x != 0)
 		{
-			if (mode == Mode::AIR)
+			if (phase == Mode::AIR)
 			{
 				speed.x += direction.x * acceleration.x * m_delta_time;
 				speed.x = Clamp(speed.x, -maxSpeed.x, maxSpeed.x);
@@ -306,13 +308,13 @@ namespace Tmpl8
 				{
 					speed.x = 0.0f;
 				}
-				else if (mode == Mode::AIR)
+				else if (phase == Mode::AIR)
 				{
 					float speed_x = fabsf(speed.x) - (m_delta_time * 2.5f);
 					speed_x = Max(speed_x, 0.0f);
 					speed.x = speed_x * (speed.x > 0.0f ? 1 : -1);
 				}
-				else if (mode == Mode::GROUND)
+				else if (phase == Mode::GROUND)
 				{
 					speed.x = 0.0f;
 				}
@@ -349,7 +351,7 @@ namespace Tmpl8
 
 		speed.y = 0.0f;
 		m_sprite.SetFrame(0);
-		mode = Mode::REST;
+		phase = Mode::REST;
 	}
 
 
@@ -375,7 +377,7 @@ namespace Tmpl8
 		}
 
 		// Set next mode.
-		mode = Mode::GROUND;
+		phase = Mode::GROUND;
 	}
 
 
@@ -436,7 +438,7 @@ namespace Tmpl8
 		//m_sprite.SetFrame(newFrame);
 
 		// Set next mode.
-		mode = Mode::WALL;
+		phase = Mode::WALL;
 	}
 
 
@@ -467,7 +469,7 @@ namespace Tmpl8
 		setFrameNormal2Squash();
 
 		// Set next mode.
-		mode = Mode::CEILING;
+		phase = Mode::CEILING;
 	}
 
 
@@ -495,7 +497,7 @@ namespace Tmpl8
 			maxSpeed.x = maxSpeedNormalX;
 
 			// Set next mode.
-			mode = Mode::AIR;
+			phase = Mode::AIR;
 		}
 	}
 
@@ -568,7 +570,7 @@ namespace Tmpl8
 
 		// Set sprite and mode.
 
-		mode = Mode::AIR;
+		phase = Mode::AIR;
 	}
 
 
@@ -631,7 +633,7 @@ namespace Tmpl8
 			maxSpeed.x = maxSpeedNormalX;
 
 			// Set next mode.
-			mode = Mode::AIR;
+			phase = Mode::AIR;
 		}
 	}
 

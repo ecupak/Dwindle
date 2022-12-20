@@ -18,16 +18,92 @@ namespace Tmpl8
 	// -----------------------------------------------------------
 	Game::Game(Surface* surface) :
 		screen{ surface },
-		level{ 1 },
-		player{ surface, level.m_player_start_position },
-		viewport{},
+		level{ },
+		player{ surface },
+		viewport{ },
 		collision_manager{ viewport, player }
 	{	}
 
 	// -----------------------------------------------------------
+	// Initialize the application
+	// -----------------------------------------------------------
+	void Game::Init()
+	{
+		// Container class tracks level.
+		PrepareNextLevel();
+		PreparePlayer();
+		PrepareCollisionManager();
+	}
+
+
+	void Game::PrepareNextLevel()
+	{
+		level_id = 1;
+		level.CreateLevel(level_id); // starts at 1.
+	}
+
+
+	void Game::PreparePlayer()
+	{
+		SetPlayerStartPosition();
+		RegisterGlowSocket();
+	}
+
+
+	void Game::SetPlayerStartPosition()
+	{
+		player.SetPosition(level.GetPlayerStartPosition());
+	}
+
+
+	void Game::RegisterGlowSocket()
+	{
+		player.RegisterGlowSocket(level.GetGlowSocket());
+	}
+
+
+	void Game::PrepareCollisionManager()
+	{
+		collision_manager.SetNewLevel(level);
+	}
+
+
+	// -----------------------------------------------------------
+	// Close down application
+	// -----------------------------------------------------------
+	void Game::Shutdown()
+	{}
+
+	// -----------------------------------------------------------
+	// Main application tick function
+	// -----------------------------------------------------------	
+	void Game::Tick(float deltaTime)
+	{
+		// Convert to seconds.
+		deltaTime *= 0.001;
+		deltaTime = Clamp(deltaTime, 0.0f, 0.02f);
+
+		// Move player. Trigger new GlowOrb creation.
+		player.Update(deltaTime, leftKey, rightKey, upKey, downKey);
+
+		// Update GlowOrbs (destroy old, create new, update sizes).
+		level.Update();
+
+		// Decide what has run into what.
+		collision_manager.UpdateCollisions();
+
+		// Show level.
+		level.Draw(screen);
+
+		// Show player.
+		player.Draw(screen);
+	}
+
+
+	// -----------------------------------------------------------
 	// Key events
 	// -----------------------------------------------------------
-	
+
 	/* Register key press only if the key was not already being pressed
 		(must register key release first). */
 
@@ -84,67 +160,12 @@ namespace Tmpl8
 			break;
 		case 82: // UP.
 			upKey.isActive = false;
-			upKey.isPressed = false;			
+			upKey.isPressed = false;
 			break;
 		case 81: // DOWN.
 			downKey.isActive = false;
 			downKey.isPressed = false;
 			break;
 		}
-	}
-
-	// -----------------------------------------------------------
-	// Initialize the application
-	// -----------------------------------------------------------
-	void Game::Init()
-	{
-		PrepareNextLevel();
-	}
-
-	void Game::PrepareNextLevel()
-	{
-		//BuildLevel();
-		//SetPlayerStartPosition(); // may not need
-		RegisterLevelCollidables();
-	}
-
-	void Game::BuildLevel()
-	{
-		level_id = 1;
-		level.CreateLevel(level_id); // starts at 1.
-	}
-
-	void Game::SetPlayerStartPosition()
-	{
-		player.SetPosition(level.m_player_start_position);
-	}
-
-	void Game::RegisterLevelCollidables()
-	{
-		collision_manager.SetNewLevel(level);
-	}
-
-	// -----------------------------------------------------------
-	// Close down application
-	// -----------------------------------------------------------
-	void Game::Shutdown()
-	{}
-
-	// -----------------------------------------------------------
-	// Main application tick function
-	// -----------------------------------------------------------	
-	void Game::Tick(float deltaTime)
-	{
-		// Convert to seconds.
-		deltaTime *= 0.001;
-		deltaTime = Clamp(deltaTime, 0.0f, 0.02f);
-
-		player.Update(deltaTime, leftKey, rightKey, upKey, downKey);
-		//level.Update(deltaTime, leftKey, rightKey, upKey, downKey);
-		//level.CollisionLoop();
-		collision_manager.UpdateCollisions();
-
-		level.Draw(screen);
-		player.Draw(screen);
 	}
 };

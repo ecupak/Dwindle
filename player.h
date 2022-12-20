@@ -5,6 +5,7 @@
 #include "key_state.h"
 #include "template.h"
 #include "surface.h"
+#include "glow_socket.h"
 
 namespace Tmpl8 {
 	enum class Trigger // Action to trigger wall bounce.
@@ -34,11 +35,11 @@ namespace Tmpl8 {
 	public:
 		// Methods.
 		// Structor.
-		Player(Surface* screen, vec2& start_position);
+		Player(Surface* screen);
 		
 		void Update(float deltaTime, keyState& leftKey, keyState& rightKey, keyState& upKey, keyState& downKey);
 		void Draw(Surface* screen);
-		void SetPosition(vec2 start_position);
+		void SetPosition(vec2& start_position);
 		
 		std::vector<DetectorPoint>& GetCollisionPoints();
 		virtual void ResolveCollision(Collidable*& collision);
@@ -49,6 +50,8 @@ namespace Tmpl8 {
 		std::vector<DetectorPoint*> point_ptrs;
 		void SetPointPositions();
 		void UpdatePointPositions();
+
+		void RegisterGlowSocket(GlowSocket& glow_socket);
 
 	private:
 		/* METHODS */
@@ -96,6 +99,8 @@ namespace Tmpl8 {
 
 		/* ATTRIBUTES */
 
+		GlowSocket* m_glow_socket;
+
 		// Screen reference.
 		Surface* m_screen;
 
@@ -106,7 +111,7 @@ namespace Tmpl8 {
 		int half_size;
 
 		// State change tracker.
-		Mode mode{ Mode::NONE };
+		Mode phase{ Mode::NONE };
 
 
 		float m_delta_time{ 0.0f };

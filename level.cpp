@@ -27,14 +27,13 @@ namespace Tmpl8
 	constexpr unsigned int BOTTOM_RIGHT = 128;
 	
 	// Constructor.
-	Level::Level(int level_id)
+	Level::Level() :
+		m_glow_manager{}
 	{
 		m_current_level_blueprint.height = BLUEPRINT_SIZE;
 		m_current_level_blueprint.width = BLUEPRINT_SIZE;
 
 		m_background.Bar(0, 0, m_background.GetWidth(), m_background.GetHeight(), 0xff000000, true, 0.8f);
-
-		CreateLevel(level_id);
 	}
 
 
@@ -59,10 +58,14 @@ namespace Tmpl8
 		}
 	}
 
-
-	std::vector<Collidable*>& Level::GetViewportCollidables()
+	void Level::Update()
 	{
-		return m_viewport_collidables;
+		m_glow_manager.Update();
+	}
+
+	std::vector<GlowOrb>& Level::GetViewportCollidables()
+	{
+		return m_glow_manager.GetViewportCollidables();
 	}
 
 
@@ -72,6 +75,17 @@ namespace Tmpl8
 	}
 
 
+	GlowSocket& Level::GetGlowSocket()
+	{
+		return m_glow_manager.GetGlowSocket();
+	}
+
+
+	vec2& Level::GetPlayerStartPosition()
+	{
+		return m_player_start_position;
+	}
+		
 	// Create and place components.
 	void Level::CreateComponents()
 	{

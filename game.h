@@ -3,6 +3,9 @@
 #include "key_state.h"
 #include "template.h"
 #include "level.h"
+#include "player.h"
+#include "viewport.h"
+#include "collision_manager.h"
 
 namespace Tmpl8 {
 
@@ -22,16 +25,26 @@ public:
 	void KeyDown(int key);
 
 private:
-	void Game::BuildNextLevel();
+	void PrepareNextLevel();
+	void BuildLevel();
+	void SetPlayerStartPosition();
+	void RegisterLevelCollidables();
 
 	// ATTRIBUTES
+	// Core classes.
+	Level level;
+	Player player;
+	Viewport viewport;
+	
+	CollisionManager collision_manager;
+
 	Surface* screen{ nullptr };
 	keyState leftKey;
 	keyState rightKey;
 	keyState upKey;
 	keyState downKey;
+	
 
-	Level current_level;
 	int level_id{ 1 };
 
 	bool startloop{ false };

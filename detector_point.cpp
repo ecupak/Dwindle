@@ -1,7 +1,7 @@
 #include "detector_point.h"
 
 #include <cstdio> //printf
-#include <cmath> // Round()
+#include <cmath> // floor
 
 namespace Tmpl8
 {
@@ -37,7 +37,9 @@ namespace Tmpl8
 
 	DetectorPoint::DetectorPoint(int assigned_post) :
 		post{ assigned_post }
-	{	}
+	{	
+		m_object_type = CollidableType::PLAYER;
+	}
 
 
 	void DetectorPoint::SetPosition(vec2& center, int radius)
@@ -60,6 +62,9 @@ namespace Tmpl8
 		position += speed;
 				
 		UpdateCollisionBox();
+
+		if (bottom >= 448)
+			int x = 5;
 	}
 
 
@@ -76,10 +81,10 @@ namespace Tmpl8
 			We are in pixel-space and will only use whole numbers.
 		*/
 
-		left = trunc(prev_position.x < position.x ? prev_position.x : position.x);
-		right = trunc(prev_position.x < position.x ? position.x : prev_position.x);
-		top = trunc(prev_position.y < position.y ? prev_position.y : position.y);
-		bottom = trunc(prev_position.y < position.y ? position.y : prev_position.y);
+		left = (int)floor(prev_position.x < position.x ? prev_position.x : position.x);
+		right = (int)floor(prev_position.x < position.x ? position.x : prev_position.x);
+		top = (int)floor(prev_position.y < position.y ? prev_position.y : position.y);
+		bottom = (int)floor(prev_position.y < position.y ? position.y : prev_position.y);
 	}
 
 
@@ -125,7 +130,10 @@ namespace Tmpl8
 
 	void DetectorPoint::UpdatePreviousPosition()
 	{
-		/* Needed for when player enters non-AIR state and stops updating position. */
+		/*
+			Needed for when player enters non-AIR state and stops updating position.
+			If not done, prev position may stay inside an object.	
+		*/
 		prev_position = position;
 	}
 
@@ -138,10 +146,12 @@ namespace Tmpl8
 
 		if (collisions.size() == 0)
 			return false;
-
-
-		if (post == 6 && position.y > 512.0f)
-			int h = 0;
+		
+		// Precalculate the rounding down and conversion to int.
+		int i_pre_pos_x{ (int)floor(prev_position.x) },
+			i_pre_pos_y{ (int)floor(prev_position.y) },
+			i_pos_x{ (int)floor(position.x) },
+			i_pos_y{ (int)floor(position.y) };
 
 		/*
 			Use the previous position and current position
@@ -154,24 +164,24 @@ namespace Tmpl8
 			Use standard form: Ax + By + C = 0.
 		*/
 
-		float rise = (trunc(prev_position.y) - trunc(position.y));
-		float run = (trunc(prev_position.x) - trunc(position.x));
+		int rise = (i_pre_pos_y - i_pos_y);
+		int run = (i_pre_pos_x - i_pos_x);
 
 		StandardForm line1{};
 
-		if (rise == 0.0f)
+		if (rise == 0)
 		{
-			line1.SetVars(0.0f, 1.0f, -trunc(position.y));
+			line1.SetVars(0.0f, 1.0f, static_cast<float>(-i_pos_y));
 		}
-		else if (run == 0.0f)
+		else if (run == 0)
 		{
-			line1.SetVars(1.0f, 0.0f, -trunc(position.x));
+			line1.SetVars(1.0f, 0.0f, static_cast<float>(-i_pos_x));
 		}
 		else
 		{
 			// Y = mX + B
-			float m{ rise / run };
-			float B{ trunc(position.y) - (m * trunc(position.x)) };
+			float m{ static_cast<float>(rise / run) };
+			float B{ i_pos_y - (m * i_pos_x) };
 
 			line1.SetVars(-m, 1.0f, -B);
 		}
@@ -219,8 +229,8 @@ namespace Tmpl8
 
 			if (!collision_found)
 			{
-				if (trunc(position.x) >= collision->left && trunc(position.x) <= collision->right
-					&& trunc(position.y) >= collision->top && trunc(position.y) <= collision->bottom)
+				if (i_pos_x >= collision->left && i_pos_x <= collision->right
+					&& i_pos_y >= collision->top && i_pos_y <= collision->bottom)
 				{
 					printf("Currently in object but not detected!");
 				}
@@ -242,35 +252,17 @@ namespace Tmpl8
 			// First find intersection points nearest to previous position
 			// This will tell us what was hit first, before anything else.
 			float closest_distance{ 1024.0f };
-			std::vector<Intersection> close_intersections{};
-
 			for (Intersection& intersection : intersections)
 			{
-				float dist_x{ intersection.m_intersection.x - trunc(prev_position.x) };
-				float dist_y{ intersection.m_intersection.y - trunc(prev_position.y) };
+				float dist_x{ intersection.m_intersection.x - i_pre_pos_x };
+				float dist_y{ intersection.m_intersection.y - i_pre_pos_y };
 				float distance{ (dist_x * dist_x) + (dist_y * dist_y) };
 				if (distance <= closest_distance)
 				{
 					closest_intersection = intersection;
-					//close_intersections.push_back(intersection);
 					closest_distance = distance;
 				}
 			}
-
-			// If we have ties for nearest intersection, use the one where
-			// we penetrated into the object the most. This will give us
-			// the correct buffer to use later, because this intersection
-			// will be associated with the correct EdgeCrossed value.
-			for (Intersection& intersection : close_intersections)
-			{
-				int max_penetration{ 0 };
-				if (intersection.m_penetration >= max_penetration)
-				{
-					closest_intersection = intersection;
-					max_penetration = intersection.m_penetration;
-				}
-			}
-
 		}		
 
 		/*
@@ -284,8 +276,8 @@ namespace Tmpl8
 				Find the distance needed to move to collision point.
 				Then move 1 additional unit away from the edge to prevent another collision.
 			*/
-			delta_position.x = closest_intersection.m_intersection.x - trunc(position.x);
-			delta_position.y = closest_intersection.m_intersection.y - trunc(position.y);
+			delta_position.x = closest_intersection.m_intersection.x - i_pos_x;
+			delta_position.y = closest_intersection.m_intersection.y - i_pos_y;
 			delta_position += GetCollisionBuffer(closest_intersection.m_collision_edge_crossed);
 
 
@@ -337,16 +329,16 @@ namespace Tmpl8
 		switch (collision_edge_crossed)
 		{
 		case EdgeCrossed::LEFT:
-			std_form.SetVars(1.0f, 0.0f, -collision_object->left);
+			std_form.SetVars(1.0f, 0.0f, static_cast<float>(-collision_object->left));
 			break;
 		case EdgeCrossed::RIGHT:
-			std_form.SetVars(1.0f, 0.0f, -collision_object->right);
+			std_form.SetVars(1.0f, 0.0f, static_cast<float>(-collision_object->right));
 			break;
 		case EdgeCrossed::TOP:
-			std_form.SetVars(0.0f, 1.0f, -collision_object->top);
+			std_form.SetVars(0.0f, 1.0f, static_cast<float>(-collision_object->top));
 			break;
 		case EdgeCrossed::BOTTOM:
-			std_form.SetVars(0.0f, 1.0f, -collision_object->bottom);
+			std_form.SetVars(0.0f, 1.0f, static_cast<float>(-collision_object->bottom));
 			break;
 		}
 	}
@@ -377,13 +369,13 @@ namespace Tmpl8
 		switch (collision_edge_crossed)
 		{
 		case EdgeCrossed::LEFT:
-			return abs(collision_object->left - trunc(position.x));
+			return abs(collision_object->left - (int)floor(position.x));
 		case EdgeCrossed::RIGHT:
-			return abs(collision_object->right - trunc(position.x));
+			return abs(collision_object->right - (int)floor(position.x));
 		case EdgeCrossed::TOP:
-			return abs(collision_object->top - trunc(position.y));
+			return abs(collision_object->top - (int)floor(position.y));
 		case EdgeCrossed::BOTTOM:
-			return abs(collision_object->bottom - trunc(position.y));
+			return abs(collision_object->bottom - (int)floor(position.y));
 		}
 	}
 
@@ -419,7 +411,7 @@ namespace Tmpl8
 	}
 
 
-	int DetectorPoint::GetNextMode()
+	constexpr int DetectorPoint::GetNextMode()
 	{
 		/*
 			Hits on the cardinal points will put the player in a new mode.
@@ -435,6 +427,8 @@ namespace Tmpl8
 			return WALL;
 		case BOTTOM:
 			return GROUND;
+		default:
+			return NONE; // Shouldn't reach.
 		}
 	}
 

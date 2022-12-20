@@ -42,7 +42,7 @@ namespace Tmpl8
 		vec2 GetIntersection(StandardForm& line1, StandardForm& line2);
 		bool GetIsIntersectionInBounds(vec2& intersection, Collidable*& collision_object);
 
-		int GetNextMode();
+		constexpr int GetNextMode();
 		bool GetIsRicochetCollision(EdgeCrossed& collision_edge_crossed);
 
 		void ResolveSmoothCollision(Intersection& intersection_info);

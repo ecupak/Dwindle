@@ -29,14 +29,13 @@ namespace Tmpl8
 		virtual void ResolveCollision(std::vector<Collidable*> collisions) {};
 
 		// ATTRIBUTES
-		float left{ 0.0f }, right{ 0.0f }, top{ 0.0f }, bottom{ 0.0f };
+		int left{ 0 }, right{ 0 }, top{ 0 }, bottom{ 0 };
 		vec2 center{ 0.0f, 0.0f };
 		int m_id{ 0 };
 		CollidableType m_object_type{ CollidableType::UNKNOWN };
 
 	private:
 		static int id_generator;
-
 	};
 
 };

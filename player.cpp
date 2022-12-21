@@ -30,12 +30,13 @@ namespace Tmpl8
 
 
 	// Constructor.
-	Player::Player(Surface* screen) :
+	Player::Player(Surface* screen, keyState& leftKey, keyState& rightKey, keyState& upKey, keyState& downKey) :
 		m_screen{ screen },
 		m_sprite{ Sprite{new Surface("assets/player.png"), 6, true} },
 		half_height{ m_sprite.GetHeight() / 2 },
 		half_width{ m_sprite.GetWidth() / 2 },
-		half_size{ half_height }
+		half_size{ half_height },
+		m_leftKey{ leftKey }, m_rightKey{ rightKey }, m_upKey{ upKey }, m_downKey{ downKey }
 	{
 		// Create array of points that will go around circle.
 		for (int i{ 0 }; i < POINTS; i++)
@@ -49,7 +50,7 @@ namespace Tmpl8
 	// Public methods.
 	// -----------------------------------------------------------
 
-	void Player::Update(float deltaTime, keyState& leftKey, keyState& rightKey, keyState& upKey, keyState& downKey)
+	void Player::Update(float deltaTime)
 	{
 		m_delta_time = deltaTime;
 
@@ -58,13 +59,13 @@ namespace Tmpl8
 		switch (mode)
 		{
 		case Mode::AIR:
-			updateAir(leftKey, rightKey);
+			updateAir();
 			break;
 		case Mode::GROUND:
-			updateGround(leftKey, rightKey);
+			updateGround();
 			break;
 		case Mode::WALL:
-			updateWall(leftKey, rightKey, upKey, downKey);
+			updateWall();
 			break;
 		case Mode::CEILING:
 			updateCeiling();
@@ -73,7 +74,7 @@ namespace Tmpl8
 			break;
 		case Mode::NONE:
 		default:
-			updateAir(leftKey, rightKey);
+			updateAir();
 			break;
 		}
 	}
@@ -239,12 +240,12 @@ namespace Tmpl8
 	*/
 
 
-	void Player::updateAir(keyState& leftKey, keyState& rightKey)
+	void Player::updateAir()
 	{
 		/* Handles movement. */
 
 		updateVerticalMovement();
-		updateHorizontalMovement(leftKey, rightKey);
+		updateHorizontalMovement();
 		UpdatePosition();
 	}
 
@@ -261,29 +262,11 @@ namespace Tmpl8
 	}
 
 
-	void Player::updateHorizontalMovement(keyState& leftKey, keyState& rightKey)
+	void Player::updateHorizontalMovement()
 	{
 		/* Update horizontal position, unless direction locked from weak wall bounce. */
 
-		//if (directionLockedFrameCount <= 0)
-		{
-			updateHorizontalMovementSpeed(leftKey, rightKey);
-		}
-		//else
-		{
-			/*directionLockedFrameCount--;
-			updateFrameDirectionLockRelease();*/
-		}
-	}
-
-
-	void Player::updateHorizontalMovementSpeed(keyState& leftKey, keyState& rightKey)
-	{
-		/* Get direction using bool-to-int conversion. Update speed.x as long as either
-			left or right is pressed. Otherwise, lose all speed (landing precision &
-			accuracy are important). */
-
-		direction.x = -leftKey.isActive + rightKey.isActive;
+		direction.x = -(m_leftKey.isActive) + m_rightKey.isActive;
 		if (direction.x != 0)
 		{
 			if (mode == Mode::AIR)
@@ -311,10 +294,8 @@ namespace Tmpl8
 					speed.x = 0.0f;
 				}
 			}
-			
 		}
 	}
-
 
 
 	void Player::handleGroundCollision()
@@ -406,6 +387,11 @@ namespace Tmpl8
 			prepareForWallMode(Trigger::RIGHT);
 		else
 			prepareForWallMode(Trigger::LEFT);
+
+		m_leftKey.isActive = false;
+		m_rightKey.isActive = false;
+		m_upKey.isActive = false;
+		m_downKey.isActive = false;
 	}
 
 
@@ -420,7 +406,7 @@ namespace Tmpl8
 
 		wallBounceTrigger = trigger;
 		triggerFrameCount = 1.0f;
-
+		
 		//m_sprite.SetFrame(newFrame);
 
 		// Set next mode.
@@ -464,14 +450,14 @@ namespace Tmpl8
 	*/
 
 
-	void Player::updateGround(keyState& leftKey, keyState& rightKey)
+	void Player::updateGround()
 	{
 		/* "Freeze" ball in squash mode for squash frame count. Then bounce back up
 			with equal speed to landing speed. Reset maxSpeed.x to normal speed (is
 			increased after a strong wall bounce). AIR mode handles movement and
 			collisions. */
 
-		updateHorizontalMovementSpeed(leftKey, rightKey);
+		updateHorizontalMovement();
 
 		squashFrameCount -= m_delta_time;
 
@@ -505,25 +491,41 @@ namespace Tmpl8
 	*/
 
 
-	void Player::updateWall(keyState& leftKey, keyState& rightKey, keyState& upKey, keyState& downKey)
+	void Player::updateWall()
 	{
 		/* If trigger window closes with no action, wall bounces weakly off wall.
 			Otherwise it has more powerful bounce. */
 
-		if (downKey.isActive)
+		// Press into the wall - drop down.
+		if (wallBounceTrigger == Trigger::LEFT && m_rightKey.isActive
+			|| wallBounceTrigger == Trigger::RIGHT && m_leftKey.isActive)
 		{
 			BounceStrength wall_bounce_x_power = BounceStrength::NONE;
 			BounceStrength wall_bounce_y_power = BounceStrength::NONE;
+			/*m_leftKey.isActive = false;
+			m_rightKey.isActive = false;*/
 
 			bounceOffWall(wall_bounce_x_power, wall_bounce_y_power);
 		}
-		else if (upKey.isActive
-			|| wallBounceTrigger == Trigger::LEFT && leftKey.isActive
-			|| wallBounceTrigger == Trigger::RIGHT && rightKey.isActive)
+		// Press down - soft release.
+		else if (m_downKey.isActive)
+		{
+			BounceStrength wall_bounce_x_power = BounceStrength::WEAK;
+			BounceStrength wall_bounce_y_power = BounceStrength::NONE;
+			/*m_downKey.isActive = false;*/
+
+			bounceOffWall(wall_bounce_x_power, wall_bounce_y_power);
+		}
+		// Press up or away - strong release.
+		else if (m_upKey.isActive
+			|| wallBounceTrigger == Trigger::LEFT && m_leftKey.isActive
+			|| wallBounceTrigger == Trigger::RIGHT && m_rightKey.isActive)
 		{			
-			BounceStrength wall_bounce_x_power = (upKey.isActive ? BounceStrength::WEAK : BounceStrength::STRONG);
-			BounceStrength wall_bounce_y_power = (upKey.isActive ? BounceStrength::STRONG : BounceStrength::WEAK);
-			upKey.isActive = false;
+			BounceStrength wall_bounce_x_power = (m_upKey.isActive ? BounceStrength::WEAK : BounceStrength::STRONG);
+			BounceStrength wall_bounce_y_power = (m_upKey.isActive ? BounceStrength::STRONG : BounceStrength::WEAK);
+			/*m_upKey.isActive = false;
+			m_leftKey.isActive = false;
+			m_rightKey.isActive = false;*/
 
 			bounceOffWall(wall_bounce_x_power, wall_bounce_y_power);
 		}
@@ -558,7 +560,7 @@ namespace Tmpl8
 			multiplier = 0.3f;
 			break;
 		case BounceStrength::STRONG:
-			multiplier = 1.0f;
+			multiplier = 1.3f;
 			break;
 		}
 

@@ -19,7 +19,7 @@ namespace Tmpl8
 	Game::Game(Surface* surface) :
 		screen{ surface },
 		//level{ },
-		player{ surface },
+		player{ surface, leftKey, rightKey, upKey, downKey },
 		//viewport{ },
 		collision_manager{ viewport, player }
 	{	}
@@ -106,7 +106,7 @@ namespace Tmpl8
 		deltaTime = Clamp(deltaTime, 0.0f, 0.02f);
 
 		// Move player. Trigger new GlowOrb creation.
-		player.Update(deltaTime, leftKey, rightKey, upKey, downKey);
+		player.Update(deltaTime);
 
 		// Update GlowOrbs (destroy old, create new, update sizes).
 		level.Update();

@@ -12,12 +12,14 @@ namespace Tmpl8 {
 	{
 		LEFT,
 		RIGHT,
+		UP,
 	};
 
 	enum class BounceStrength // Strength of the wall bounce.
 	{
 		WEAK,
 		STRONG,
+		NONE,
 	};
 	
 	enum class Mode // State the ball is in.
@@ -78,12 +80,10 @@ namespace Tmpl8 {
 		void bounceOffGround();
 
 		// While on wall.
-		void updateWall(keyState& leftKey, keyState& rightKey);
-		void bounceOffWall(BounceStrength bounceStrength);
-		void setEjectionSpeed(bool isWeakBounce);
-		void setDirectionLockFrameCount(bool isWeakBounce);
-		void setEjectionSpeedY(bool isWeakBounce);
-		void setEjectionSpeedX(bool isWeakBounce);
+		void updateWall(keyState& leftKey, keyState& rightKey, keyState& upKey, keyState& downKey);
+		void bounceOffWall(BounceStrength& wall_bounce_x_power, BounceStrength& wall_bounce_y_power);
+		void setEjectionSpeedY(BounceStrength& wall_bounce_y_power);
+		void setEjectionSpeedX(BounceStrength& wall_bounce_x_power);
 
 		// Sprite updates.
 		void updateFrameStretch2Normal();
@@ -118,7 +118,8 @@ namespace Tmpl8 {
 		float m_delta_time{ 0.0f };
 
 		// Movement related.
-		float ground_bounce_power{ 6.0f };
+		//float ground_bounce_power{ 5.0f };
+		float ground_bounce_power{ 3.5f };
 
 		std::vector<Collidable*> collisions;
 
@@ -127,42 +128,44 @@ namespace Tmpl8 {
 		vec2 position{ 20.0f, 200.0f };
 		vec2 prev_position{ 0.0f, 0.0f };
 
-		vec2 i_position{ 0.0f, 0.0f };
-		vec2 i_prev_position{ 0.0f, 0.0f };
+		//vec2 i_position{ 0.0f, 0.0f };
+		//vec2 i_prev_position{ 0.0f, 0.0f };
 
-		vec2 hiddenPos{ 0.0f, 0.0f }; // Only y component is used; cheats the ball landing on the ground.
+		//vec2 hiddenPos{ 0.0f, 0.0f }; // Only y component is used; cheats the ball landing on the ground.
 		vec2 speed{ 0.0f, 0.0f };
-		vec2 maxSpeed{ 1.5f, 10.0f }; // x component is increased for strong wall bounce.
+		vec2 maxSpeed{ 1.8f, 10.0f }; // x component is increased for strong wall bounce.
 		float maxSpeedNormalX{ maxSpeed.x }; // Used to reset maxSpeed.x.
 		
-		vec2 acceleration{ 5.0f, 10.0f };
+		//vec2 acceleration{ 8.0f, 10.0f };
+		vec2 acceleration{ 5.0f, 5.0f };
 		
 		vec2 direction{ 0.0f , 0.0f }; // Only x component is used.
 
 		// Wall bounce related.
 		Trigger wallBounceTrigger{}; // What direction to press to do strong bounce.
-		BounceStrength wallBounceStrength{}; // Strength of wall bounce.
+		BounceStrength wall_bounce_y_power{}; // Strength of wall bounce.
+		BounceStrength wall_bounce_x_power{};
 
 		// Intrinsic properties.
-		float elasticity{ 1.0f }; // Anything less than 1 and ball loses speed with each bounce.
+		//float elasticity{ 1.0f }; // Anything less than 1 and ball loses speed with each bounce.
 		float squashDampeningMagnitude{ 0.5f }; // Subtracts from squash value to get squash duration.
 		float squashDampeningCoefficient{ 0.25f }; // Multiplies by squash value to get squash duration.
 		float deadZone{ 0.0f }; //{ acceleration.y * 0.4f }; // When speed.y is less than this, ball stops bouncing.
 
 		// Frame counts determine how long certain conditions last.
-		int directionLockedFrameCount{ 0 };
+		//int directionLockedFrameCount{ 0 };
 		float squashFrameCount{ 0 };
 		int stretchFrameCount{ 0 };
 		float triggerFrameCount{ 0 };
 
 		// Collision helpers.
-		bool isTouchingSide{ false };
-		bool isTouchingGround{ false };
+		/*bool isTouchingSide{ false };
+		bool isTouchingGround{ false };*/
 
 		// Boundaries.
-		int ground{ ScreenHeight };
+		/*int ground{ ScreenHeight };
 		int leftWall{ 0 };
-		int rightWall{ ScreenWidth };
+		int rightWall{ ScreenWidth };*/
 	};
 
 

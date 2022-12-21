@@ -180,7 +180,7 @@ namespace Tmpl8
 		else
 		{
 			// Y = mX + B
-			float m{ static_cast<float>(rise / run) };
+			float m{ static_cast<float>(1.0f * rise / run) };
 			float B{ i_pos_y - (m * i_pos_x) };
 
 			line1.SetVars(-m, 1.0f, -B);

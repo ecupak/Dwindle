@@ -55,7 +55,7 @@ namespace Tmpl8
 
 		/* Update position and draw sprite. */
 
-		switch (phase)
+		switch (mode)
 		{
 		case Mode::AIR:
 			updateAir(leftKey, rightKey);
@@ -76,8 +76,6 @@ namespace Tmpl8
 			updateAir(leftKey, rightKey);
 			break;
 		}
-
-		// Consider putting UpdatePosition() here, so it is called every update.
 	}
 
 
@@ -119,7 +117,7 @@ namespace Tmpl8
 
 	void Player::SetCenter()
 	{
-		center = vec2(position.x + half_width, position.y + half_height);
+		center = (position.x + half_width, position.y + half_height);
 	}
 
 	std::vector<DetectorPoint>& Player::GetCollisionPoints()
@@ -236,14 +234,11 @@ namespace Tmpl8
 
 	void Player::updateAir(keyState& leftKey, keyState& rightKey)
 	{
-		/* Handles movement and collision checking. */
+		/* Handles movement. */
 
 		updateVerticalMovement();
 		updateHorizontalMovement(leftKey, rightKey);
 		UpdatePosition();
-		
-		//updateCollisionBox();
-
 	}
 
 
@@ -284,7 +279,7 @@ namespace Tmpl8
 		direction.x = -leftKey.isActive + rightKey.isActive;
 		if (direction.x != 0)
 		{
-			if (phase == Mode::AIR)
+			if (mode == Mode::AIR)
 			{
 				speed.x += direction.x * acceleration.x * m_delta_time;
 				speed.x = Clamp(speed.x, -maxSpeed.x, maxSpeed.x);
@@ -298,13 +293,13 @@ namespace Tmpl8
 				{
 					speed.x = 0.0f;
 				}
-				else if (phase == Mode::AIR)
+				else if (mode == Mode::AIR)
 				{
 					float speed_x = fabsf(speed.x) - (m_delta_time * 2.5f);
 					speed_x = Max(speed_x, 0.0f);
 					speed.x = speed_x * (speed.x > 0.0f ? 1 : -1);
 				}
-				else if (phase == Mode::GROUND)
+				else if (mode == Mode::GROUND)
 				{
 					speed.x = 0.0f;
 				}
@@ -338,7 +333,7 @@ namespace Tmpl8
 
 		speed.y = 0.0f;
 		m_sprite.SetFrame(0);
-		phase = Mode::REST;
+		mode = Mode::REST;
 	}
 
 
@@ -364,7 +359,7 @@ namespace Tmpl8
 		}
 
 		// Set next mode.
-		phase = Mode::GROUND;
+		mode = Mode::GROUND;
 	}
 
 
@@ -422,7 +417,7 @@ namespace Tmpl8
 		//m_sprite.SetFrame(newFrame);
 
 		// Set next mode.
-		phase = Mode::WALL;
+		mode = Mode::WALL;
 	}
 
 
@@ -453,7 +448,7 @@ namespace Tmpl8
 		setFrameNormal2Squash();
 
 		// Set next mode.
-		phase = Mode::CEILING;
+		mode = Mode::CEILING;
 	}
 
 
@@ -481,7 +476,7 @@ namespace Tmpl8
 			maxSpeed.x = maxSpeedNormalX;
 
 			// Set next mode.
-			phase = Mode::AIR;
+			mode = Mode::AIR;
 		}
 	}
 
@@ -534,13 +529,13 @@ namespace Tmpl8
 
 		bool isWeakBounce = (bounceStrength == BounceStrength::WEAK);
 
-		setEjectionSpeed(isWeakBounce);
+ 		setEjectionSpeed(isWeakBounce);
 		setDirectionLockFrameCount(isWeakBounce);
 		setFrameAfterWallBounce(isWeakBounce);
 
 		// Set sprite and mode.
 
-		phase = Mode::AIR;
+		mode = Mode::AIR;
 	}
 
 
@@ -603,7 +598,7 @@ namespace Tmpl8
 			maxSpeed.x = maxSpeedNormalX;
 
 			// Set next mode.
-			phase = Mode::AIR;
+			mode = Mode::AIR;
 		}
 	}
 

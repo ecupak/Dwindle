@@ -183,6 +183,7 @@ namespace Tmpl8
 		int autotile_id{ GetAutotileId(x, y) };
 		CollidableType type{ GetCollidableType(autotile_id, hex_type) };		
 		int frame_id{ GetFrameId(autotile_id) };
+		frame_id = 27;
 
 		Surface* tilemap{ hex_type == SMOOTH_HEX ? &m_tilemap_smooth : &m_tilemap_rough };
 		Obstacle obstacle{ x, y, TILE_SIZE, type, tilemap, AUTOTILE_MAP_FRAME_COUNT, frame_id };

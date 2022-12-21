@@ -112,7 +112,7 @@ namespace Tmpl8 {
 		int half_size;
 
 		// State change tracker.
-		Mode phase{ Mode::NONE };
+		Mode mode{ Mode::NONE };
 
 
 		float m_delta_time{ 0.0f };

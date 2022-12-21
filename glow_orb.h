@@ -18,35 +18,34 @@ namespace Tmpl8
 	{
 	public:
 		// METHODS.		
-		GlowOrb(vec2 position);
-		bool Update();
+		GlowOrb(vec2 position, bool is_from_ricochet);
+		void Update();
 
 		bool IsExpired() { return is_expired; }
-		// ATTRIBUTES.
 
-		int left{ 0 }, right{ 0 }, top{ 0 }, bottom{ 0 };
+		virtual void Draw(Surface* viewable_screen, Surface* hidden_screen, int v_left, int v_top, int v_right, int v_bottom);
+
+		// ATTRIBUTES.
 		bool is_expired{ false };
 		float radius{ 0.0f };
 
 	private:
 		// METHODS.
 		void UpdateSizeAndOpacity();
-		void UpdateBounds(Surface* m_glow_orb_layer);
-		void DrawGlowOrb(Surface* m_glow_orb_layer);
+		void UpdateBounds();
 
 		// ATTRIBUTES.
-		vec2 center{ 0.0f, 0.0f };
 		Phase phase{ Phase::WAXING };
 		float opacity{ 1.0f };
 
 		/* Orb growth. */
-		float radius_max{ 120.0f };
+		float radius_max{ 140.0f };
 		float radius_delta{ 8.0f };
 		float opacity_delta{ 0.0f };
 		float opacity_delta_delta{ 0.1f };
 
 		/* Orb duration at max. */
 		int delay{ 0 };
-		int delay_max{ 60 };
+		int delay_max{ 70 };
 	};
 };

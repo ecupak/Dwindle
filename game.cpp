@@ -18,9 +18,9 @@ namespace Tmpl8
 	// -----------------------------------------------------------
 	Game::Game(Surface* surface) :
 		screen{ surface },
-		level{ },
+		//level{ },
 		player{ surface },
-		viewport{ },
+		//viewport{ },
 		collision_manager{ viewport, player }
 	{	}
 
@@ -30,23 +30,37 @@ namespace Tmpl8
 	void Game::Init()
 	{
 		// Container class tracks level.
-		PrepareNextLevel();
+		PrepareLevel();
 		PreparePlayer();
 		PrepareCollisionManager();
+		PrepareViewport();
 	}
 
 
-	void Game::PrepareNextLevel()
+	void Game::PrepareLevel()
+	{
+		CreateLevel();
+		RegisterLevelCollisionSocket();
+	}
+
+	void Game::CreateLevel()
 	{
 		level_id = 1;
 		level.CreateLevel(level_id); // starts at 1.
 	}
 
 
+	void Game::RegisterLevelCollisionSocket()
+	{
+		level.RegisterCollisionSocket(collision_manager.GetLevelCollisionSocket());
+		level.RegisterCollisionSocketToGlowManager(collision_manager.GetGlowCollisionSocket());
+	}
+
+
 	void Game::PreparePlayer()
 	{
 		SetPlayerStartPosition();
-		RegisterGlowSocket();
+		RegisterPlayerGlowSocket();
 	}
 
 
@@ -56,17 +70,25 @@ namespace Tmpl8
 	}
 
 
-	void Game::RegisterGlowSocket()
+	void Game::RegisterPlayerGlowSocket()
 	{
-		player.RegisterGlowSocket(level.GetGlowSocket());
+		player.RegisterGlowSocket(level.GetPlayerGlowSocket());
 	}
 
 
 	void Game::PrepareCollisionManager()
 	{
 		collision_manager.SetNewLevel(level);
+
 	}
 
+
+	void Game::PrepareViewport()
+	{
+		viewport.SetBackgroundLayer(level.GetBackgroundLayer());
+		viewport.SetObstacleLayer(level.GetObstacleLayer());
+		viewport.SetMapLayer(level.GetMapLayer());
+	}
 
 	// -----------------------------------------------------------
 	// Close down application
@@ -93,7 +115,7 @@ namespace Tmpl8
 		collision_manager.UpdateCollisions();
 
 		// Show level.
-		level.Draw(screen);
+		viewport.Draw(screen);
 
 		// Show player.
 		player.Draw(screen);

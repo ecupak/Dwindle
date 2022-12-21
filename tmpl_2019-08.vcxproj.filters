@@ -15,13 +15,7 @@
     <ClCompile Include="glow_orb.cpp">
       <Filter>Glow Files</Filter>
     </ClCompile>
-    <ClCompile Include="glow_socket.cpp">
-      <Filter>Glow Files</Filter>
-    </ClCompile>
     <ClCompile Include="collision_manager.cpp">
-      <Filter>Collision Files</Filter>
-    </ClCompile>
-    <ClCompile Include="collidable.cpp">
       <Filter>Collision Files</Filter>
     </ClCompile>
     <ClCompile Include="obstacle.cpp">
@@ -35,6 +29,15 @@
     </ClCompile>
     <ClCompile Include="detector_point.cpp">
       <Filter>Player Files</Filter>
+    </ClCompile>
+    <ClCompile Include="collidable.cpp">
+      <Filter>Base Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="glow_socket.cpp">
+      <Filter>Glow Files</Filter>
+    </ClCompile>
+    <ClCompile Include="collision_socket.cpp">
+      <Filter>Collision Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -65,9 +68,6 @@
     <ClInclude Include="collision_manager.h">
       <Filter>Collision Files</Filter>
     </ClInclude>
-    <ClInclude Include="collidable.h">
-      <Filter>Collision Files</Filter>
-    </ClInclude>
     <ClInclude Include="level.h">
       <Filter>Level Files</Filter>
     </ClInclude>
@@ -79,6 +79,12 @@
     </ClInclude>
     <ClInclude Include="detector_point.h">
       <Filter>Player Files</Filter>
+    </ClInclude>
+    <ClInclude Include="collidable.h">
+      <Filter>Base Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="collision_socket.h">
+      <Filter>Collision Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -96,6 +102,9 @@
     </Filter>
     <Filter Include="Player Files">
       <UniqueIdentifier>{39066450-592a-40a8-863c-b69eff6873a1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Base Classes">
+      <UniqueIdentifier>{f9585769-b341-4d1f-930a-bc88e005960d}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

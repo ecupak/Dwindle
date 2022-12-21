@@ -7,14 +7,14 @@ namespace Tmpl8
 	/// <summary>
 	/// Message structure to contain the data sent from Player to GlowManager.
 	/// </summary>
-	struct Message
+	struct GlowMessage
 	{
 		vec2 m_orb_position{ 0.0f, 0.0f };
 		bool m_is_from_ricochet{ true };
 
-		Message::Message() {};
+		GlowMessage() {};
 
-		Message::Message(vec2& orb_position, bool is_from_ricochet) :
+		GlowMessage(vec2& orb_position, bool is_from_ricochet) :
 			m_orb_position{orb_position},
 			m_is_from_ricochet{is_from_ricochet}
 		{	}
@@ -51,11 +51,11 @@ namespace Tmpl8
 		/// Returns the contents of message.
 		/// </summary>
 		/// <returns>If there is a new message, returns that. Otherwise, returns a default-constructed message.</returns>
-		Message ReceiveMessage();
+		GlowMessage ReceiveMessage();
 
 
 	private:
-		Message message{};
+		GlowMessage m_message{};
 		bool m_has_new_message{ false };
 	};
 };

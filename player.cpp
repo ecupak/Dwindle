@@ -41,7 +41,6 @@ namespace Tmpl8
 		for (int i{ 0 }; i < POINTS; i++)
 		{
 			points.push_back(DetectorPoint{ i });
-			//point_ptrs.push_back(new DetectorPoint{ i });
 		}
 	}
 
@@ -78,7 +77,7 @@ namespace Tmpl8
 			break;
 		}
 
-		// Consider putting UpdatePointPositions() here, so it is called every update.
+		// Consider putting UpdatePosition() here, so it is called every update.
 	}
 
 
@@ -96,23 +95,32 @@ namespace Tmpl8
 	void Player::SetPosition(vec2& start_position)
 	{
 		position = start_position;
-		center = vec2(start_position.x + half_width, start_position.y + half_height);
-		SetPointPositions();
-	}
-
-
-	void Player::SetPointPositions()
-	{
-		/*for (DetectorPoint& point : points)
-		{
-			point.SetPosition(center, half_size);
-		}*/
+		SetCenter();
+		
 		for (DetectorPoint& point : points)
 		{
 			point.SetPosition(center, half_size);
 		}
 	}
 
+
+	void Player::UpdatePosition()
+	{
+		prev_position = position;
+		position += speed;
+		SetCenter();
+
+		for (DetectorPoint& point : points)
+		{
+			point.UpdatePosition(speed);
+		}
+	}
+
+
+	void Player::SetCenter()
+	{
+		center = vec2(position.x + half_width, position.y + half_height);
+	}
 
 	std::vector<DetectorPoint>& Player::GetCollisionPoints()
 	{	
@@ -178,6 +186,7 @@ namespace Tmpl8
 		delta_position.y += GetSign(delta_position.y);*/
 
 		position += delta_position;
+		SetCenter();
 		for (DetectorPoint& point : points)
 		{
 			point.ApplyDeltaPosition(delta_position);
@@ -220,18 +229,6 @@ namespace Tmpl8
 	}
 
 
-	void Player::UpdatePointPositions()
-	{
-		prev_position = position;
-		position += speed;
-
-		for (DetectorPoint& point : points)
-		{
-			point.UpdatePosition(speed);
-		}
-	}
-
-
 	/*
 		This section covers actions while in the air (or about to collide).
 	*/
@@ -243,7 +240,7 @@ namespace Tmpl8
 
 		updateVerticalMovement();
 		updateHorizontalMovement(leftKey, rightKey);
-		UpdatePointPositions();
+		UpdatePosition();
 		
 		//updateCollisionBox();
 
@@ -258,19 +255,13 @@ namespace Tmpl8
 
 		//updateFrameStretch2Normal();
 
-		//prev_center.y = center.y;
-		//center.y += speed.y;
 		speed.y += acceleration.y * m_delta_time;
-		// speed.y = Clamp(speed.y, -maxSpeed.y, maxSpeed.y); <- figure this out after calibrating acceleration.
 	}
 
 
 	void Player::updateHorizontalMovement(keyState& leftKey, keyState& rightKey)
 	{
 		/* Update horizontal position, unless direction locked from weak wall bounce. */
-
-		//prev_center.x = center.x;
-		//center.x += speed.x * m_delta_time;
 
 		if (directionLockedFrameCount <= 0)
 		{
@@ -291,7 +282,6 @@ namespace Tmpl8
 			accuracy are important). */
 
 		direction.x = -leftKey.isActive + rightKey.isActive;
-//		direction.x = 1.0f;
 		if (direction.x != 0)
 		{
 			if (phase == Mode::AIR)
@@ -330,9 +320,6 @@ namespace Tmpl8
 		/* Cheat the y position so the ball can appear to be above the ground.
 			Determine if ball will be squashed or come to a complete rest. */
 
-		//hiddenPos.y = position.y;
-		//position.y = ground - m_sprite.GetHeight();
-
 		// Set next mode.
 		if (deadZone > fabsf(speed.y))
 		{
@@ -361,7 +348,7 @@ namespace Tmpl8
 			squashed anyway. Calculate the squash and stretch frame counts. Slower
 			speeds result in less frames of each. GROUND mode squashes the ball. */
 
-		//UpdatePointPositions(0.0f, 0.0f);
+		//UpdatePosition(0.0f, 0.0f);
 
 		directionLockedFrameCount = 0;
 
@@ -425,12 +412,9 @@ namespace Tmpl8
 		/* Reposition ball just off of wall and lose all speed. Register trigger and
 			set trigger duration. Update the sprite. WALL mode sticks ball on wall. */
 
-		//position.x = newPosX;
-		//speed = vec2(0.0f, 0.0f);
-
 		speed.x = 0.0f;
-		//UpdatePointPositions(0.0f, 0.0f);
 
+		//UpdatePosition(0.0f, 0.0f);
 
 		wallBounceTrigger = trigger;
 		triggerFrameCount = 1.0f;
@@ -457,7 +441,7 @@ namespace Tmpl8
 			squashed anyway. Calculate the squash and stretch frame counts. Slower
 			speeds result in less frames of each. GROUND mode squashes the ball. */
 
-		//UpdatePointPositions(0.0f, 0.0f);
+		//UpdatePosition(0.0f, 0.0f);
 
 		speed.y = 0.0f;
 
@@ -509,22 +493,8 @@ namespace Tmpl8
 			but not yet ~used~). Otherwise, at 100% elasticity, the ball will bounce
 			higher than it started. */
 
-		//position.y = hiddenPos.y;
-
-		// Undo unused speed.
-		/*
-		if (fabsf(speed.y) < maxSpeed.y)
-		{
-			speed.y -= acceleration.y;
-		}
-		*/
-
 		// Reverse speed (bounce!).
 		speed.y = -(ground_bounce_power);
-
-		// Go up.
-		//position.y += speed.y;
-		//speed.y += acceleration.y;
 	}
 
 

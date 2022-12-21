@@ -1,7 +1,6 @@
 #pragma once
 
 #include <vector>
-#include <forward_list>
 
 #include "surface.h"
 #include "key_state.h"
@@ -10,6 +9,7 @@
 #include "player.h"
 
 #include "glow_manager.h"
+#include "collision_socket.h"
 
 namespace Tmpl8
 {
@@ -24,7 +24,8 @@ namespace Tmpl8
 	public:
 		Level();		
 		void CreateLevel(int level_id);
-		void Draw(Surface* screen);
+
+		void CreateLayers();
 
 		vec2& GetPlayerStartPosition();
 
@@ -37,8 +38,16 @@ namespace Tmpl8
 		std::vector<Collidable*>& GetPlayerCollidables();
 
 
-		GlowSocket& GetGlowSocket();
+		GlowSocket& GetPlayerGlowSocket();
+		void RegisterCollisionSocket(CollisionSocket& collision_socket);
+		void RegisterCollisionSocketToGlowManager(CollisionSocket& collision_socket);
+
 		void Update();
+
+
+		Surface* Level::GetBackgroundLayer();
+		Surface* Level::GetObstacleLayer();
+		Surface* Level::GetMapLayer();
 
 	private:
 		// METHODS
@@ -56,7 +65,8 @@ namespace Tmpl8
 		Surface m_blueprints{ "assets/level-t.png" };
 		Surface m_background{ "assets/noise-robson.png" }; // credit: https://robson.plus/white-noise-image-generator/	
 		Surface m_tilemap_smooth{"assets/tilemap_smooth_64x.png"};
-		Surface m_tilemap_rough{ "assets/tilemap_rough.png" };		
+		Surface m_tilemap_rough{ "assets/tilemap_rough.png" };
+		char* bg{ "assets/noise-robson.png" };
 
 		std::vector<Obstacle> m_obstacles;
 		std::vector<Collidable*> m_player_collidables;
@@ -66,6 +76,12 @@ namespace Tmpl8
 		vec2 m_player_start_position{ 0.0f, 0.0f };
 
 		GlowManager m_glow_manager;
+
+		CollisionSocket* m_collision_socket{ nullptr };
+
+		Surface m_background_layer;
+		Surface m_obstacle_layer;
+		Surface m_map_layer;
 	};
 };
 

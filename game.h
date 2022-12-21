@@ -23,14 +23,18 @@ namespace Tmpl8
 		void KeyUp(int key);
 		void KeyDown(int key);
 
-	private:
-		void PrepareNextLevel();
+	private:		
 		void SetPlayerStartPosition();
-		void RegisterLevelCollidables();
-		void RegisterGlowSocket();
 
 		void PreparePlayer();
 		void PrepareCollisionManager();
+		void RegisterPlayerGlowSocket();
+
+		void PrepareLevel();
+		void CreateLevel();
+		void RegisterLevelCollisionSocket();
+
+		void PrepareViewport();
 
 		// ATTRIBUTES
 		// Core classes.

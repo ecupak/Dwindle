@@ -49,7 +49,7 @@ namespace Tmpl8 {
 		std::vector<DetectorPoint> points;
 		std::vector<DetectorPoint*> point_ptrs;
 		void SetPointPositions();
-		void UpdatePointPositions();
+		void UpdatePosition();
 
 		void RegisterGlowSocket(GlowSocket& glow_socket);
 
@@ -92,6 +92,7 @@ namespace Tmpl8 {
 		void setFrameSquash2Stretch();
 		void setFrameAfterWallBounce(bool isWeakBounce);
 
+		void SetCenter();
 
 		template <typename T> int GetSign(T val);
 		template <typename T> T GetAbsoluteMax(T val1, T val2);
@@ -99,7 +100,7 @@ namespace Tmpl8 {
 
 		/* ATTRIBUTES */
 
-		GlowSocket* m_glow_socket;
+		GlowSocket* m_glow_socket{ nullptr };
 
 		// Screen reference.
 		Surface* m_screen;

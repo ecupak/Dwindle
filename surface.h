@@ -15,12 +15,12 @@ typedef unsigned int Pixel; // unsigned int is assumed to be 32-bit, which seems
 // More opacity = more of the over_color will be present.
 inline Pixel MixAlpha(Pixel over_color, float over_color_opacity, Pixel under_color)
 {
-	// Hacky way to say if one of the colors is supposed to be 100% transparent, don't show it.
-	if (under_color >> 24 == 0)
-		return over_color;
+	//// Hacky way to say if one of the colors is supposed to be 100% transparent, don't show it.
+	//if (under_color >> 24 == 0)
+	//	return over_color;
 
-	if (over_color >> 24 == 0)
-		return under_color;
+	//if (over_color >> 24 == 0)
+	//	return under_color;
 
 	// Extract over color values.
 	unsigned int oR = (over_color & RedMask) >> 16;
@@ -32,13 +32,19 @@ inline Pixel MixAlpha(Pixel over_color, float over_color_opacity, Pixel under_co
 	unsigned int uG = (under_color & GreenMask) >> 8;
 	unsigned int uB = (under_color & BlueMask);
 
+	// If passed opacity on a scale of 0.0 - 1.0, use it. Otherwise, convert to decimal percentage.
+	float opacity = over_color_opacity;
+	if (over_color_opacity > 1.0f)
+		opacity = over_color_opacity / 255;
+
 	// Apply opacity coefficient to over color, inverse of that to under color.
 	// Credit: Jeremiah :P
-	unsigned int nR = (int)((oR * over_color_opacity) + (uR * (1.0f - over_color_opacity))) << 16;
-	unsigned int nG = (int)((oG * over_color_opacity) + (uG * (1.0f - over_color_opacity))) << 8;
-	unsigned int nB = (int)((oB * over_color_opacity) + (uB * (1.0f - over_color_opacity)));
+	unsigned int nA = (int)(opacity * 255) << 24;
+	unsigned int nR = (int)((oR * opacity) + (uR * (1.0f - opacity))) << 16;
+	unsigned int nG = (int)((oG * opacity) + (uG * (1.0f - opacity))) << 8;
+	unsigned int nB = (int)((oB * opacity) + (uB * (1.0f - opacity)));
 
-	return (nR + nG + nB);
+	return (nA | nR | nG | nB);
 }
 
 inline Pixel AddBlend( Pixel a_Color1, Pixel a_Color2 )

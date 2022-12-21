@@ -47,14 +47,14 @@ namespace Tmpl8
 
 	void Viewport::Draw(Surface* screen)
 	{
-		//screen->Clear(0x00000000);
-		m_obstacle_layer->CopyTo(screen, 0, 0);
+		screen->Clear(0x00000000);
+		//m_obstacle_layer->CopyTo(screen, 0, 0);
 
 		for (Collidable*& collision : m_collisions)
 		{
 			if (collision->m_object_type == CollidableType::FULL_GLOW)
 			{
-				//collision->Draw(screen, m_map_layer, left, top, right, bottom);
+				collision->Draw(screen, m_map_layer, left, top, right, bottom);
 			}
 		}
 

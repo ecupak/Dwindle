@@ -6,7 +6,8 @@
 namespace Tmpl8
 {
 	GlowManager::GlowManager() :
-		m_glow_socket{}
+		m_glow_socket{ },
+		m_collision_socket{ }
 	{	}
 
 
@@ -23,7 +24,6 @@ namespace Tmpl8
 
 	void GlowManager::RegisterCollisionSocket(CollisionSocket& collision_socket)
 	{
-		printf("in glow. collision socket: %p\n", &collision_socket);
 		m_collision_socket = &collision_socket;
 	}
 
@@ -99,7 +99,6 @@ namespace Tmpl8
 
 	void GlowManager::RemoveExpiredGlowOrb(std::vector<GlowOrb>::const_iterator index_it)
 	{
-		printf("Removing orb\n");
 		m_orbs.erase(index_it);
 	}
 
@@ -116,7 +115,6 @@ namespace Tmpl8
 
 	void GlowManager::CreateGlowOrb()
 	{
-		printf("Creating orb\n");
 		GlowMessage& message = m_glow_socket.ReceiveMessage();
 		m_orbs.emplace_back(message.m_orb_position, message.m_is_from_ricochet);
 	}

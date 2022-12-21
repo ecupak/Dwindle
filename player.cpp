@@ -64,7 +64,7 @@ namespace Tmpl8
 			updateGround(leftKey, rightKey);
 			break;
 		case Mode::WALL:
-			updateWall(leftKey, rightKey);
+			updateWall(leftKey, rightKey, upKey, downKey);
 			break;
 		case Mode::CEILING:
 			updateCeiling();
@@ -117,8 +117,9 @@ namespace Tmpl8
 
 	void Player::SetCenter()
 	{
-		center = (position.x + half_width, position.y + half_height);
+		center = vec2(position.x + half_width, position.y + half_height);
 	}
+
 
 	std::vector<DetectorPoint>& Player::GetCollisionPoints()
 	{	
@@ -183,33 +184,39 @@ namespace Tmpl8
 		/*delta_position.x += GetSign(delta_position.x);
 		delta_position.y += GetSign(delta_position.y);*/
 
-		position += delta_position;
-		SetCenter();
-		for (DetectorPoint& point : points)
+		if (delta_position.x != 0.0f || delta_position.y != 0.0f) // If at least 1 axis is not 0, there was a collision that needs to be handled.
 		{
-			point.ApplyDeltaPosition(delta_position);
+			position += delta_position;
+			SetCenter();
+			for (DetectorPoint& point : points)
+			{
+				point.ApplyDeltaPosition(delta_position);
+			}
+
+
+			// Update mode. If no mode, check if ricochet and apply new speed.
+			if (new_mode & ~NONE)
+			{
+				if (new_mode & GROUND)
+					handleGroundCollision();
+				else if (new_mode & WALL)
+					handleWallCollision(posts);
+				else
+					handleCeilingCollision();
+			}
+			else if (is_ricochet_set)
+				speed = ricochet_speed;
+
+
+			// Update GlowSocket.
+			if (new_mode & ~(NONE))
+			{
+				printf("Player center: %f, %f\n", center.x, center.y);
+				m_glow_socket->SendMessage(center, false);
+			}
+			else if (is_ricochet_set)
+				m_glow_socket->SendMessage(center, true);
 		}
-
-
-		// Update mode. If no mode, check if ricochet and apply new speed.
-		if (new_mode & ~NONE)
-		{
-			if (new_mode & GROUND)
-				handleGroundCollision();
-			else if (new_mode & WALL)
-				handleWallCollision(posts);
-			else
-				handleCeilingCollision();
-		}
-		else if (is_ricochet_set)
-			speed = ricochet_speed;
-
-
-		// Update GlowSocket.
-		if (new_mode & ~(NONE))
-			m_glow_socket->SendMessage(center, false);
-		else if (is_ricochet_set)
-			m_glow_socket->SendMessage(center, true);
 	}
 
 
@@ -258,14 +265,14 @@ namespace Tmpl8
 	{
 		/* Update horizontal position, unless direction locked from weak wall bounce. */
 
-		if (directionLockedFrameCount <= 0)
+		//if (directionLockedFrameCount <= 0)
 		{
 			updateHorizontalMovementSpeed(leftKey, rightKey);
 		}
-		else
+		//else
 		{
-			directionLockedFrameCount--;
-			updateFrameDirectionLockRelease();
+			/*directionLockedFrameCount--;
+			updateFrameDirectionLockRelease();*/
 		}
 	}
 
@@ -345,7 +352,7 @@ namespace Tmpl8
 
 		//UpdatePosition(0.0f, 0.0f);
 
-		directionLockedFrameCount = 0;
+		//directionLockedFrameCount = 0;
 
 		setSquashFrameCount();
 		setStretchFrameCount();
@@ -440,7 +447,7 @@ namespace Tmpl8
 
 		speed.y = 0.0f;
 
-		directionLockedFrameCount = 0;
+		//directionLockedFrameCount = 0;
 
 		setSquashFrameCount();
 		setStretchFrameCount();
@@ -498,40 +505,38 @@ namespace Tmpl8
 	*/
 
 
-	void Player::updateWall(keyState& leftKey, keyState& rightKey)
+	void Player::updateWall(keyState& leftKey, keyState& rightKey, keyState& upKey, keyState& downKey)
 	{
 		/* If trigger window closes with no action, wall bounces weakly off wall.
 			Otherwise it has more powerful bounce. */
 
-		triggerFrameCount -= m_delta_time;
+		if (downKey.isActive)
+		{
+			BounceStrength wall_bounce_x_power = BounceStrength::NONE;
+			BounceStrength wall_bounce_y_power = BounceStrength::NONE;
 
-		if (triggerFrameCount <= 0)
-		{
-			wallBounceStrength = BounceStrength::WEAK;
-			bounceOffWall(BounceStrength::WEAK);
+			bounceOffWall(wall_bounce_x_power, wall_bounce_y_power);
 		}
-		else
-		{
-			if ((wallBounceTrigger == Trigger::LEFT && leftKey.isActive) ||
-				(wallBounceTrigger == Trigger::RIGHT && rightKey.isActive))
-			{
-				wallBounceStrength = BounceStrength::STRONG;
-				bounceOffWall(BounceStrength::STRONG);
-			}
+		else if (upKey.isActive
+			|| wallBounceTrigger == Trigger::LEFT && leftKey.isActive
+			|| wallBounceTrigger == Trigger::RIGHT && rightKey.isActive)
+		{			
+			BounceStrength wall_bounce_x_power = (upKey.isActive ? BounceStrength::WEAK : BounceStrength::STRONG);
+			BounceStrength wall_bounce_y_power = (upKey.isActive ? BounceStrength::STRONG : BounceStrength::WEAK);
+			upKey.isActive = false;
+
+			bounceOffWall(wall_bounce_x_power, wall_bounce_y_power);
 		}
 	}
 
 
-	void Player::bounceOffWall(BounceStrength bounceStrength)
+	void Player::bounceOffWall(BounceStrength& wall_bounce_x_power, BounceStrength& wall_bounce_y_power)
 	{
 		/* Set speed and if any direction lock, as well as next sprite. AIR mode
 			handles movement and collision. */
 
-		bool isWeakBounce = (bounceStrength == BounceStrength::WEAK);
-
- 		setEjectionSpeed(isWeakBounce);
-		setDirectionLockFrameCount(isWeakBounce);
-		setFrameAfterWallBounce(isWeakBounce);
+		setEjectionSpeedY(wall_bounce_y_power);
+		setEjectionSpeedX(wall_bounce_x_power);
 
 		// Set sprite and mode.
 
@@ -539,43 +544,47 @@ namespace Tmpl8
 	}
 
 
-	void Player::setEjectionSpeed(bool isWeakBounce)
-	{
-		/* Update speeds from wall bounce. */
-
-		setEjectionSpeedY(isWeakBounce);
-		setEjectionSpeedX(isWeakBounce);
-	}
-
-
-	void Player::setEjectionSpeedY(bool isWeakBounce)
+	void Player::setEjectionSpeedY(BounceStrength& wall_bounce_y_power)
 	{
 		/* Wall bounce always has "up" vertical speed. */
 
-		speed.y = -(ground_bounce_power) * (isWeakBounce ? 0.2f : 0.8f);
+		float multiplier{ 0.0f };
+		switch (wall_bounce_y_power)
+		{
+		case BounceStrength::NONE:
+			multiplier = 0.0f;
+			break;
+		case BounceStrength::WEAK:
+			multiplier = 0.3f;
+			break;
+		case BounceStrength::STRONG:
+			multiplier = 1.0f;
+			break;
+		}
+
+		speed.y = -1 * ground_bounce_power * multiplier;
 	}
 
 
-	void Player::setEjectionSpeedX(bool isWeakBounce)
+	void Player::setEjectionSpeedX(BounceStrength& wall_bounce_x_power)
 	{
 		/* Horizontal speed needs direction away from wall. Temporarily increase
 			max horizontal speed from a strong wall bounce. Will be reset on squash. */
 
-		maxSpeed.x = (isWeakBounce ? 1.0f: 3.5f);
+		switch (wall_bounce_x_power)
+		{
+		case BounceStrength::NONE:
+			maxSpeed.x = 1.0f;
+			break;
+		case BounceStrength::WEAK:
+			maxSpeed.x = maxSpeedNormalX;
+			break;
+		case BounceStrength::STRONG:
+			maxSpeed.x = maxSpeedNormalX * 2;
+			break;
+		}
 
 		speed.x = maxSpeed.x * (wallBounceTrigger == Trigger::LEFT ? -1 : 1);
-	}
-
-
-	void Player::setDirectionLockFrameCount(bool isWeakBounce)
-	{
-		/* Weak bounce locks direction for a while. Prevents player from clinging
-			against same wall and climbing. */
-
-		if (isWeakBounce)
-		{
-			directionLockedFrameCount = 10;
-		}
 	}
 
 
@@ -613,7 +622,8 @@ namespace Tmpl8
 		/* Countdown until switching from stretched image to normal image. Must
 			also not be direction locked from a weak wall bounce. */
 
-		if (stretchFrameCount <= 0 && directionLockedFrameCount <= 0)
+		//if (stretchFrameCount <= 0 && directionLockedFrameCount <= 0)
+		if (stretchFrameCount <= 0)
 		{
 			m_sprite.SetFrame(0);
 		}
@@ -630,7 +640,8 @@ namespace Tmpl8
 			player when control is restored. Must also not be in stretch mode from
 			a ground bounce (or else stretch image is ended too early). */
 
-		if (directionLockedFrameCount <= 0 && stretchFrameCount <= 0)
+		//if (directionLockedFrameCount <= 0 && stretchFrameCount <= 0)
+		if (stretchFrameCount <= 0)
 		{
 			m_sprite.SetFrame(0);
 		}

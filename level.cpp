@@ -27,14 +27,14 @@ namespace Tmpl8
 	constexpr unsigned int BOTTOM_RIGHT = 128;
 	
 	// Constructor.
-	Level::Level(int level_id)
+	Level::Level() :
+		m_glow_manager{ },
+		m_background_layer{ bg },
+		m_obstacle_layer{ BLUEPRINT_SIZE * TILE_SIZE, BLUEPRINT_SIZE * TILE_SIZE },
+		m_map_layer{ BLUEPRINT_SIZE * TILE_SIZE, BLUEPRINT_SIZE * TILE_SIZE }
 	{
 		m_current_level_blueprint.height = BLUEPRINT_SIZE;
 		m_current_level_blueprint.width = BLUEPRINT_SIZE;
-
-		m_background.Bar(0, 0, m_background.GetWidth(), m_background.GetHeight(), 0xff000000, true, 0.8f);
-
-		CreateLevel(level_id);
 	}
 
 
@@ -44,31 +44,86 @@ namespace Tmpl8
 		m_level_id = level_id;
 		m_current_level_blueprint.x = (m_level_id - 1) * BLUEPRINT_SIZE;
 		CreateComponents();
+		CreateLayers();
 	}
 
 
-	void Level::Draw(Surface* screen)
+	void Level::CreateLayers()
 	{
-		//m_background.CopyTo(screen, 0, 0);
-		screen->Clear(0);
+		// Darken the background.
+		m_background_layer.Bar(0, 0, m_background_layer.GetWidth(), m_background_layer.GetHeight(), 0xFF000000, true, 0.5f);
 
-		// Draw level components. (will mix with glow Surface first).
+		// Copy bg to the map layer.
+		m_background_layer.CopyTo(&m_map_layer, 0, 0);
+
+		// Prepare obstacle layer by clearing to black with 0 alpha.
+		m_obstacle_layer.Clear(0x00000000);
+
+		// Draw level components on obstacle and map layer.
 		for (Obstacle& obstacle : m_obstacles)
 		{
-			obstacle.Draw(screen);
+			obstacle.Draw(&m_obstacle_layer);
+			obstacle.Draw(&m_map_layer);
 		}
 	}
 
 
-	std::vector<Collidable*>& Level::GetViewportCollidables()
+	Surface* Level::GetBackgroundLayer()
 	{
-		return m_viewport_collidables;
+		return &m_background_layer;
+	}
+
+
+	Surface* Level::GetObstacleLayer()
+	{
+		return &m_obstacle_layer;
+	}
+
+
+	Surface* Level::GetMapLayer()
+	{
+		return &m_map_layer;
+	}
+
+
+	void Level::Update()
+	{
+		m_glow_manager.Update();
+	}
+
+	std::vector<GlowOrb>& Level::GetViewportCollidables()
+	{
+		return m_glow_manager.GetViewportCollidables();
 	}
 
 
 	std::vector<Collidable*>& Level::GetPlayerCollidables()
 	{
 		return m_player_collidables;
+	}
+
+
+	GlowSocket& Level::GetPlayerGlowSocket()
+	{
+		return m_glow_manager.GetPlayerGlowSocket();
+	}
+
+
+	vec2& Level::GetPlayerStartPosition()
+	{
+		return m_player_start_position;
+	}
+		
+
+	void Level::RegisterCollisionSocket(CollisionSocket& collision_socket)
+	{
+		m_collision_socket = &collision_socket;
+	}
+
+	
+	void Level::RegisterCollisionSocketToGlowManager(CollisionSocket& collision_socket)
+	{
+		m_glow_manager.RegisterCollisionSocket(collision_socket);
 	}
 
 

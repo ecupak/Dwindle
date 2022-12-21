@@ -7,48 +7,53 @@
 #include "viewport.h"
 #include "collision_manager.h"
 
-namespace Tmpl8 {
-
-class Surface;
-class Game
+namespace Tmpl8
 {
-public:
-	Game::Game(Surface* surface);
-	//void SetTarget( Surface* surface ) { screen = surface; }
-	void Init();
-	void Shutdown();	
-	void Tick( float deltaTime );
-	void MouseUp(int button) {};
-	void MouseDown(int button) {};
-	void MouseMove(int x, int y) {};
-	void KeyUp(int key);
-	void KeyDown(int key);
+	class Game
+	{
+	public:
+		Game::Game(Surface* surface);
+		//void SetTarget( Surface* surface ) { screen = surface; }
+		void Init();
+		void Shutdown();
+		void Tick(float deltaTime);
+		void MouseUp(int button) {};
+		void MouseDown(int button) {};
+		void MouseMove(int x, int y) {};
+		void KeyUp(int key);
+		void KeyDown(int key);
 
-private:
-	void PrepareNextLevel();
-	void BuildLevel();
-	void SetPlayerStartPosition();
-	void RegisterLevelCollidables();
+	private:		
+		void SetPlayerStartPosition();
 
-	// ATTRIBUTES
-	// Core classes.
-	Level level;
-	Player player;
-	Viewport viewport;
-	
-	CollisionManager collision_manager;
+		void PreparePlayer();
+		void PrepareCollisionManager();
+		void RegisterPlayerGlowSocket();
 
-	Surface* screen{ nullptr };
-	keyState leftKey;
-	keyState rightKey;
-	keyState upKey;
-	keyState downKey;
-	
+		void PrepareLevel();
+		void CreateLevel();
+		void RegisterLevelCollisionSocket();
 
-	int level_id{ 1 };
+		void PrepareViewport();
 
-	bool startloop{ false };
-	int loop_switch{ -1 };
+		// ATTRIBUTES
+		// Core classes.
+		Level level;
+		Player player;
+		Viewport viewport;
+
+		CollisionManager collision_manager;
+
+		Surface* screen{ nullptr };
+		keyState leftKey;
+		keyState rightKey;
+		keyState upKey;
+		keyState downKey;
+
+
+		int level_id{ 1 };
+
+		bool startloop{ false };
+		int loop_switch{ -1 };
+	};
 };
-
-}; // namespace Tmpl8

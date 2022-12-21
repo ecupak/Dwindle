@@ -11,11 +11,12 @@ namespace Tmpl8
 	enum class CollidableType
 	{
 		PLAYER,
-		SMOOTH,
-		SMOOTH_CORNER,
-		ROUGH,
-		ROUGH_CORNER,
+		SMOOTH,		
+		ROUGH,		
 		UNREACHABLE,
+		QUICK_GLOW,
+		FULL_GLOW,
+		SAFE_GLOW,
 		UNKNOWN,
 	};
 
@@ -23,7 +24,8 @@ namespace Tmpl8
 	{
 	public:
 		Collidable();
-		virtual void Draw(Surface* screen) {}; 
+		virtual void Draw(Surface* screen) {};
+		virtual void Draw(Surface* viewable_screen, Surface* hidden_screen, int left, int top, int right, int bottom) {};
 		virtual void GetCollisions() {};
 		virtual void ResolveCollision(Collidable*& collision) {};
 		virtual void ResolveCollision(std::vector<Collidable*> collisions) {};

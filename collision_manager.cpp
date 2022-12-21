@@ -25,8 +25,27 @@ namespace Tmpl8
 	}
 
 
+	CollisionSocket& CollisionManager::GetLevelCollisionSocket()
+	{
+		return m_level_connection;
+	}
+
+	
+	CollisionSocket& CollisionManager::GetGlowCollisionSocket()
+	{
+		printf("in collision. collision socket: %p\n", &m_glow_connection);
+		return m_glow_connection;
+	}
+
+
 	void CollisionManager::UpdateCollisions()
 	{
+		// Update any dynamic lists if they changed.
+		if (m_glow_connection.HasNewMessage())
+		{
+			CreateViewportCollidables();
+		}
+
 		/* Find all collisions and resolve them. */
 
 		RunCollisionChecks();
@@ -57,6 +76,7 @@ namespace Tmpl8
 		CreatePlayerCollidables();
 	}
 
+	
 	void CollisionManager::CreateViewportCollidables()
 	{
 		/*
@@ -65,8 +85,11 @@ namespace Tmpl8
 			to that list.
 		*/
 
-		GetCollidablesFromLevel(CollidableGroup::VIEWPORT);
-		AddUniqueElementToCollidables(CollidableGroup::VIEWPORT);
+		if (m_glow_connection.HasNewMessage())
+		{
+			GetCollidablesFromLevel(CollidableGroup::VIEWPORT);
+			AddUniqueElementToCollidables(CollidableGroup::VIEWPORT);
+		}
 	}
 
 
@@ -90,7 +113,7 @@ namespace Tmpl8
 		switch (c_group)
 		{
 		case CollidableGroup::VIEWPORT:
-			m_viewport_collidables = m_level->GetViewportCollidables();
+			GetCollidablesFromGlowConnection();
 			break;
 		case CollidableGroup::PLAYER:			
 			m_player_collidables = m_level->GetPlayerCollidables();
@@ -98,6 +121,13 @@ namespace Tmpl8
 		}
 	}
 	
+
+	void CollisionManager::GetCollidablesFromGlowConnection()
+	{
+		CollisionMessage& message = m_glow_connection.ReceiveMessage();
+		m_viewport_collidables = message.GetCollidables();
+	}
+
 
 	void CollisionManager::AddUniqueElementToCollidables(CollidableGroup c_group)
 	{
@@ -114,10 +144,6 @@ namespace Tmpl8
 			{
 				m_player_collidables.push_back(&point);
 			}
-			for (Collidable*& collidable : m_player_collidables)
-			{
-				//collidable->bottom -= 150;
-			}
 			break;
 		}
 	}
@@ -127,6 +153,8 @@ namespace Tmpl8
 	{
 		std::vector<Collidable*>& collidables{ GetCollidableByGroup(c_group) };
 		
+		if (collidables.size() < 2) return;
+
 		/*
 			Pre-sort by x-axis value (left to right).
 			Allows quicker comparison for the x-axis overlap check.
@@ -208,16 +236,6 @@ namespace Tmpl8
 
 		for (std::vector<Collidable*>& potentialCollision : x_overlaps)
 		{
-			/*printf("mem add in pair: %p\n", potentialCollision.front());
-
-			if (potentialCollision.front()->m_object_type == CollidableType::PLAYER
-				&& potentialCollision.front()->bottom >= 552)
-				printf("mem add in pair: %p\n", potentialCollision.front());
-				
-			if (potentialCollision.back()->m_object_type == CollidableType::PLAYER
-				&& potentialCollision.back()->bottom >= 552)
-				printf("mem add in pair: %p\n", potentialCollision.front());*/
-
 			if (potentialCollision.front()->top <= potentialCollision.back()->bottom	// front() is A and back() is B
 				&& potentialCollision.front()->bottom >= potentialCollision.back()->top)// for the example in description.
 			{

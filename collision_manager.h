@@ -6,6 +6,7 @@
 #include "level.h"
 #include "player.h"
 #include "viewport.h"
+#include "collision_socket.h"
 
 namespace Tmpl8
 {
@@ -27,6 +28,8 @@ namespace Tmpl8
 		// Runs collision checks on viewport and player collidables and tells objects to resolve any detected collisions.
 		void UpdateCollisions();
 		
+		CollisionSocket& GetLevelCollisionSocket();
+		CollisionSocket& GetGlowCollisionSocket();
 
 	private:
 		// METHODS.
@@ -39,6 +42,9 @@ namespace Tmpl8
 		// Gets collidable info from level (glows or obstacles) and adds viewport or player object to collidables vector.
 		void GetCollidablesFromLevel(CollidableGroup c_group);
 		void AddUniqueElementToCollidables(CollidableGroup c_group);
+
+		void GetCollidablesFromGlowConnection();
+
 
 		// Tell viewport and player to resolve collisions.
 		void CollisionManager::ProcessCollisions();
@@ -66,6 +72,9 @@ namespace Tmpl8
 		Viewport &m_viewport;
 		Player &m_player;
 		Level* m_level;	// Not set during constructor; has no default constructor.
+
+		CollisionSocket m_level_connection{};
+		CollisionSocket m_glow_connection{};
 
 		/*
 			Contains glow objects (masks for the level).

@@ -37,9 +37,9 @@ namespace Tmpl8 {
 	public:
 		// Methods.
 		// Structor.
-		Player(Surface* screen);
+		Player(Surface* screen, keyState& leftKey, keyState& rightKey, keyState& upKey, keyState& downKey);
 		
-		void Update(float deltaTime, keyState& leftKey, keyState& rightKey, keyState& upKey, keyState& downKey);
+		void Update(float deltaTime);
 		void Draw(Surface* screen);
 		void SetPosition(vec2& start_position);
 		
@@ -59,10 +59,9 @@ namespace Tmpl8 {
 		/* METHODS */
 
 		// While in air.
-		void updateAir(keyState& leftKey, keyState& rightKey);
+		void updateAir();
 		void updateVerticalMovement();
-		void updateHorizontalMovement(keyState& leftKey, keyState& rightKey);
-		void updateHorizontalMovementSpeed(keyState& leftKey, keyState& rightKey);
+		void updateHorizontalMovement();
 		void handleGroundCollision();
 		void stopBouncing();
 		void prepareForGroundMode();
@@ -76,11 +75,11 @@ namespace Tmpl8 {
 		void updateCeiling();
 
 		// While on ground.
-		void updateGround(keyState& leftKey, keyState& rightKey);
+		void updateGround();
 		void bounceOffGround();
 
 		// While on wall.
-		void updateWall(keyState& leftKey, keyState& rightKey, keyState& upKey, keyState& downKey);
+		void updateWall();
 		void bounceOffWall(BounceStrength& wall_bounce_x_power, BounceStrength& wall_bounce_y_power);
 		void setEjectionSpeedY(BounceStrength& wall_bounce_y_power);
 		void setEjectionSpeedX(BounceStrength& wall_bounce_x_power);
@@ -114,6 +113,10 @@ namespace Tmpl8 {
 		// State change tracker.
 		Mode mode{ Mode::NONE };
 
+		keyState& m_leftKey;
+		keyState& m_rightKey;
+		keyState& m_upKey;
+		keyState& m_downKey;
 
 		float m_delta_time{ 0.0f };
 

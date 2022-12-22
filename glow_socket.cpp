@@ -3,19 +3,23 @@
 namespace Tmpl8
 {
 	GlowSocket::GlowSocket()
-	{
-	}
-	void GlowSocket::SendMessage(vec2& orb_position, bool is_from_ricochet)
-	{
-		m_message = GlowMessage(orb_position, is_from_ricochet);
-		m_has_new_message = true;
-	}
+	{	}
 
 
-	GlowMessage GlowSocket::ReceiveMessage()
+	void GlowSocket::SendMessage(vec2& orb_position, CollidableType glow_orb_type)
 	{
-		m_has_new_message = false;
-		return m_message;
+		m_messages.emplace_back(orb_position, glow_orb_type);
+		m_has_new_messages = true;
 	}
 
+
+	std::vector<GlowMessage> GlowSocket::ReceiveMessages()
+	{
+		std::vector<GlowMessage> messages_handoff{ m_messages };
+		
+		m_messages.clear();
+		m_has_new_messages = false;
+
+		return messages_handoff;
+	}
 };

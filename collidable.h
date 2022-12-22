@@ -16,6 +16,7 @@ namespace Tmpl8
 		UNREACHABLE,
 		QUICK_GLOW,
 		FULL_GLOW,
+		TEMP_GLOW,
 		SAFE_GLOW,
 		UNKNOWN,
 	};

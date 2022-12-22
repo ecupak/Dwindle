@@ -214,7 +214,7 @@ void Surface::Bar( int x1, int y1, int x2, int y2, Pixel c, bool hasOpacity, flo
 			if (x + x1 < 0 || x + x1 >= m_Width) continue;
 
 			if (hasOpacity)
-				a[x] = MixAlpha(c, opacity, a[x]);
+				a[x] = MixAlpha(c, opacity, a[x], false);
 			else
 				a[x] = c;
 		}
@@ -473,7 +473,7 @@ void Sprite::Draw( Surface* a_Target, int a_X, int a_Y, bool isAlpha, float opac
 					const Pixel c1 = *(src + x);
 					if (isAlpha)
 					{
-						if (c1 & 0xffffff) *(dest + addr + x) = MixAlpha(c1, opacity, *(dest + addr + x));
+						if (c1 & 0xffffff) *(dest + addr + x) = MixAlpha(c1, opacity, *(dest + addr + x), false);
 					}
 					else
 						if (c1 & 0xffffff) *(dest + addr + x) = c1;

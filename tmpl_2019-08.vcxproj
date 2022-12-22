@@ -222,6 +222,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="blueprints.cpp" />
     <ClCompile Include="collidable.cpp" />
     <ClCompile Include="collision_manager.cpp" />
     <ClCompile Include="collision_socket.cpp" />
@@ -233,11 +234,15 @@
     <ClCompile Include="level.cpp" />
     <ClCompile Include="obstacle.cpp" />
     <ClCompile Include="player.cpp" />
+    <ClCompile Include="safe_glow_orb.cpp" />
     <ClCompile Include="surface.cpp" />
     <ClCompile Include="template.cpp" />
+    <ClCompile Include="full_glow_orb.cpp" />
+    <ClCompile Include="temp_glow_orb.cpp" />
     <ClCompile Include="viewport.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="blueprints.h" />
     <ClInclude Include="collidable.h" />
     <ClInclude Include="collision_manager.h" />
     <ClInclude Include="collision_socket.h" />
@@ -247,6 +252,7 @@
     <ClInclude Include="glow_orb.h" />
     <ClInclude Include="glow_socket.h" />
     <ClInclude Include="intersection.h" />
+    <ClInclude Include="safe_glow_orb.h" />
     <ClInclude Include="standard_form.h" />
     <ClInclude Include="key_state.h" />
     <ClInclude Include="level.h" />
@@ -254,6 +260,8 @@
     <ClInclude Include="player.h" />
     <ClInclude Include="surface.h" />
     <ClInclude Include="template.h" />
+    <ClInclude Include="full_glow_orb.h" />
+    <ClInclude Include="temp_glow_orb.h" />
     <ClInclude Include="viewport.h" />
   </ItemGroup>
   <ItemGroup>

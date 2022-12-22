@@ -210,13 +210,17 @@ namespace Tmpl8
 
 
 			// Update GlowSocket.
-			if (new_mode & ~(NONE))
+			vec2 offset_center{
+				center.x - (GetSign(delta_position.x) * half_width),
+				center.y - (GetSign(delta_position.y) * half_height)
+			};
+
+			if (new_mode & ~NONE)
 			{
-				printf("Player center: %f, %f\n", center.x, center.y);
-				m_glow_socket->SendMessage(center, false);
+				m_glow_socket->SendMessage(offset_center, CollidableType::FULL_GLOW);
 			}
 			else if (is_ricochet_set)
-				m_glow_socket->SendMessage(center, true);
+				m_glow_socket->SendMessage(offset_center, CollidableType::TEMP_GLOW);
 		}
 	}
 

@@ -13,7 +13,7 @@ typedef unsigned int Pixel; // unsigned int is assumed to be 32-bit, which seems
 
 
 // More opacity = more of the over_color will be present.
-inline Pixel MixAlpha(Pixel over_color, float over_color_opacity, Pixel under_color)
+inline Pixel MixAlpha(Pixel over_color, float over_color_opacity, Pixel under_color, bool is_opacity_in_hex)
 {
 	//// Hacky way to say if one of the colors is supposed to be 100% transparent, don't show it.
 	//if (under_color >> 24 == 0)
@@ -34,7 +34,7 @@ inline Pixel MixAlpha(Pixel over_color, float over_color_opacity, Pixel under_co
 
 	// If passed opacity on a scale of 0.0 - 1.0, use it. Otherwise, convert to decimal percentage.
 	float opacity = over_color_opacity;
-	if (over_color_opacity > 1.0f)
+	if (is_opacity_in_hex)
 		opacity = over_color_opacity / 255;
 
 	// Apply opacity coefficient to over color, inverse of that to under color.

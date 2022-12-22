@@ -52,9 +52,17 @@ namespace Tmpl8
 
 		for (Collidable*& collision : m_collisions)
 		{
-			if (collision->m_object_type == CollidableType::FULL_GLOW)
+			switch (collision->m_object_type)
 			{
+			case CollidableType::FULL_GLOW:
 				collision->Draw(screen, m_map_layer, left, top, right, bottom);
+				break;
+			case CollidableType::TEMP_GLOW:
+				collision->Draw(screen, m_map_layer, left, top, right, bottom);
+				break;
+			case CollidableType::SAFE_GLOW:
+				collision->Draw(screen, m_obstacle_layer, left, top, right, bottom);
+				break;
 			}
 		}
 

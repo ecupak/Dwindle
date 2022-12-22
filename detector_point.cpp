@@ -62,9 +62,6 @@ namespace Tmpl8
 		position += speed;
 				
 		UpdateCollisionBox();
-
-		if (bottom >= 448)
-			int x = 5;
 	}
 
 

@@ -12,9 +12,6 @@
     <ClCompile Include="glow_manager.cpp">
       <Filter>Glow Files</Filter>
     </ClCompile>
-    <ClCompile Include="glow_orb.cpp">
-      <Filter>Glow Files</Filter>
-    </ClCompile>
     <ClCompile Include="collision_manager.cpp">
       <Filter>Collision Files</Filter>
     </ClCompile>
@@ -39,6 +36,21 @@
     <ClCompile Include="collision_socket.cpp">
       <Filter>Collision Files</Filter>
     </ClCompile>
+    <ClCompile Include="full_glow_orb.cpp">
+      <Filter>Glow Files</Filter>
+    </ClCompile>
+    <ClCompile Include="temp_glow_orb.cpp">
+      <Filter>Glow Files</Filter>
+    </ClCompile>
+    <ClCompile Include="glow_orb.cpp">
+      <Filter>Base Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="safe_glow_orb.cpp">
+      <Filter>Glow Files</Filter>
+    </ClCompile>
+    <ClCompile Include="blueprints.cpp">
+      <Filter>Level Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="game.h" />
@@ -51,9 +63,6 @@
     <ClInclude Include="key_state.h" />
     <ClInclude Include="viewport.h" />
     <ClInclude Include="glow_manager.h">
-      <Filter>Glow Files</Filter>
-    </ClInclude>
-    <ClInclude Include="glow_orb.h">
       <Filter>Glow Files</Filter>
     </ClInclude>
     <ClInclude Include="glow_socket.h">
@@ -85,6 +94,21 @@
     </ClInclude>
     <ClInclude Include="collision_socket.h">
       <Filter>Collision Files</Filter>
+    </ClInclude>
+    <ClInclude Include="full_glow_orb.h">
+      <Filter>Glow Files</Filter>
+    </ClInclude>
+    <ClInclude Include="temp_glow_orb.h">
+      <Filter>Glow Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glow_orb.h">
+      <Filter>Base Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="safe_glow_orb.h">
+      <Filter>Glow Files</Filter>
+    </ClInclude>
+    <ClInclude Include="blueprints.h">
+      <Filter>Level Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -1,60 +1,46 @@
 #include "glow_orb.h"
 #include "template.h"
 
-#include <cstdio> //printf
 #include <vector>
 
 
 namespace Tmpl8
 {
-	GlowOrb::GlowOrb(vec2 position, bool is_from_ricochet)
-	{
+	GlowOrb::GlowOrb(vec2 position, CollidableType object_type)
+	{		
 		center = position;
-		radius = 1;
-		delay = delay_max;
-		m_object_type = (is_from_ricochet ? CollidableType::QUICK_GLOW : CollidableType::FULL_GLOW);
+		m_object_type = object_type;
 	}
 
 
 	void GlowOrb::Update()
 	{
-		UpdateSizeAndOpacity();
+		UpdateByPhase();
 		UpdateBounds();
 		is_expired = (opacity <= 0.0f);
 	}
 
 
-	void GlowOrb::UpdateSizeAndOpacity()
+	void GlowOrb::UpdateByPhase()
 	{
 		/*
-			Phase cycle: WAXING -> FULL -> WANING.
-			While waxing, opacity and radius increase together.
-			When full, if not a ricochet hit, spawn a safety orb.
-			While waning, only opacity decreases.
+			Phase cycle: WAXING -> FULL -> WANING.			
 		*/
 
-		if (phase == Phase::FULL)
+		switch (phase)
 		{
-			if (--delay <= 0)
-				phase = Phase::WANING;
+		case Phase::WAXING:
+			UpdateWaxingPhase();
+			break;
+		case Phase::FULL:
+			UpdateFullPhase();
+			break;
+		case Phase::WANING:
+			UpdateWaningPhase();
+			break;
 		}
-		else if (phase == Phase::WAXING)
-		{
-			if (radius >= radius_max)
-				phase = Phase::FULL;
-			else
-			{
-				radius += radius_delta;
-				opacity = (radius / radius_max) * 255;
-			}
-		}
-		else if (phase == Phase::WANING)
-		{
-			opacity -= opacity_delta;
-			opacity_delta += opacity_delta_delta;
-		}
-		opacity = Clamp(opacity, 0.0f, 255.0f);
-		radius = Clamp(radius, 0.0f, radius_max);
+
+		UpdateEveryPhase();
 	}
 
 
@@ -104,15 +90,25 @@ namespace Tmpl8
 				int dist = (dist_x * dist_x) + (dist_y * dist_y);
 				if (dist <= radius_squared)
 				{
-					// Get alpha channel value.
-					int current_opacity = v_pix[x] >> 24;
-					if (new_opacity > current_opacity)
-						v_pix[x] = MixAlpha(h_pix[x], new_opacity, 0xFF000000);
+					// The opacity decreases (becomes more transparent) as we move from the center.
+					float intensity{ 1.0f - (1.0f * dist / radius_squared * 2.0f) };
+
+					DrawStep(x, v_pix, h_pix, new_opacity, intensity);
 				}
 			}
 			v_pix += viewable_screen->GetPitch();
 			h_pix += hidden_screen->GetPitch();
 		}
+	}
+
+
+	void GlowOrb::DrawStep(int x_pos, Pixel*& visible_pix, Pixel*& hidden_pix, int new_opacity, float intensity)
+	{		
+		new_opacity *= intensity;
+
+		int current_opacity = visible_pix[x_pos] >> 24;
+		if (new_opacity > current_opacity)
+			visible_pix[x_pos] = MixAlpha(hidden_pix[x_pos], new_opacity, 0xFF000000, true);
 	}
 
 };

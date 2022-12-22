@@ -1,6 +1,8 @@
 #pragma once
 
 #include "template.h"
+#include <vector>
+#include "collidable.h"
 
 namespace Tmpl8
 {
@@ -10,52 +12,55 @@ namespace Tmpl8
 	struct GlowMessage
 	{
 		vec2 m_orb_position{ 0.0f, 0.0f };
-		bool m_is_from_ricochet{ true };
+		CollidableType m_glow_orb_type{ CollidableType::UNKNOWN };
 
 		GlowMessage() {};
 
-		GlowMessage(vec2& orb_position, bool is_from_ricochet) :
+		GlowMessage(vec2& orb_position, CollidableType& glow_orb_type) :
 			m_orb_position{orb_position},
-			m_is_from_ricochet{is_from_ricochet}
+			m_glow_orb_type{ glow_orb_type }
 		{	}
 	};
 
 
 	/// <summary>
-	/// Allows Player to communicate with GlowManager. Based on a simplified version of a server-socket relationship.
-	/// Player holds the pointer of the GlowSocket instance that GlowManager owns.
-	/// Player calls SetSocketMessage() to load data about a new GlowOrb that should be created.
-	/// GlowManager then sees that m_new_message is true and processes the data, which sets the bool back to false.
+	/// Allows external classes to communicate with GlowManager.
+	/// The external class holds a pointer of the GlowSocket instance that GlowManager owns.
+	/// The external calls SendMessage() to load data about a new GlowOrb that should be created.
+	/// Multiple calls to SendMessage() before ReadMessage() is called will store all messages in a vector.
+	/// When GlowManager sees that m_new_messages is true, it can receive all the messages at once and reset the bool.
 	/// </summary>
 	class GlowSocket
 	{
 	public:
 		GlowSocket();
 		
+
 		/// <summary>
 		/// Player passes in data for creation of a new GlowOrb.
 		/// </summary>
 		/// <param name="orb_position">Coordinates to create new glow orb at.</param>
 		/// <param name="is_from_ricochet">If orb was created by player ricocheting off of a corner.</param>
-		void SendMessage(vec2& orb_position, bool is_from_ricochet);
+		/// <param name="is_safe_glow">If orb was spawns by a full orb during the full phase.</param>
+		void SendMessage(vec2& orb_position, CollidableType glow_orb_type);
 
 
 		/// <summary>
 		/// Returns if a new message (data for creation of a new GlowOrb) is ready to be read.
 		/// </summary>
 		/// <returns>m_has_new_message</returns>
-		bool HasNewMessage() { return m_has_new_message; }
+		bool HasNewMessage() { return m_has_new_messages; }
 
 
 		/// <summary>
 		/// Returns the contents of message.
 		/// </summary>
 		/// <returns>If there is a new message, returns that. Otherwise, returns a default-constructed message.</returns>
-		GlowMessage ReceiveMessage();
+		std::vector<GlowMessage> ReceiveMessages();
 
 
 	private:
-		GlowMessage m_message{};
-		bool m_has_new_message{ false };
+		std::vector<GlowMessage> m_messages;
+		bool m_has_new_messages{ false };
 	};
 };

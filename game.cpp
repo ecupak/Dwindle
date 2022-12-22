@@ -79,7 +79,6 @@ namespace Tmpl8
 	void Game::PrepareCollisionManager()
 	{
 		collision_manager.SetNewLevel(level);
-
 	}
 
 

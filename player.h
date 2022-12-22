@@ -111,7 +111,7 @@ namespace Tmpl8 {
 		int half_size;
 
 		// State change tracker.
-		Mode mode{ Mode::NONE };
+		Mode mode{ Mode::AIR };
 
 		keyState& m_leftKey;
 		keyState& m_rightKey;

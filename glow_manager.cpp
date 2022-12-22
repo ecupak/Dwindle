@@ -11,16 +11,17 @@ namespace Tmpl8
 	{	}
 
 
-	std::vector<GlowOrb>& GlowManager::GetViewportCollidables()
+	/*std::vector<GlowOrb>& GlowManager::GetViewportCollidables()
 	{
 		return m_orbs;
-	}
+	}*/
 
 
 	GlowSocket& GlowManager::GetPlayerGlowSocket()
 	{
 		return m_glow_socket;
 	}
+
 
 	void GlowManager::RegisterCollisionSocket(CollisionSocket& collision_socket)
 	{
@@ -47,31 +48,6 @@ namespace Tmpl8
 	// Private methods.
 
 
-	//void GlowManager::RemoveExpiredGlowOrbs()
-	//{		
-	//	/*
-	//		Credit to juanchopanza: https://stackoverflow.com/questions/15517991/search-a-vector-of-objects-by-object-attribute
-	//	*/
-	//	for (int i{ 0 }; i < m_orbs.size(); i++)
-	//	{
-	//		auto it = std::find_if(m_orbs.begin(), m_orbs.end(),
-	//			[](GlowOrb orb) {return orb.IsExpired();});
-
-	//		if (it != m_orbs.end())
-	//		{
-	//			printf("Removing orb\n");
-	//			int index = std::distance(m_orbs.begin(), it);
-	//			m_orbs.erase(m_orbs.begin() + index);
-	//			i--;
-	//		}
-	//		else
-	//		{
-	//			break; // reached end without finding an expired orb. stop searching.
-	//		}
-	//	}
-	//}
-
-
 	void GlowManager::UpdateGlowOrbs(bool& is_orb_list_changed)
 	{
 		/*
@@ -83,7 +59,7 @@ namespace Tmpl8
 		{
 			auto orb_it{ m_orbs.begin() + index };
 
-			if (orb_it->IsExpired())
+			if ((**orb_it).IsExpired())
 			{
 				is_orb_list_changed = true;
 				RemoveExpiredGlowOrb(m_orbs.begin() + index);
@@ -91,13 +67,13 @@ namespace Tmpl8
 			}
 			else
 			{
-				orb_it->Update();
-				m_collidables.push_back(&(*orb_it));
+				(**orb_it).Update();
+				m_collidables.push_back(&(**orb_it));
 			}
 		}
 	}
 
-	void GlowManager::RemoveExpiredGlowOrb(std::vector<GlowOrb>::const_iterator index_it)
+	void GlowManager::RemoveExpiredGlowOrb(std::vector<std::shared_ptr<GlowOrb>>::const_iterator index_it)
 	{
 		m_orbs.erase(index_it);
 	}
@@ -115,7 +91,34 @@ namespace Tmpl8
 
 	void GlowManager::CreateGlowOrb()
 	{
-		GlowMessage& message = m_glow_socket.ReceiveMessage();
-		m_orbs.emplace_back(message.m_orb_position, message.m_is_from_ricochet);
+		std::vector<GlowMessage> messages = m_glow_socket.ReceiveMessages();
+
+		for (GlowMessage& message : messages)
+		{
+			std::shared_ptr<GlowOrb> u_orb{ };
+			switch (message.m_glow_orb_type)
+			{
+			case CollidableType::FULL_GLOW:
+			{
+				std::shared_ptr<GlowOrb> tu_orb{ new FullGlowOrb{ message.m_orb_position, &m_glow_socket } };
+				u_orb = std::move(tu_orb);
+			}
+				break;
+			case CollidableType::TEMP_GLOW:
+			{
+				std::shared_ptr<GlowOrb> tu_orb{ new TempGlowOrb{ message.m_orb_position } };
+				u_orb = std::move(tu_orb);
+			}
+				break;
+			case CollidableType::SAFE_GLOW:
+			{
+				std::shared_ptr<GlowOrb> tu_orb{ new SafeGlowOrb{ message.m_orb_position } };
+				u_orb = std::move(tu_orb);
+			}
+				break;
+			}
+
+			m_orbs.push_back(u_orb);
+		}
 	}
 };

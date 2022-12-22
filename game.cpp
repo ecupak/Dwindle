@@ -17,11 +17,11 @@ namespace Tmpl8
 	// Constructor
 	// -----------------------------------------------------------
 	Game::Game(Surface* surface) :
-		screen{ surface },
-		//level{ },
+		screen{ surface },		
 		player{ surface, leftKey, rightKey, upKey, downKey },
-		//viewport{ },
-		collision_manager{ viewport, player }
+		camera{ player },
+		viewport{ camera },
+		collision_manager{ viewport, player, camera }
 	{	}
 
 	// -----------------------------------------------------------
@@ -61,6 +61,7 @@ namespace Tmpl8
 	{
 		SetPlayerStartPosition();
 		RegisterPlayerGlowSocket();
+		camera.SetPosition(player.center);
 	}
 
 
@@ -106,6 +107,9 @@ namespace Tmpl8
 
 		// Move player. Trigger new GlowOrb creation.
 		player.Update(deltaTime);
+		
+		// Loosely follow player.
+		camera.Update(deltaTime);
 
 		// Update GlowOrbs (destroy old, create new, update sizes).
 		level.Update();

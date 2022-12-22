@@ -8,48 +8,53 @@
     <ClCompile Include="template.cpp">
       <Filter>template code</Filter>
     </ClCompile>
-    <ClCompile Include="viewport.cpp" />
-    <ClCompile Include="glow_manager.cpp">
-      <Filter>Glow Files</Filter>
-    </ClCompile>
-    <ClCompile Include="collision_manager.cpp">
-      <Filter>Collision Files</Filter>
-    </ClCompile>
-    <ClCompile Include="obstacle.cpp">
-      <Filter>Level Files</Filter>
-    </ClCompile>
-    <ClCompile Include="level.cpp">
-      <Filter>Level Files</Filter>
-    </ClCompile>
-    <ClCompile Include="player.cpp">
-      <Filter>Player Files</Filter>
-    </ClCompile>
-    <ClCompile Include="detector_point.cpp">
-      <Filter>Player Files</Filter>
-    </ClCompile>
     <ClCompile Include="collidable.cpp">
-      <Filter>Base Classes</Filter>
-    </ClCompile>
-    <ClCompile Include="glow_socket.cpp">
-      <Filter>Glow Files</Filter>
-    </ClCompile>
-    <ClCompile Include="collision_socket.cpp">
-      <Filter>Collision Files</Filter>
-    </ClCompile>
-    <ClCompile Include="full_glow_orb.cpp">
-      <Filter>Glow Files</Filter>
-    </ClCompile>
-    <ClCompile Include="temp_glow_orb.cpp">
-      <Filter>Glow Files</Filter>
+      <Filter>Base Classes\Collidable</Filter>
     </ClCompile>
     <ClCompile Include="glow_orb.cpp">
-      <Filter>Base Classes</Filter>
+      <Filter>Base Classes\Glow Orb</Filter>
+    </ClCompile>
+    <ClCompile Include="collision_manager.cpp">
+      <Filter>Collision Files\Collision Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="collision_socket.cpp">
+      <Filter>Collision Files\Collision Socket</Filter>
+    </ClCompile>
+    <ClCompile Include="full_glow_orb.cpp">
+      <Filter>Glow Files\Full Glow Orb</Filter>
+    </ClCompile>
+    <ClCompile Include="glow_manager.cpp">
+      <Filter>Glow Files\Glow Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="glow_socket.cpp">
+      <Filter>Glow Files\Glow Socket</Filter>
     </ClCompile>
     <ClCompile Include="safe_glow_orb.cpp">
-      <Filter>Glow Files</Filter>
+      <Filter>Glow Files\Safe Glow Orb</Filter>
+    </ClCompile>
+    <ClCompile Include="temp_glow_orb.cpp">
+      <Filter>Glow Files\Temp Glow Orb</Filter>
     </ClCompile>
     <ClCompile Include="blueprints.cpp">
-      <Filter>Level Files</Filter>
+      <Filter>Level Files\Blueprints</Filter>
+    </ClCompile>
+    <ClCompile Include="level.cpp">
+      <Filter>Level Files\Level</Filter>
+    </ClCompile>
+    <ClCompile Include="obstacle.cpp">
+      <Filter>Level Files\Obstacle</Filter>
+    </ClCompile>
+    <ClCompile Include="viewport.cpp">
+      <Filter>Viewport Files\Viewport</Filter>
+    </ClCompile>
+    <ClCompile Include="camera.cpp">
+      <Filter>Viewport Files\Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="player.cpp">
+      <Filter>Player Files\Player</Filter>
+    </ClCompile>
+    <ClCompile Include="detector_point.cpp">
+      <Filter>Player Files\Detector Point</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -61,54 +66,59 @@
       <Filter>template code</Filter>
     </ClInclude>
     <ClInclude Include="key_state.h" />
-    <ClInclude Include="viewport.h" />
-    <ClInclude Include="glow_manager.h">
-      <Filter>Glow Files</Filter>
-    </ClInclude>
-    <ClInclude Include="glow_socket.h">
-      <Filter>Glow Files</Filter>
-    </ClInclude>
     <ClInclude Include="standard_form.h">
       <Filter>Collision Files</Filter>
     </ClInclude>
     <ClInclude Include="intersection.h">
       <Filter>Collision Files</Filter>
     </ClInclude>
-    <ClInclude Include="collision_manager.h">
-      <Filter>Collision Files</Filter>
-    </ClInclude>
-    <ClInclude Include="level.h">
-      <Filter>Level Files</Filter>
-    </ClInclude>
-    <ClInclude Include="obstacle.h">
-      <Filter>Level Files</Filter>
-    </ClInclude>
-    <ClInclude Include="player.h">
-      <Filter>Player Files</Filter>
-    </ClInclude>
-    <ClInclude Include="detector_point.h">
-      <Filter>Player Files</Filter>
-    </ClInclude>
     <ClInclude Include="collidable.h">
-      <Filter>Base Classes</Filter>
-    </ClInclude>
-    <ClInclude Include="collision_socket.h">
-      <Filter>Collision Files</Filter>
-    </ClInclude>
-    <ClInclude Include="full_glow_orb.h">
-      <Filter>Glow Files</Filter>
-    </ClInclude>
-    <ClInclude Include="temp_glow_orb.h">
-      <Filter>Glow Files</Filter>
+      <Filter>Base Classes\Collidable</Filter>
     </ClInclude>
     <ClInclude Include="glow_orb.h">
-      <Filter>Base Classes</Filter>
+      <Filter>Base Classes\Glow Orb</Filter>
+    </ClInclude>
+    <ClInclude Include="collision_manager.h">
+      <Filter>Collision Files\Collision Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="collision_socket.h">
+      <Filter>Collision Files\Collision Socket</Filter>
+    </ClInclude>
+    <ClInclude Include="full_glow_orb.h">
+      <Filter>Glow Files\Full Glow Orb</Filter>
+    </ClInclude>
+    <ClInclude Include="glow_manager.h">
+      <Filter>Glow Files\Glow Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="glow_socket.h">
+      <Filter>Glow Files\Glow Socket</Filter>
     </ClInclude>
     <ClInclude Include="safe_glow_orb.h">
-      <Filter>Glow Files</Filter>
+      <Filter>Glow Files\Safe Glow Orb</Filter>
+    </ClInclude>
+    <ClInclude Include="temp_glow_orb.h">
+      <Filter>Glow Files\Temp Glow Orb</Filter>
     </ClInclude>
     <ClInclude Include="blueprints.h">
-      <Filter>Level Files</Filter>
+      <Filter>Level Files\Blueprints</Filter>
+    </ClInclude>
+    <ClInclude Include="level.h">
+      <Filter>Level Files\Level</Filter>
+    </ClInclude>
+    <ClInclude Include="obstacle.h">
+      <Filter>Level Files\Obstacle</Filter>
+    </ClInclude>
+    <ClInclude Include="viewport.h">
+      <Filter>Viewport Files\Viewport</Filter>
+    </ClInclude>
+    <ClInclude Include="camera.h">
+      <Filter>Viewport Files\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="player.h">
+      <Filter>Player Files\Player</Filter>
+    </ClInclude>
+    <ClInclude Include="detector_point.h">
+      <Filter>Player Files\Detector Point</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -129,6 +139,57 @@
     </Filter>
     <Filter Include="Base Classes">
       <UniqueIdentifier>{f9585769-b341-4d1f-930a-bc88e005960d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Viewport Files">
+      <UniqueIdentifier>{55d33605-4bab-4373-99b3-c00467b989c5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Base Classes\Collidable">
+      <UniqueIdentifier>{bc3cf6dd-ed2b-45bf-8405-8bf9885b9827}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Base Classes\Glow Orb">
+      <UniqueIdentifier>{346c89d1-9a48-45ca-aef2-ee5d69c8401f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Collision Files\Collision Manager">
+      <UniqueIdentifier>{e247a048-7405-4311-a48a-dd654534073a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Collision Files\Collision Socket">
+      <UniqueIdentifier>{60a8c52f-46f2-429a-9577-10dcd780890a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Glow Files\Full Glow Orb">
+      <UniqueIdentifier>{5f57b48e-09df-45f2-84f8-9d60b8de298a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Glow Files\Glow Manager">
+      <UniqueIdentifier>{88cbbd2d-af45-48f9-853c-29d162085ef6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Glow Files\Glow Socket">
+      <UniqueIdentifier>{a0c421b7-b9cf-4b65-a7fa-2c9cdf619a46}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Glow Files\Safe Glow Orb">
+      <UniqueIdentifier>{77cacd0b-50dc-4581-99ed-9bba7518c699}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Glow Files\Temp Glow Orb">
+      <UniqueIdentifier>{b5b8802e-9a7a-4ef5-bed7-0314177497d9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Level Files\Blueprints">
+      <UniqueIdentifier>{a9ca65df-a05d-4e6a-8bc3-c34b386ef9c9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Level Files\Level">
+      <UniqueIdentifier>{b2ed5927-15f4-4fd6-b43f-54b2a9e2eddb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Level Files\Obstacle">
+      <UniqueIdentifier>{a3725f90-af2d-4fc0-8090-679e470f83c8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Viewport Files\Viewport">
+      <UniqueIdentifier>{60b6b736-d8bb-402c-a5a0-bf719c845cf2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Viewport Files\Camera">
+      <UniqueIdentifier>{ff41d25f-a69b-4ceb-a7f8-71c006788ed5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Player Files\Player">
+      <UniqueIdentifier>{fa4640a4-f177-43f5-91eb-0bcc3dac90b9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Player Files\Detector Point">
+      <UniqueIdentifier>{661dbebc-035d-4005-907b-e01243c5ec58}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

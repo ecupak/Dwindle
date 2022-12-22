@@ -94,8 +94,8 @@ namespace Tmpl8
 	void Player::SetPosition(vec2& start_position)
 	{
 		position = start_position;
-		SetCenter();
-		
+		SetCenterAndBounds();
+
 		for (DetectorPoint& point : points)
 		{
 			point.SetPosition(center, half_size);
@@ -107,7 +107,7 @@ namespace Tmpl8
 	{
 		prev_position = position;
 		position += speed;
-		SetCenter();
+		SetCenterAndBounds();
 
 		for (DetectorPoint& point : points)
 		{
@@ -116,11 +116,22 @@ namespace Tmpl8
 	}
 
 
-	void Player::SetCenter()
+	void Player::SetCenterAndBounds()
 	{
 		center = vec2(position.x + half_width, position.y + half_height);
+		UpdateCollisionBox();
 	}
 
+
+	void Player::UpdateCollisionBox()
+	{
+		// We are in pixel-space and will only use whole numbers.
+
+		left = (int)floor(position.x);
+		right = (int)floor(left + m_sprite.GetWidth());
+		top = (int)floor(position.y);
+		bottom = (int)floor(top + m_sprite.GetHeight());
+	}
 
 	std::vector<DetectorPoint>& Player::GetCollisionPoints()
 	{	
@@ -188,7 +199,7 @@ namespace Tmpl8
 		if (delta_position.x != 0.0f || delta_position.y != 0.0f) // If at least 1 axis is not 0, there was a collision that needs to be handled.
 		{
 			position += delta_position;
-			SetCenter();
+			SetCenterAndBounds();
 			for (DetectorPoint& point : points)
 			{
 				point.ApplyDeltaPosition(delta_position);

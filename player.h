@@ -50,13 +50,14 @@ namespace Tmpl8 {
 		// Point method test.
 		std::vector<DetectorPoint> points;
 		std::vector<DetectorPoint*> point_ptrs;
-		void SetPointPositions();
+		//void SetPointPositions();
 		void UpdatePosition();
 
 		void RegisterGlowSocket(GlowSocket& glow_socket);
 
 	private:
 		/* METHODS */
+		void UpdateCollisionBox();
 
 		// While in air.
 		void updateAir();
@@ -91,7 +92,7 @@ namespace Tmpl8 {
 		void setFrameSquash2Stretch();
 		void setFrameAfterWallBounce(bool isWeakBounce);
 
-		void SetCenter();
+		void SetCenterAndBounds();
 
 		template <typename T> int GetSign(T val);
 		template <typename T> T GetAbsoluteMax(T val1, T val2);

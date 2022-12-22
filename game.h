@@ -6,6 +6,7 @@
 #include "player.h"
 #include "viewport.h"
 #include "collision_manager.h"
+#include "camera.h"
 
 namespace Tmpl8
 {
@@ -38,13 +39,13 @@ namespace Tmpl8
 
 		// ATTRIBUTES
 		// Core classes.
-		Level level;
-		Player player;
-		Viewport viewport;
-
-		CollisionManager collision_manager;
-
 		Surface* screen{ nullptr };
+		Player player;
+		Camera camera;		
+		Viewport viewport;
+		CollisionManager collision_manager;
+		Level level;
+				
 		keyState leftKey;
 		keyState rightKey;
 		keyState upKey;

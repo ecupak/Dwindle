@@ -87,7 +87,10 @@ namespace Tmpl8
 
 	void DetectorPoint::ResolveCollision(Collidable*& collision)
 	{
-		collisions.push_back(collision);
+		if (collision->m_object_type == CollidableType::SMOOTH)
+		{
+			collisions.push_back(collision);
+		}
 	}
 
 

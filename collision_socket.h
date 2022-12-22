@@ -1,5 +1,7 @@
 #pragma once
 
+#include <vector>
+
 #include "collidable.h"
 #include "template.h"
 

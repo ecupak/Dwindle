@@ -1,5 +1,7 @@
 #pragma once
 
+#include <vector>
+
 #include "collidable.h"
 #include "standard_form.h"
 #include "intersection.h"

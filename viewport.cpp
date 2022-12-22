@@ -5,7 +5,8 @@
 
 namespace Tmpl8
 {
-	Viewport::Viewport()
+	Viewport::Viewport(Camera& camera) :
+		m_camera{ camera }
 	{
 		left = 0;
 		right = ScreenWidth - 1;
@@ -13,7 +14,7 @@ namespace Tmpl8
 		bottom = ScreenHeight - 1;
 	}
 
-	
+
 	void Viewport::SetBackgroundLayer(Surface* surface)
 	{
 		m_background_layer = surface;
@@ -67,5 +68,21 @@ namespace Tmpl8
 		}
 
 		m_collisions.clear();
+
+		m_camera.Draw(screen);
+
+		if (m_camera.HasMoved())
+		{
+			//UpdatePosition();
+		}
+	}
+
+
+	void Viewport::UpdatePosition()
+	{
+		left = 0;
+		right = ScreenWidth - 1;
+		top = 0;
+		bottom = ScreenHeight - 1;
 	}
 };

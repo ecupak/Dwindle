@@ -14,6 +14,7 @@ namespace Tmpl8
 	{
 		VIEWPORT,
 		PLAYER,
+		CAMERA,
 		NONE,
 	};
 
@@ -22,7 +23,7 @@ namespace Tmpl8
 	{
 	public:
 		// Structor.
-		CollisionManager(Viewport& viewport, Player& player);
+		CollisionManager(Viewport& viewport, Player& player, Camera& camera);
 		// Updates level reference for when level changes.
 		void SetNewLevel(Level& current_level);		
 		// Runs collision checks on viewport and player collidables and tells objects to resolve any detected collisions.
@@ -39,6 +40,7 @@ namespace Tmpl8
 		// Each adds relevant objects to their collidables vector.
 		void CreateViewportCollidables();
 		void CreatePlayerCollidables();
+		void CreateCameraCollidables();
 		// Gets collidable info from level (glows or obstacles) and adds viewport or player object to collidables vector.
 		void GetCollidablesFromLevel(CollidableGroup c_group);
 		void AddUniqueElementToCollidables(CollidableGroup c_group);
@@ -71,6 +73,7 @@ namespace Tmpl8
 		// ATTRIBUTES.		
 		Viewport &m_viewport;
 		Player &m_player;
+		Camera& m_camera;
 		Level* m_level;	// Not set during constructor; has no default constructor.
 
 		CollisionSocket m_level_connection{};
@@ -87,6 +90,9 @@ namespace Tmpl8
 			When they collide with the player, we know to update them and/or the player.
 		*/
 		std::vector<Collidable*> m_player_collidables;
+
+
+		std::vector<Collidable*> m_camera_collidables;
 
 	};
 };

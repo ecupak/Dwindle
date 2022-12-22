@@ -1,7 +1,5 @@
 #pragma once
 
-#include <vector>
-#include <cstdio> //printf
 #include "surface.h"
 #include "template.h"
 
@@ -29,7 +27,6 @@ namespace Tmpl8
 		virtual void Draw(Surface* viewable_screen, Surface* hidden_screen, int left, int top, int right, int bottom) {};
 		virtual void GetCollisions() {};
 		virtual void ResolveCollision(Collidable*& collision) {};
-		virtual void ResolveCollision(std::vector<Collidable*> collisions) {};
 
 		// ATTRIBUTES
 		int left{ 0 }, right{ 0 }, top{ 0 }, bottom{ 0 };

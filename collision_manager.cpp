@@ -6,9 +6,10 @@
 
 namespace Tmpl8
 {
-	CollisionManager::CollisionManager(Viewport& viewport, Player& player) :
+	CollisionManager::CollisionManager(Viewport& viewport, Player& player, Camera& camera) :
 		m_viewport{ viewport },
 		m_player{ player },
+		m_camera{ camera },
 		m_level{ nullptr }	// Set via method after level has been created and initialized.
 	{	};
 
@@ -33,7 +34,6 @@ namespace Tmpl8
 	
 	CollisionSocket& CollisionManager::GetGlowCollisionSocket()
 	{
-		printf("in collision. collision socket: %p\n", &m_glow_connection);
 		return m_glow_connection;
 	}
 
@@ -67,6 +67,7 @@ namespace Tmpl8
 	{
 		CheckForCollisions(CollidableGroup::VIEWPORT);
 		CheckForCollisions(CollidableGroup::PLAYER);
+		CheckForCollisions(CollidableGroup::CAMERA);
 	}
 
 
@@ -74,15 +75,16 @@ namespace Tmpl8
 	{
 		CreateViewportCollidables();
 		CreatePlayerCollidables();
+		CreateCameraCollidables();
 	}
 
 	
 	void CollisionManager::CreateViewportCollidables()
 	{
 		/*
-			Called when a new level is loaded. Will create a copy of the list of
-			glow objects that interact with the viewport, then add the viewport
-			to that list.
+			Called after new level has been registered or during collision loop.
+			If there is a new glow orb in the list, update list.
+			Add unique item (viewport) that cares about the glow orbs.
 		*/
 
 		if (m_glow_connection.HasNewMessage())
@@ -96,13 +98,25 @@ namespace Tmpl8
 	void CollisionManager::CreatePlayerCollidables()
 	{
 		/*
-			Called when a new level is loaded. Will create a copy of the list of
-			glow objects that interact with the viewport, then add the viewport
-			to that list.
+			Called after new level has been registered.
+			Adds obstacles to list.
+			Add unique item (player) that cares about obstacles.
 		*/
 
 		GetCollidablesFromLevel(CollidableGroup::PLAYER);
 		AddUniqueElementToCollidables(CollidableGroup::PLAYER);
+	}
+
+
+	void CollisionManager::CreateCameraCollidables()
+	{
+		/*
+			Called after new level has been registered.
+			Adds obstacles to list.
+			Add unique item (player) that cares about obstacles.
+		*/
+				
+		AddUniqueElementToCollidables(CollidableGroup::CAMERA);
 	}
 
 
@@ -144,6 +158,13 @@ namespace Tmpl8
 			{
 				m_player_collidables.push_back(&point);
 			}
+			break;
+		case CollidableGroup::CAMERA:
+			for (DetectorPoint& point : m_player.GetCollisionPoints())
+			{
+				m_camera_collidables.push_back(&point);
+			}
+			m_camera_collidables.push_back(&m_camera);
 			break;
 		}
 	}
@@ -269,6 +290,8 @@ namespace Tmpl8
 			return m_viewport_collidables;
 		case CollidableGroup::PLAYER:			
 			return m_player_collidables;
+		case CollidableGroup::CAMERA:
+			return m_camera_collidables;
 		}
 	}
 };

@@ -94,6 +94,7 @@ namespace Tmpl8
 	void Player::SetPosition(vec2& start_position)
 	{
 		position = start_position;
+		//position = vec2{ 511.940552 , 560.875732 };
 		SetCenter();
 		
 		for (DetectorPoint& point : points)
@@ -210,17 +211,13 @@ namespace Tmpl8
 
 
 			// Update GlowSocket.
-			vec2 offset_center{
-				center.x - (GetSign(delta_position.x) * half_width),
-				center.y - (GetSign(delta_position.y) * half_height)
-			};
-
+			vec2 offset_center{ center.x, center.y };
 			if (new_mode & ~NONE)
 			{
-				m_glow_socket->SendMessage(offset_center, CollidableType::FULL_GLOW);
+				m_glow_socket->SendMessage(center, CollidableType::FULL_GLOW);
 			}
 			else if (is_ricochet_set)
-				m_glow_socket->SendMessage(offset_center, CollidableType::TEMP_GLOW);
+				m_glow_socket->SendMessage(center, CollidableType::TEMP_GLOW);
 		}
 	}
 
@@ -262,7 +259,17 @@ namespace Tmpl8
 
 		//updateFrameStretch2Normal();
 
+		bool going_up{ speed.y < 0.0f };
+
 		speed.y += acceleration.y * m_delta_time;
+
+		bool going_down{ speed.y >= 0.0f };
+
+		if (going_up && going_down)
+		{
+			printf("Apex at: %f, %f\n", center.x, center.y);
+			printf("DetlaTime is: %f\n", m_delta_time);
+		}
 	}
 
 
@@ -289,7 +296,7 @@ namespace Tmpl8
 				}
 				else if (mode == Mode::AIR)
 				{
-					float speed_x = fabsf(speed.x) - (m_delta_time * 2.5f);
+					float speed_x = fabsf(speed.x) - (m_delta_time * 2.5f); //air resistance
 					speed_x = Max(speed_x, 0.0f);
 					speed.x = speed_x * (speed.x > 0.0f ? 1 : -1);
 				}
@@ -306,6 +313,8 @@ namespace Tmpl8
 	{
 		/* Cheat the y position so the ball can appear to be above the ground.
 			Determine if ball will be squashed or come to a complete rest. */
+
+		printf("Ground at: %f, %f\n", center.x, center.y);
 
 		// Set next mode.
 		if (deadZone > fabsf(speed.y))

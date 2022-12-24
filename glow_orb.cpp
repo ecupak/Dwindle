@@ -13,15 +13,15 @@ namespace Tmpl8
 	}
 
 
-	void GlowOrb::Update()
+	void GlowOrb::Update(float deltaTime)
 	{
-		UpdateByPhase();
+		UpdateByPhase(deltaTime);
 		UpdateBounds();
 		is_expired = (opacity <= 0.0f);
 	}
 
 
-	void GlowOrb::UpdateByPhase()
+	void GlowOrb::UpdateByPhase(float deltaTime)
 	{
 		/*
 			Phase cycle: WAXING -> FULL -> WANING.			
@@ -30,17 +30,17 @@ namespace Tmpl8
 		switch (phase)
 		{
 		case Phase::WAXING:
-			UpdateWaxingPhase();
+			UpdateWaxingPhase(deltaTime);
 			break;
 		case Phase::FULL:
-			UpdateFullPhase();
+			UpdateFullPhase(deltaTime);
 			break;
 		case Phase::WANING:
-			UpdateWaningPhase();
+			UpdateWaningPhase(deltaTime);
 			break;
 		}
 
-		UpdateEveryPhase();
+		UpdateEveryPhase(deltaTime);
 	}
 
 

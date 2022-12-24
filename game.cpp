@@ -45,7 +45,7 @@ namespace Tmpl8
 
 	void Game::CreateLevel()
 	{
-		level_id = 1;
+		level_id = 2;
 		level.CreateLevel(level_id); // starts at 1.
 	}
 
@@ -108,7 +108,7 @@ namespace Tmpl8
 		player.Update(deltaTime);
 
 		// Update GlowOrbs (destroy old, create new, update sizes).
-		level.Update();
+		level.Update(deltaTime);
 
 		// Decide what has run into what.
 		collision_manager.UpdateCollisions();

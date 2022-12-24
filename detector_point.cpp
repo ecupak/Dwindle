@@ -120,7 +120,19 @@ namespace Tmpl8
 		if (collisions.size() > 0)
 			collisions.clear();
 
+		if (post == 6)
+		{
+			printf("before delta: %f, %f\n", position.x, position.y);
+			printf("delta: %f, %f\n", delta_position.x, delta_position.y);
+		}
+
 		position += delta_position;		
+
+		if (post == 6)
+		{
+			printf("after delta: %f, %f\n", position.x, position.y);
+			printf("\n");
+		}
 
 		UpdateCollisionBox();
 	}
@@ -135,6 +147,8 @@ namespace Tmpl8
 	}
 
 
+	bool debug_mode{ false };
+
 	bool DetectorPoint::CheckForCollisions()
 	{
 		delta_position.x = 0.0f;
@@ -144,6 +158,15 @@ namespace Tmpl8
 		if (collisions.size() == 0)
 			return false;
 		
+		debug_mode = false;
+
+		if (post == 6)
+		{
+			printf("prev pos: %f, %f\n", prev_position.x, prev_position.y);
+			printf("landing pos: %f, %f\n", position.x, position.y);
+			debug_mode = true;
+		}
+
 		// Precalculate the rounding down and conversion to int.
 		int i_pre_pos_x{ (int)floor(prev_position.x) },
 			i_pre_pos_y{ (int)floor(prev_position.y) },
@@ -267,6 +290,7 @@ namespace Tmpl8
 			hit so player is not in obstacle.
 		*/
 
+		
 		if (closest_intersection.m_collision_object)
 		{
 			/*
@@ -313,8 +337,16 @@ namespace Tmpl8
 
 			if (GetIsIntersectionInBounds(intersection, collision_object))
 			{
+				if (debug_mode)
+					printf("edge crossed: %d - ok\n", collision_edge_crossed);
+
 				int penetration{ GetPenetrationDepth(collision_object, collision_edge_crossed) };
 				intersects.push_back(Intersection{ collision_object, intersection, collision_edge_crossed, penetration });
+			}
+			else
+			{
+				if (debug_mode)
+					printf("edge crossed: %d - out of bounds\n", collision_edge_crossed);
 			}
 		}
 	}
@@ -509,6 +541,9 @@ namespace Tmpl8
 
 	vec2 DetectorPoint::GetCollisionBuffer(EdgeCrossed collision_edge_crossed)
 	{
+		if (debug_mode)
+			printf("buffer for: %d\n", collision_edge_crossed);
+
 		switch (collision_edge_crossed)
 		{
 		case EdgeCrossed::LEFT:

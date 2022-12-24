@@ -47,8 +47,8 @@ namespace Tmpl8
 
 	void Viewport::Draw(Surface* screen)
 	{
-		screen->Clear(0x00000000);
-		//m_obstacle_layer->CopyTo(screen, 0, 0);
+		//screen->Clear(0x00000000);
+		m_obstacle_layer->CopyTo(screen, 0, 0);
 
 		for (Collidable*& collision : m_collisions)
 		{

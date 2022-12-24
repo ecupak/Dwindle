@@ -8,17 +8,17 @@ namespace Tmpl8
 		m_glow_socket{ glow_socket }
 	{
 		radius_max = 240.0f;
-		delay_max = 40.0f;
+		delay_max = 0.25f;
 		delay = delay_max;
+		m_glow_socket->SendMessage(center, CollidableType::SAFE_GLOW); // Spawn a safe glow orb at this position.
 	}
 
 
-	void FullGlowOrb::UpdateWaxingPhase()
+	void FullGlowOrb::UpdateWaxingPhase(float deltaTime)
 	{
 		if (radius >= radius_max)
 		{
-			phase = Phase::FULL;
-			m_glow_socket->SendMessage(center, CollidableType::SAFE_GLOW); // Spawn a safe glow orb at this position.		
+			phase = Phase::FULL;					
 		}
 		else
 		{
@@ -28,23 +28,25 @@ namespace Tmpl8
 	}
 	
 	
-	void FullGlowOrb::UpdateFullPhase()
+	void FullGlowOrb::UpdateFullPhase(float deltaTime)
 	{
-		if (--delay <= 0)
+		delay -= deltaTime;
+
+		if (delay <= 0)
 		{
 			phase = Phase::WANING;
 		}
 	}
 
 	
-	void FullGlowOrb::UpdateWaningPhase()
+	void FullGlowOrb::UpdateWaningPhase(float deltaTime)
 	{
 		opacity -= opacity_delta;
 		opacity_delta += opacity_delta_delta;
 	}
 
 
-	void FullGlowOrb::UpdateEveryPhase()
+	void FullGlowOrb::UpdateEveryPhase(float deltaTime)
 	{
 		opacity = Clamp(opacity, 0.0f, 230.0f);
 		radius = Clamp(radius, 0.0f, radius_max);

@@ -44,7 +44,7 @@ namespace Tmpl8
 		void RegisterCollisionSocket(CollisionSocket& collision_socket);
 		void RegisterCollisionSocketToGlowManager(CollisionSocket& collision_socket);
 
-		void Update();
+		void Update(float deltaTime);
 
 
 		Surface* Level::GetBackgroundLayer();
@@ -61,17 +61,18 @@ namespace Tmpl8
 		void CreateObstacle(int x, int y, Pixel hex_type);
 		/* Setup autotiles */
 		int GetAutotileId(int x, int y);
-		bool GetIsWallAdjacent(Pixel adjacent_value);
+		//bool GetIsWallAdjacent(Pixel adjacent_value);
 		void CleanupAutotileId(int& autotile_id);		
 		CollidableType GetCollidableType(int autotile_id, Pixel hex_type);
 		int GetFrameId(int autotile_id);
-		
+		int GetBitwiseOverlap(int autotile_id);
+
 		// ATTRIBUTES
 		//Surface m_blueprints{ "assets/level-t.png" };
-		Surface m_background{ "assets/noise-robson.png" }; // credit: https://robson.plus/white-noise-image-generator/	
+		//Surface m_background{ "assets/noise_robson_1280.png" }; 
 		Surface m_tilemap_smooth{"assets/tilemap_smooth_64x.png"};
 		Surface m_tilemap_rough{ "assets/tilemap_rough.png" };
-		char* bg{ "assets/noise-robson.png" };
+		char* bg{ "assets/noise_robson_1280.png" }; // credit: https://robson.plus/white-noise-image-generator/	
 
 		std::vector<Obstacle> m_obstacles;
 		std::vector<Collidable*> m_player_collidables;
@@ -91,4 +92,3 @@ namespace Tmpl8
 		Blueprints m_blueprints;
 	};
 };
-

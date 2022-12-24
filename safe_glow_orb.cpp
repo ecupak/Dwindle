@@ -6,7 +6,7 @@ namespace Tmpl8
 	SafeGlowOrb::SafeGlowOrb(vec2 position) :
 		GlowOrb{ position, CollidableType::SAFE_GLOW }
 	{
-		radius_max = 25.0f;
+		radius_max = 30.0f;
 		radius = radius_max;
 		phase = Phase::FULL;
 		opacity = 150.0f;
@@ -21,7 +21,7 @@ namespace Tmpl8
 
 		if ((hidden_pix[x_pos] & 15) > 1)
 		{
-			visible_pix[x_pos] = MixAlpha(hidden_pix[x_pos], new_opacity, 0x0000FFFF, true);
+			visible_pix[x_pos] = MixAlpha(hidden_pix[x_pos], new_opacity, 0x0000FF00, true);
 		}
 	}
 };

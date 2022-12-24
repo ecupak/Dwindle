@@ -29,14 +29,14 @@ namespace Tmpl8
 	}
 
 
-	void GlowManager::Update()
+	void GlowManager::Update(float deltaTime)
 	{
 		// Check if a new orb should be created.
 		// Then check all orbs. Delete if needed, otherwise update.
 		bool is_orb_list_changed{ false };
 
 		CheckSocketForNewGlowOrbMessage(is_orb_list_changed);
-		UpdateGlowOrbs(is_orb_list_changed);
+		UpdateGlowOrbs(is_orb_list_changed, deltaTime);
 
 		if (is_orb_list_changed)
 		{
@@ -48,7 +48,7 @@ namespace Tmpl8
 	// Private methods.
 
 
-	void GlowManager::UpdateGlowOrbs(bool& is_orb_list_changed)
+	void GlowManager::UpdateGlowOrbs(bool& is_orb_list_changed, float deltaTime)
 	{
 		/*
 			Credit to juanchopanza: https://stackoverflow.com/questions/15517991/search-a-vector-of-objects-by-object-attribute
@@ -67,7 +67,7 @@ namespace Tmpl8
 			}
 			else
 			{
-				(**orb_it).Update();
+				(**orb_it).Update(deltaTime);
 				m_collidables.push_back(&(**orb_it));
 			}
 		}
@@ -92,6 +92,8 @@ namespace Tmpl8
 	void GlowManager::CreateGlowOrb()
 	{
 		std::vector<GlowMessage> messages = m_glow_socket.ReceiveMessages();
+
+		// Stored as shared pointer to avoid splicing. All derived classes need to be stored in a single vector.
 
 		for (GlowMessage& message : messages)
 		{

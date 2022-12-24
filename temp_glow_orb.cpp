@@ -11,12 +11,12 @@ namespace Tmpl8
 		GlowOrb{ position, CollidableType::TEMP_GLOW }
 	{
 		radius_max = 50.0f;
-		delay_max = 35.0f;
+		delay_max = 0.15f;
 		delay = delay_max;
 	}
 
 
-	void TempGlowOrb::UpdateWaxingPhase()
+	void TempGlowOrb::UpdateWaxingPhase(float deltaTime)
 	{
 		if (radius >= radius_max)
 		{
@@ -30,23 +30,25 @@ namespace Tmpl8
 	}
 
 
-	void TempGlowOrb::UpdateFullPhase()
+	void TempGlowOrb::UpdateFullPhase(float deltaTime)
 	{
-		if (--delay <= 0)
+		delay -= deltaTime;
+
+		if (delay <= 0)
 		{
 			phase = Phase::WANING;
 		}
 	}
 
 
-	void TempGlowOrb::UpdateWaningPhase()
+	void TempGlowOrb::UpdateWaningPhase(float deltaTime)
 	{
 		opacity -= opacity_delta;
 		opacity_delta += opacity_delta_delta;
 	}
 
 
-	void TempGlowOrb::UpdateEveryPhase()
+	void TempGlowOrb::UpdateEveryPhase(float deltaTime)
 	{
 		opacity = Clamp(opacity, 0.0f, 255.0f);
 		radius = Clamp(radius, 0.0f, radius_max);

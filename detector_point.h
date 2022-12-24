@@ -1,5 +1,7 @@
 #pragma once
 
+#include <vector>
+
 #include "collidable.h"
 #include "standard_form.h"
 #include "intersection.h"
@@ -11,7 +13,7 @@ namespace Tmpl8
 	public:
 		DetectorPoint(int assigned_point);
 		void SetPosition(vec2& center, int radius);
-		void UpdatePosition(vec2& player_speed);
+		void UpdatePosition(vec2& player_velocity, vec2& distance);
 		void UpdateCollisionBox();
 		virtual void ResolveCollision(Collidable*& collision);
 		bool CheckForCollisions();
@@ -19,7 +21,7 @@ namespace Tmpl8
 		int GetNewMode();		
 		int GetCollisionPointBinary();
 		void ApplyDeltaPosition(vec2& delta_position);
-		vec2& GetNewSpeed();
+		vec2& GetNewVelocity();
 		void UpdatePreviousPosition();
 
 		vec2 position;
@@ -31,7 +33,7 @@ namespace Tmpl8
 		vec2 delta_position{ 0.0f, 0.0f };
 		int post;
 		std::vector<Collidable*> collisions;
-		vec2 speed{ 0.0f, 0.0f };
+		vec2 velocity{ 0.0f, 0.0f };
 		int new_mode{ 0 };
 		bool isRicochetCollision{ false };
 
@@ -46,7 +48,7 @@ namespace Tmpl8
 		bool GetIsRicochetCollision(EdgeCrossed& collision_edge_crossed);
 
 		void ResolveSmoothCollision(Intersection& intersection_info);
-		void ResolveSmoothCornerCollision(vec2& ricochet_direction);
+		void ResolveSmoothCornerCollision(vec2& ricochet_direction) {};
 		void ResolveRoughCollision();
 		void ResolveRoughCornerCollision();
 		void SetRicochetSpeed(Intersection& intersection_info);

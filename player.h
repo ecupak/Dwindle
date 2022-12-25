@@ -49,8 +49,6 @@ namespace Tmpl8 {
 		
 		// Point method test.
 		std::vector<DetectorPoint> points;
-		std::vector<DetectorPoint*> point_ptrs;
-		//void SetPointPositions();
 		void UpdatePosition();
 
 		void RegisterGlowSocket(GlowSocket& glow_socket);
@@ -92,7 +90,8 @@ namespace Tmpl8 {
 		void setFrameSquash2Stretch();
 		void setFrameAfterWallBounce(bool isWeakBounce);
 
-		void SetCenterAndBounds();
+		void SetCenter();
+		float GetDistance(int vec2_index, float pre_calculated_t2);
 
 		template <typename T> int GetSign(T val);
 		template <typename T> T GetAbsoluteMax(T val1, T val2);
@@ -122,8 +121,9 @@ namespace Tmpl8 {
 		float m_delta_time{ 0.0f };
 
 		// Movement related.
-		//float ground_bounce_power{ 5.0f };
-		float ground_bounce_power{ 3.5f };
+		float ground_bounce_power{ 4.0f };
+		vec2 acceleration{ 25.0f, 5.0f };
+		vec2 magnitude_coefficient{ 10.0f, 48.0f };
 
 		std::vector<Collidable*> collisions;
 
@@ -131,17 +131,18 @@ namespace Tmpl8 {
 
 		vec2 position{ 20.0f, 200.0f };
 		vec2 prev_position{ 0.0f, 0.0f };
+		vec2 distance{ 0.0f, 0.0f };
 
 		//vec2 i_position{ 0.0f, 0.0f };
 		//vec2 i_prev_position{ 0.0f, 0.0f };
 
 		//vec2 hiddenPos{ 0.0f, 0.0f }; // Only y component is used; cheats the ball landing on the ground.
-		vec2 speed{ 0.0f, 0.0f };
-		vec2 maxSpeed{ 1.8f, 10.0f }; // x component is increased for strong wall bounce.
-		float maxSpeedNormalX{ maxSpeed.x }; // Used to reset maxSpeed.x.
+		vec2 velocity{ 0.0f, 0.0f };
+		vec2 max_velocity{ 10.0f, 10.0f }; // x component is increased for strong wall bounce.
+		float maxSpeedNormalX{ max_velocity.x }; // Used to reset max_velocity.x.
 		
 		//vec2 acceleration{ 8.0f, 10.0f };
-		vec2 acceleration{ 5.0f, 5.0f };
+		
 		
 		vec2 direction{ 0.0f , 0.0f }; // Only x component is used.
 
@@ -151,10 +152,10 @@ namespace Tmpl8 {
 		BounceStrength wall_bounce_x_power{};
 
 		// Intrinsic properties.
-		//float elasticity{ 1.0f }; // Anything less than 1 and ball loses speed with each bounce.
+		//float elasticity{ 1.0f }; // Anything less than 1 and ball loses velocity with each bounce.
 		float squashDampeningMagnitude{ 0.5f }; // Subtracts from squash value to get squash duration.
 		float squashDampeningCoefficient{ 0.25f }; // Multiplies by squash value to get squash duration.
-		float deadZone{ 0.0f }; //{ acceleration.y * 0.4f }; // When speed.y is less than this, ball stops bouncing.
+		float deadZone{ 0.0f }; //{ acceleration.y * 0.4f }; // When velocity.y is less than this, ball stops bouncing.
 
 		// Frame counts determine how long certain conditions last.
 		//int directionLockedFrameCount{ 0 };

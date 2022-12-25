@@ -21,8 +21,8 @@ namespace Tmpl8
 		//std::vector<GlowOrb>& GetViewportCollidables();
 		GlowSocket& GetPlayerGlowSocket();
 		void CheckSocketForNewGlowOrbMessage(bool& has_new_data_for_collision_socket);
-		void Update();
-		void UpdateGlowOrbs(bool& has_new_data_for_collision_socket);
+		void Update(float deltaTime);
+		void UpdateGlowOrbs(bool& has_new_data_for_collision_socket, float deltaTime);
 
 		void RegisterCollisionSocket(CollisionSocket& collision_socket);
 

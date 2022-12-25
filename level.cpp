@@ -14,7 +14,7 @@ namespace Tmpl8
 	constexpr unsigned int OPEN_HEX{ 0xFFFFFFFF };
 	constexpr unsigned int EOF_HEX{ 0x00000194 };
 	constexpr unsigned int TILE_SIZE{ 64 };
-	constexpr unsigned int BLUEPRINT_SIZE{ 20 };
+	constexpr unsigned int BLUEPRINT_SIZE{ 10 };
 	constexpr unsigned int AUTOTILE_MAP_FRAME_COUNT{ 47 };
 	/* Tile positions and bit values. */
 	constexpr unsigned int TOP_LEFT = 1;
@@ -55,7 +55,7 @@ namespace Tmpl8
 		m_background_layer.Bar(0, 0, m_background_layer.GetWidth(), m_background_layer.GetHeight(), 0xFF000000, true, 0.5f);
 
 		// Copy bg to the map layer.
-		//m_background_layer.CopyTo(&m_map_layer, 0, 0);
+		m_background_layer.CopyTo(&m_map_layer, 0, 0);
 
 		// Prepare obstacle layer by clearing to black with 0 alpha.
 		m_obstacle_layer.Clear(0x00000000);
@@ -87,15 +87,10 @@ namespace Tmpl8
 	}
 
 
-	void Level::Update()
+	void Level::Update(float deltaTime)
 	{
-		m_glow_manager.Update();
+		m_glow_manager.Update(deltaTime);
 	}
-
-	/*std::vector<GlowOrb>& Level::GetViewportCollidables()
-	{
-		return m_glow_manager.GetViewportCollidables();
-	}*/
 
 
 	std::vector<Collidable*>& Level::GetPlayerCollidables()
@@ -127,47 +122,7 @@ namespace Tmpl8
 		m_glow_manager.RegisterCollisionSocket(collision_socket);
 	}
 
-
-	//// Create and place components.
-	//void Level::CreateComponents()
-	//{
-	//	// Construct level from blueprint.
-	//	//int x_start = (m_level_id - 1) * blueprint_size;
-	//	Pixel* architect{ m_blueprints.GetBuffer() + m_current_level_blueprint.x };
-
-	//	for (int y{ 0 }; y < BLUEPRINT_SIZE; y++)
-	//	{
-	//		for (int x{ 0 }; x < BLUEPRINT_SIZE; x++)
-	//		{
-	//			// Find and store obstacle locations.
-	//			switch (architect[x])
-	//			{
-	//			case SMOOTH_HEX:
-	//			case ROUGH_HEX:
-	//			case UNREACHABLE_HEX:
-	//				// Get autotile image id and store obstacle.
-	//				CreateObstacle(x, y, architect[x]);
-	//				break;
-	//			case STARTING_HEX:
-	//				// Set player x,y.
-	//				SetPlayerStartPosition(x, y);
-	//				break;
-	//			default:
-	//				break;
-	//			}
-	//		}
-	//		architect += m_blueprints.GetPitch();
-	//	}
-
-	//	// Add obstacles that can interact with player to collidables list.
-	//	for (Obstacle& obstacle : m_obstacles)
-	//	{
-	//		if (obstacle.m_object_type != CollidableType::UNREACHABLE)
-	//			m_player_collidables.push_back(&obstacle);
-	//	}
-	//}
-
-
+	
 	void Level::CreateComponents()
 	{
 		if (m_blueprints.LoadBlueprint(m_level_id))
@@ -245,9 +200,11 @@ namespace Tmpl8
 		int autotile_id{ GetAutotileId(x, y) };
 		CollidableType type{ GetCollidableType(autotile_id, hex_type) };		
 		int frame_id{ GetFrameId(autotile_id) };
+		frame_id = 27;
+		int bitwise_overlap{ GetBitwiseOverlap(autotile_id) };
 
 		Surface* tilemap{ hex_type == SMOOTH_HEX ? &m_tilemap_smooth : &m_tilemap_rough };
-		Obstacle obstacle{ x, y, TILE_SIZE, type, tilemap, AUTOTILE_MAP_FRAME_COUNT, frame_id };
+		Obstacle obstacle{ x, y, TILE_SIZE, type, tilemap, AUTOTILE_MAP_FRAME_COUNT, frame_id, bitwise_overlap };
 				
 		m_obstacles.push_back(obstacle);
 	}
@@ -259,55 +216,6 @@ namespace Tmpl8
 		CleanupAutotileId(autotile_id);
 		return autotile_id;
 	}
-
-
-	//int Level::GetAutotileId(int center_x, int center_y)
-	//{
-	//	/* Autotile mapping credit: Godot docs (https://docs.godotengine.org/en/stable/tutorials/2d/using_tilemaps.html)
-	//		Loop over the 8 adjacent tiles, starting in the upper-left to the lower-right.
-	//		If the tile is a wall, add the tile's value to the autotile id. Any tile that
-	//		is out of bounds is considered a wall (this prevents wall border lines being drawn
-	//		along the edge of the entire leve - the walls will appear to go beyond the visible level).
-	//		
-	//		Each tile has a bit value that increases by the power of 2 (b1, b10, b100, etc). This value
-	//		is added to the autotile id if the tile is a wall.
-	//	*/
-
-	//	Pixel* autotiler{ m_blueprints.GetBuffer() + m_current_level_blueprint.x };		
-	//	int autotile_id{ 0 }, tile_value{ 1 };
-
-	//	for (int y{ center_y - 1 }; y <= center_y + 1; y++)
-	//	{			
-	//		for (int x{ center_x - 1 }; x <= center_x + 1; x++)
-	//		{	
-	//			if (y != center_y || x != center_x) // Skip checking self.
-	//			{
-	//				bool out_of_bounds = (y < 0 || y >= BLUEPRINT_SIZE || x < 0 || x >= BLUEPRINT_SIZE);
-
-	//				if (out_of_bounds || GetIsWallAdjacent(autotiler[x + (y * m_blueprints.GetPitch())]))
-	//					autotile_id |= tile_value;
-
-	//				tile_value <<= 1;
-	//			}				
-	//		}
-	//	}
-	//	CleanupAutotileId(autotile_id);
-	//	return autotile_id;
-	//}
-
-
-	//bool Level::GetIsWallAdjacent(Pixel adjacent_value)
-	//{
-	//	switch (adjacent_value)
-	//	{
-	//	case SMOOTH_HEX:
-	//	case ROUGH_HEX:
-	//	case UNREACHABLE_HEX:
-	//		return true;
-	//	default:
-	//		return false;
-	//	}
-	//}
 
 
 	void Level::CleanupAutotileId(int& autotile_id)
@@ -421,5 +329,27 @@ namespace Tmpl8
 		case 90:	return 46;
 		default:	return 27; // isolated wall (case 0).
 		}
+	}
+
+
+	int Level::GetBitwiseOverlap(int autotile_id)
+	{
+		// Store T/F per bit for if a neighboring obstacle exists in that direction.
+
+		int bitwise_overlap{ 0 };
+		
+		if (autotile_id & LEFT)
+			bitwise_overlap |= 0x0001;
+
+		if (autotile_id & RIGHT)
+			bitwise_overlap |= 0x0010;
+
+		if (autotile_id & TOP)
+			bitwise_overlap |= 0x0100;
+
+		if (autotile_id & BOTTOM)
+			bitwise_overlap |= 0x1000;
+
+		return bitwise_overlap;
 	}
 };

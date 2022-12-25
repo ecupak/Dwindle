@@ -54,12 +54,12 @@ namespace Tmpl8
 	}
 
 
-	void DetectorPoint::UpdatePosition(vec2& player_speed)
+	void DetectorPoint::UpdatePosition(vec2& player_velocity, vec2& distance)
 	{
-		speed = player_speed;
+		velocity = player_velocity;
 
 		prev_position = position;
-		position += speed;
+		position += distance;
 				
 		UpdateCollisionBox();
 	}
@@ -106,9 +106,9 @@ namespace Tmpl8
 	}
 
 
-	vec2& DetectorPoint::GetNewSpeed()
+	vec2& DetectorPoint::GetNewVelocity()
 	{
-		return speed;
+		return velocity;
 	}
 
 
@@ -123,7 +123,19 @@ namespace Tmpl8
 		if (collisions.size() > 0)
 			collisions.clear();
 
+		if (post == 6)
+		{
+			printf("before delta: %f, %f\n", position.x, position.y);
+			printf("delta: %f, %f\n", delta_position.x, delta_position.y);
+		}
+
 		position += delta_position;		
+
+		if (post == 6)
+		{
+			printf("after delta: %f, %f\n", position.x, position.y);
+			printf("\n");
+		}
 
 		UpdateCollisionBox();
 	}
@@ -138,6 +150,8 @@ namespace Tmpl8
 	}
 
 
+	bool debug_mode{ false };
+
 	bool DetectorPoint::CheckForCollisions()
 	{
 		delta_position.x = 0.0f;
@@ -147,6 +161,15 @@ namespace Tmpl8
 		if (collisions.size() == 0)
 			return false;
 		
+		debug_mode = false;
+
+		if (post == 6)
+		{
+			printf("prev pos: %f, %f\n", prev_position.x, prev_position.y);
+			printf("landing pos: %f, %f\n", position.x, position.y);
+			debug_mode = true;
+		}
+
 		// Precalculate the rounding down and conversion to int.
 		int i_pre_pos_x{ (int)floor(prev_position.x) },
 			i_pre_pos_y{ (int)floor(prev_position.y) },
@@ -270,6 +293,7 @@ namespace Tmpl8
 			hit so player is not in obstacle.
 		*/
 
+		
 		if (closest_intersection.m_collision_object)
 		{
 			/*
@@ -316,8 +340,16 @@ namespace Tmpl8
 
 			if (GetIsIntersectionInBounds(intersection, collision_object))
 			{
+				if (debug_mode)
+					printf("edge crossed: %d - ok\n", collision_edge_crossed);
+
 				int penetration{ GetPenetrationDepth(collision_object, collision_edge_crossed) };
 				intersects.push_back(Intersection{ collision_object, intersection, collision_edge_crossed, penetration });
+			}
+			else
+			{
+				if (debug_mode)
+					printf("edge crossed: %d - out of bounds\n", collision_edge_crossed);
 			}
 		}
 	}
@@ -395,7 +427,7 @@ namespace Tmpl8
 	void DetectorPoint::ResolveSmoothCollision(Intersection& intersection_info)
 	{
 		/*
-			Get next mode or ricochet speed (no mode if ricochet).
+			Get next mode or ricochet velocity (no mode if ricochet).
 		*/
 
 		isRicochetCollision = GetIsRicochetCollision(intersection_info.m_collision_edge_crossed);
@@ -482,36 +514,39 @@ namespace Tmpl8
 	{
 		/*
 			Ricochet based on what edge of the collision object was crossed.
-			Left/Right dampens and reverses x speed, and slighty dampens y speed.
-			Top/Bottom dampens and reverses y speed with a small decrease to x speed.
+			Left/Right dampens and reverses x velocity, and slighty dampens y velocity.
+			Top/Bottom dampens and reverses y velocity with a small decrease to x velocity.
 		*/
 
 		switch (intersection_info.m_collision_edge_crossed)
 		{
 		case EdgeCrossed::LEFT:
-			speed.x = fabsf(speed.x * 0.5f);
-			speed.y *= 0.75f;
+			velocity.x = fabsf(velocity.x * 0.5f);
+			velocity.y *= 0.75f;
 			break;
 		case EdgeCrossed::RIGHT:
-			speed.x = fabsf(speed.x * 0.5f);
-			speed.y *= 0.75f;
+			velocity.x = fabsf(velocity.x * 0.5f);
+			velocity.y *= 0.75f;
 			break;
 		case EdgeCrossed::TOP:
-			speed.x = (fabsf(speed.x) + 1.5f);
-			speed.y = -2.0f;
+			velocity.x = (fabsf(velocity.x) + 1.5f);
+			velocity.y = -2.0f;
 			break;
 		case EdgeCrossed::BOTTOM:
-			speed.x = (fabsf(speed.x) + 1.5f);
-			speed.y = 1.0f;
+			velocity.x = (fabsf(velocity.x) + 1.5f);
+			velocity.y = 1.0f;
 			break;
 		}
 
-		speed.x *= intersection_info.GetHorizontalRicochetDirection();
+		velocity.x *= intersection_info.GetHorizontalRicochetDirection();
 	}
 
 
 	vec2 DetectorPoint::GetCollisionBuffer(EdgeCrossed collision_edge_crossed)
 	{
+		if (debug_mode)
+			printf("buffer for: %d\n", collision_edge_crossed);
+
 		switch (collision_edge_crossed)
 		{
 		case EdgeCrossed::LEFT:

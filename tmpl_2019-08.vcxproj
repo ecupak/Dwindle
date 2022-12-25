@@ -102,10 +102,11 @@
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <BufferSecurityCheck>true</BufferSecurityCheck>
       <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
-      <FloatingPointModel>Fast</FloatingPointModel>
+      <FloatingPointModel>Strict</FloatingPointModel>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <StructMemberAlignment>Default</StructMemberAlignment>
+      <FloatingPointExceptions>true</FloatingPointExceptions>
     </ClCompile>
     <Link>
       <AdditionalDependencies>winmm.lib;advapi32.lib;user32.lib;sdl2.lib;sdl2main.lib;opengl32.lib;freeimage.lib</AdditionalDependencies>
@@ -131,10 +132,11 @@
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <BufferSecurityCheck>true</BufferSecurityCheck>
       <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
-      <FloatingPointModel>Fast</FloatingPointModel>
+      <FloatingPointModel>Strict</FloatingPointModel>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <StructMemberAlignment>Default</StructMemberAlignment>
+      <FloatingPointExceptions>true</FloatingPointExceptions>
     </ClCompile>
     <Link>
       <AdditionalDependencies>winmm.lib;advapi32.lib;user32.lib;sdl2.lib;sdl2main.lib;opengl32.lib;freeimage.lib</AdditionalDependencies>
@@ -162,11 +164,12 @@
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
-      <FloatingPointModel>Fast</FloatingPointModel>
+      <FloatingPointModel>Strict</FloatingPointModel>
       <BrowseInformation>
       </BrowseInformation>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <FloatingPointExceptions>true</FloatingPointExceptions>
     </ClCompile>
     <Link>
       <AdditionalDependencies>winmm.lib;advapi32.lib;user32.lib;sdl2.lib;sdl2main.lib;opengl32.lib;freeimage.lib</AdditionalDependencies>
@@ -199,11 +202,12 @@
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
-      <FloatingPointModel>Fast</FloatingPointModel>
+      <FloatingPointModel>Strict</FloatingPointModel>
       <BrowseInformation>
       </BrowseInformation>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <FloatingPointExceptions>true</FloatingPointExceptions>
     </ClCompile>
     <Link>
       <AdditionalDependencies>winmm.lib;advapi32.lib;user32.lib;sdl2.lib;sdl2main.lib;opengl32.lib;freeimage.lib</AdditionalDependencies>

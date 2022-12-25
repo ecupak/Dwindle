@@ -16,10 +16,10 @@ namespace Tmpl8
 
 	private:
 		// METHODS.
-		void UpdateFullPhase() override;
-		void UpdateWaxingPhase() override;
-		void UpdateWaningPhase() override;
-		void UpdateEveryPhase() override;
+		void UpdateFullPhase(float deltaTime) override;
+		void UpdateWaxingPhase(float deltaTime) override;
+		void UpdateWaningPhase(float deltaTime) override;
+		void UpdateEveryPhase(float deltaTime) override;
 		
 
 		// ATTRIBUTES.		

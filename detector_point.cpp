@@ -54,12 +54,12 @@ namespace Tmpl8
 	}
 
 
-	void DetectorPoint::UpdatePosition(vec2& player_speed)
+	void DetectorPoint::UpdatePosition(vec2& player_velocity, vec2& distance)
 	{
-		speed = player_speed;
+		velocity = player_velocity;
 
 		prev_position = position;
-		position += speed;
+		position += distance;
 				
 		UpdateCollisionBox();
 	}
@@ -103,9 +103,9 @@ namespace Tmpl8
 	}
 
 
-	vec2& DetectorPoint::GetNewSpeed()
+	vec2& DetectorPoint::GetNewVelocity()
 	{
-		return speed;
+		return velocity;
 	}
 
 
@@ -424,7 +424,7 @@ namespace Tmpl8
 	void DetectorPoint::ResolveSmoothCollision(Intersection& intersection_info)
 	{
 		/*
-			Get next mode or ricochet speed (no mode if ricochet).
+			Get next mode or ricochet velocity (no mode if ricochet).
 		*/
 
 		isRicochetCollision = GetIsRicochetCollision(intersection_info.m_collision_edge_crossed);
@@ -511,31 +511,31 @@ namespace Tmpl8
 	{
 		/*
 			Ricochet based on what edge of the collision object was crossed.
-			Left/Right dampens and reverses x speed, and slighty dampens y speed.
-			Top/Bottom dampens and reverses y speed with a small decrease to x speed.
+			Left/Right dampens and reverses x velocity, and slighty dampens y velocity.
+			Top/Bottom dampens and reverses y velocity with a small decrease to x velocity.
 		*/
 
 		switch (intersection_info.m_collision_edge_crossed)
 		{
 		case EdgeCrossed::LEFT:
-			speed.x = fabsf(speed.x * 0.5f);
-			speed.y *= 0.75f;
+			velocity.x = fabsf(velocity.x * 0.5f);
+			velocity.y *= 0.75f;
 			break;
 		case EdgeCrossed::RIGHT:
-			speed.x = fabsf(speed.x * 0.5f);
-			speed.y *= 0.75f;
+			velocity.x = fabsf(velocity.x * 0.5f);
+			velocity.y *= 0.75f;
 			break;
 		case EdgeCrossed::TOP:
-			speed.x = (fabsf(speed.x) + 1.5f);
-			speed.y = -2.0f;
+			velocity.x = (fabsf(velocity.x) + 1.5f);
+			velocity.y = -2.0f;
 			break;
 		case EdgeCrossed::BOTTOM:
-			speed.x = (fabsf(speed.x) + 1.5f);
-			speed.y = 1.0f;
+			velocity.x = (fabsf(velocity.x) + 1.5f);
+			velocity.y = 1.0f;
 			break;
 		}
 
-		speed.x *= intersection_info.GetHorizontalRicochetDirection();
+		velocity.x *= intersection_info.GetHorizontalRicochetDirection();
 	}
 
 

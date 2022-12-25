@@ -99,7 +99,7 @@ namespace Tmpl8
 	}
 
 
-	GlowSocket& Level::GetPlayerGlowSocket()
+	Socket<GlowMessage>& Level::GetPlayerGlowSocket()
 	{
 		return m_glow_manager.GetPlayerGlowSocket();
 	}
@@ -111,13 +111,13 @@ namespace Tmpl8
 	}
 		
 
-	void Level::RegisterCollisionSocket(CollisionSocket& collision_socket)
+	void Level::RegisterCollisionSocket(Socket<CollisionMessage>& collision_socket)
 	{
 		m_collision_socket = &collision_socket;
 	}
 
 	
-	void Level::RegisterCollisionSocketToGlowManager(CollisionSocket& collision_socket)
+	void Level::RegisterCollisionSocketToGlowManager(Socket<CollisionMessage>& collision_socket)
 	{
 		m_glow_manager.RegisterCollisionSocket(collision_socket);
 	}

@@ -30,12 +30,6 @@
     <ClCompile Include="collidable.cpp">
       <Filter>Base Classes</Filter>
     </ClCompile>
-    <ClCompile Include="glow_socket.cpp">
-      <Filter>Glow Files</Filter>
-    </ClCompile>
-    <ClCompile Include="collision_socket.cpp">
-      <Filter>Collision Files</Filter>
-    </ClCompile>
     <ClCompile Include="full_glow_orb.cpp">
       <Filter>Glow Files</Filter>
     </ClCompile>
@@ -109,6 +103,9 @@
     </ClInclude>
     <ClInclude Include="blueprints.h">
       <Filter>Level Files</Filter>
+    </ClInclude>
+    <ClInclude Include="socket.h">
+      <Filter>Base Classes</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

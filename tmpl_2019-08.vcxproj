@@ -229,12 +229,10 @@
     <ClCompile Include="blueprints.cpp" />
     <ClCompile Include="collidable.cpp" />
     <ClCompile Include="collision_manager.cpp" />
-    <ClCompile Include="collision_socket.cpp" />
     <ClCompile Include="detector_point.cpp" />
     <ClCompile Include="game.cpp" />
     <ClCompile Include="glow_manager.cpp" />
     <ClCompile Include="glow_orb.cpp" />
-    <ClCompile Include="glow_socket.cpp" />
     <ClCompile Include="level.cpp" />
     <ClCompile Include="obstacle.cpp" />
     <ClCompile Include="player.cpp" />
@@ -257,6 +255,7 @@
     <ClInclude Include="glow_socket.h" />
     <ClInclude Include="intersection.h" />
     <ClInclude Include="safe_glow_orb.h" />
+    <ClInclude Include="socket.h" />
     <ClInclude Include="standard_form.h" />
     <ClInclude Include="key_state.h" />
     <ClInclude Include="level.h" />

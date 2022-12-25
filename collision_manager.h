@@ -28,8 +28,8 @@ namespace Tmpl8
 		// Runs collision checks on viewport and player collidables and tells objects to resolve any detected collisions.
 		void UpdateCollisions();
 		
-		CollisionSocket& GetLevelCollisionSocket();
-		CollisionSocket& GetGlowCollisionSocket();
+		Socket<CollisionMessage>& GetLevelCollisionSocket();
+		Socket<CollisionMessage>& GetGlowCollisionSocket();
 
 	private:
 		// METHODS.
@@ -73,8 +73,8 @@ namespace Tmpl8
 		Player &m_player;
 		Level* m_level;	// Not set during constructor; has no default constructor.
 
-		CollisionSocket m_level_connection{};
-		CollisionSocket m_glow_connection{};
+		Socket<CollisionMessage> m_level_connection{};
+		Socket<CollisionMessage> m_glow_connection{};
 
 		/*
 			Contains glow objects (masks for the level).

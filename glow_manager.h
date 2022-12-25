@@ -19,20 +19,20 @@ namespace Tmpl8
 		GlowManager();
 
 		//std::vector<GlowOrb>& GetViewportCollidables();
-		GlowSocket& GetPlayerGlowSocket();
+		Socket<GlowMessage>& GetPlayerGlowSocket();
 		void CheckSocketForNewGlowOrbMessage(bool& has_new_data_for_collision_socket);
 		void Update(float deltaTime);
 		void UpdateGlowOrbs(bool& has_new_data_for_collision_socket, float deltaTime);
 
-		void RegisterCollisionSocket(CollisionSocket& collision_socket);
+		void RegisterCollisionSocket(Socket<CollisionMessage>& collision_socket);
 
 	private:
 
 		void CreateGlowOrb();
 		void RemoveExpiredGlowOrb(std::vector<std::shared_ptr<GlowOrb>>::const_iterator index_it);
 
-		GlowSocket m_glow_socket;
-		CollisionSocket* m_collision_socket;
+		Socket<GlowMessage> m_glow_socket;
+		Socket<CollisionMessage>* m_collision_socket;
 
 		std::vector<std::shared_ptr<GlowOrb>> m_orbs;
 		std::vector<Collidable*> m_collidables;

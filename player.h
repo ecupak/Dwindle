@@ -90,7 +90,7 @@ namespace Tmpl8 {
 		void setFrameSquash2Stretch();
 		void setFrameAfterWallBounce(bool isWeakBounce);
 
-		void SetCenter();
+		void SetCenterAndBounds();
 		float GetDistance(int vec2_index, float pre_calculated_t2);
 
 		template <typename T> int GetSign(T val);

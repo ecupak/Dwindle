@@ -116,13 +116,14 @@ namespace Tmpl8
 		position.x += distance.x;
 		position.y += distance.y;
 
-		SetCenter();
+		SetCenterAndBounds();
 
 		for (DetectorPoint& point : points)
 		{
 			point.UpdatePosition(velocity, distance);
 		}
 	}
+
 
 	float Player::GetDistance(int vec2_index, float pre_calculated_half_t2)
 	{
@@ -131,6 +132,7 @@ namespace Tmpl8
 			// mutliplied so acceleration and velocity can stay as manageable numbers.
 			* magnitude_coefficient[vec2_index];			
 	}
+
 
 	void Player::SetCenterAndBounds()
 	{
@@ -148,6 +150,7 @@ namespace Tmpl8
 		top = (int)floor(position.y);
 		bottom = (int)floor(top + m_sprite.GetHeight());
 	}
+
 
 	std::vector<DetectorPoint>& Player::GetCollisionPoints()
 	{	

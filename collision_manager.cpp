@@ -26,13 +26,13 @@ namespace Tmpl8
 	}
 
 
-	CollisionSocket& CollisionManager::GetLevelCollisionSocket()
+	Socket<CollisionMessage>& CollisionManager::GetLevelCollisionSocket()
 	{
 		return m_level_connection;
 	}
 
 	
-	CollisionSocket& CollisionManager::GetGlowCollisionSocket()
+	Socket<CollisionMessage>& CollisionManager::GetGlowCollisionSocket()
 	{
 		return m_glow_connection;
 	}
@@ -91,6 +91,7 @@ namespace Tmpl8
 		{
 			GetCollidablesFromLevel(CollidableGroup::VIEWPORT);
 			AddUniqueElementToCollidables(CollidableGroup::VIEWPORT);
+			m_glow_connection.ClearMessages();
 		}
 	}
 
@@ -138,8 +139,10 @@ namespace Tmpl8
 
 	void CollisionManager::GetCollidablesFromGlowConnection()
 	{
-		CollisionMessage& message = m_glow_connection.ReceiveMessage();
-		m_viewport_collidables = message.GetCollidables();
+		std::vector<CollisionMessage>& messages = m_glow_connection.ReadMessages();
+
+		// If we somehow missed getting an update, get the latest update.
+		m_viewport_collidables = messages.back().m_collidables;
 	}
 
 

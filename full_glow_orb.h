@@ -11,7 +11,7 @@ namespace Tmpl8
 	{
 	public:
 		// METHODS.		
-		FullGlowOrb(vec2 position, GlowSocket* glow_socket);
+		FullGlowOrb(vec2 position, Socket<GlowMessage>* glow_socket);
 		//virtual void Update() {};
 
 	private:
@@ -23,6 +23,6 @@ namespace Tmpl8
 		
 
 		// ATTRIBUTES.		
-		GlowSocket* m_glow_socket;
+		Socket<GlowMessage>* m_glow_socket;
 	};
 };

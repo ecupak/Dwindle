@@ -17,13 +17,13 @@ namespace Tmpl8
 	}*/
 
 
-	GlowSocket& GlowManager::GetPlayerGlowSocket()
+	Socket<GlowMessage>& GlowManager::GetPlayerGlowSocket()
 	{
 		return m_glow_socket;
 	}
 
 
-	void GlowManager::RegisterCollisionSocket(CollisionSocket& collision_socket)
+	void GlowManager::RegisterCollisionSocket(Socket<CollisionMessage>& collision_socket)
 	{
 		m_collision_socket = &collision_socket;
 	}
@@ -40,7 +40,7 @@ namespace Tmpl8
 
 		if (is_orb_list_changed)
 		{
-			m_collision_socket->SendMessage(m_collidables);
+			m_collision_socket->SendMessage(CollisionMessage{ m_collidables });
 		}
 	}
 
@@ -85,13 +85,14 @@ namespace Tmpl8
 		{
 			is_orb_list_changed = true;
 			CreateGlowOrb();
+			m_glow_socket.ClearMessages();
 		}
 	}
 
 
 	void GlowManager::CreateGlowOrb()
 	{
-		std::vector<GlowMessage> messages = m_glow_socket.ReceiveMessages();
+		std::vector<GlowMessage> messages = m_glow_socket.ReadMessages();
 
 		// Stored as shared pointer to avoid splicing. All derived classes need to be stored in a single vector.
 

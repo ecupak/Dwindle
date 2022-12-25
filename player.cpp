@@ -1,6 +1,5 @@
 #pragma once
 
-
 #include <algorithm>
 #include "player.h"
 
@@ -146,7 +145,7 @@ namespace Tmpl8
 	}
 
 	
-	void Player::RegisterGlowSocket(GlowSocket& glow_socket)
+	void Player::RegisterGlowSocket(Socket<GlowMessage>& glow_socket)
 	{
 		m_glow_socket = &glow_socket;
 	}
@@ -228,14 +227,19 @@ namespace Tmpl8
 
 
 			// Update GlowSocket.
-			vec2 offset_center{ center.x, center.y };
 			if (new_mode & ~NONE)
 			{
-				m_glow_socket->SendMessage(center, CollidableType::FULL_GLOW);
+				m_glow_socket->SendMessage(GlowMessage{ center, CollidableType::FULL_GLOW });
+				//m_glow_socket->SendMessage(std::make_unique<Message>center, CollidableType::FULL_GLOW);
+				//m_glow_socket->SendMessage(center, CollidableType::FULL_GLOW);
 			}
 			else if (is_ricochet_set)
-				m_glow_socket->SendMessage(center, CollidableType::TEMP_GLOW);
-		}
+			{
+				m_glow_socket->SendMessage(GlowMessage{ center, CollidableType::TEMP_GLOW });
+				//glow_message; std::make_unique<GlowMessage>(center, CollidableType::FULL_GLOW)
+				//m_glow_socket->SendMessage(center, CollidableType::TEMP_GLOW);
+			}
+		}			
 	}
 
 

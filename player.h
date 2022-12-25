@@ -1,5 +1,7 @@
 #pragma once
 
+#include <memory> // remove after glowsocket is derived from socket.
+
 #include "collidable.h"
 #include "detector_point.h"
 #include "key_state.h"
@@ -51,7 +53,7 @@ namespace Tmpl8 {
 		std::vector<DetectorPoint> points;
 		void UpdatePosition();
 
-		void RegisterGlowSocket(GlowSocket& glow_socket);
+		void RegisterGlowSocket(Socket<GlowMessage>& glow_socket);
 
 	private:
 		/* METHODS */
@@ -98,7 +100,7 @@ namespace Tmpl8 {
 
 		/* ATTRIBUTES */
 
-		GlowSocket* m_glow_socket{ nullptr };
+		Socket<GlowMessage>* m_glow_socket{ nullptr };
 
 		// Screen reference.
 		Surface* m_screen;

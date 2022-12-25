@@ -40,9 +40,9 @@ namespace Tmpl8
 		std::vector<Collidable*>& GetPlayerCollidables();
 
 
-		GlowSocket& GetPlayerGlowSocket();
-		void RegisterCollisionSocket(CollisionSocket& collision_socket);
-		void RegisterCollisionSocketToGlowManager(CollisionSocket& collision_socket);
+		Socket<GlowMessage>& GetPlayerGlowSocket();
+		void RegisterCollisionSocket(Socket<CollisionMessage>& collision_socket);
+		void RegisterCollisionSocketToGlowManager(Socket<CollisionMessage>& collision_socket);
 
 		void Update(float deltaTime);
 
@@ -83,7 +83,7 @@ namespace Tmpl8
 
 		GlowManager m_glow_manager;
 
-		CollisionSocket* m_collision_socket{ nullptr };
+		Socket<CollisionMessage>* m_collision_socket{ nullptr };
 
 		Surface m_background_layer;
 		Surface m_obstacle_layer;

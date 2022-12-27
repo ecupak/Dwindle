@@ -5,7 +5,7 @@
 #include "collidable.h"
 #include "level.h"
 #include "player.h"
-#include "viewport.h"
+#include "camera.h"
 #include "collision_socket.h"
 
 namespace Tmpl8

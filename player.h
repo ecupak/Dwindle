@@ -5,8 +5,10 @@
 #include "key_state.h"
 #include "glow_socket.h"
 #include "camera_socket.h"
+#include "life_socket.h"
 
 namespace Tmpl8 {
+
 	enum class Trigger // Action to trigger wall bounce.
 	{
 		LEFT,
@@ -30,7 +32,7 @@ namespace Tmpl8 {
 		REST,
 		NONE,
 	};
-
+	
 	class Player : public Collidable
 	{
 	public:
@@ -52,6 +54,7 @@ namespace Tmpl8 {
 
 		void RegisterGlowSocket(Socket<GlowMessage>& glow_socket);
 		void RegisterCameraSocket(Socket<CameraMessage>& camera_socket);
+		void RegisterLifeSocket(Socket<LifeMessage>& life_socket);
 
 		float GetDistanceToBounceApex();
 
@@ -106,12 +109,14 @@ namespace Tmpl8 {
 
 		Socket<GlowMessage>* m_glow_socket{ nullptr };
 		Socket<CameraMessage>* m_camera_socket{ nullptr };
+		Socket<LifeMessage>* m_life_socket{ nullptr };
 
 		// Screen reference.
 		Surface* m_screen;
 
-		float m_player_strength{ 45.0f };
-		float m_player_max_strength{ 45.0f };
+		int m_player_strength{ 45 };
+		int m_player_max_strength{ 45 };
+		int m_player_buffer_strength{ m_player_max_strength + 5 };
 
 		// Player sprite.
 		Sprite m_sprite;
@@ -121,6 +126,7 @@ namespace Tmpl8 {
 
 		// State change tracker.
 		Mode mode{ Mode::AIR };
+		State state{ State::ALIVE };
 
 		keyState& m_leftKey;
 		keyState& m_rightKey;
@@ -130,7 +136,9 @@ namespace Tmpl8 {
 		float m_delta_time{ 0.0f };
 
 		// Movement related.
-		float ground_bounce_power{ 4.0f };
+		float m_ground_bounce_power{ 4.0f };
+		float m_max_ground_bounce_power{ m_ground_bounce_power };
+
 		vec2 acceleration{ 25.0f, 5.0f };
 		vec2 magnitude_coefficient{ 10.0f, 48.0f };
 

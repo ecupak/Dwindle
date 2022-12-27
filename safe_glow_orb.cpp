@@ -9,7 +9,7 @@ namespace Tmpl8
 		radius_max = 30.0f;
 		radius = radius_max;
 		phase = Phase::FULL;
-		opacity = 150.0f * player_strength;
+		opacity = 100.0f;
 	}
 
 	void SafeGlowOrb::DrawStep(int x_pos, Pixel*& destination_pix, Pixel*& source_pix, int new_opacity, float intensity)

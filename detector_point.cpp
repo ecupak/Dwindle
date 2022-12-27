@@ -154,6 +154,12 @@ namespace Tmpl8
 	}
 
 
+	void DetectorPoint::UpdateState(State new_state)
+	{
+		m_state = new_state;
+	}
+
+
 	bool debug_mode{ false };
 
 	bool DetectorPoint::CheckForCollisions()

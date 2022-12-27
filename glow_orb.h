@@ -42,12 +42,12 @@ namespace Tmpl8
 
 		/* Orb growth. */
 		float radius_max{ 140.0f };
-		float radius_delta{ 8.0f };
+		float radius_delta{ 1000.0f };
 		float opacity_delta{ 0.0f };
-		float opacity_delta_delta{ 0.1f };
+		float opacity_delta_delta{ 100.0f };
 
 		/* Orb duration at max. */		
-		float delay_max{ 10.0f };
+		float delay_max{ 0.0f };
 		float delay{ delay_max };
 
 	private:

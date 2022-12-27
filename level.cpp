@@ -71,21 +71,9 @@ namespace Tmpl8
 	}
 
 
-	Surface* Level::GetBackgroundLayer()
+	vec2 Level::GetBounds()
 	{
-		return &m_background_layer;
-	}
-
-
-	Surface* Level::GetObstacleLayer()
-	{
-		return &m_obstacle_layer;
-	}
-
-
-	Surface* Level::GetMapLayer()
-	{
-		return &m_map_layer;
+		return vec2{ 1.0f * m_map_layer.GetWidth(), 1.0f * m_map_layer.GetHeight() };
 	}
 
 

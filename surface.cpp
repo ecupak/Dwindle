@@ -96,7 +96,7 @@ void Surface::Centre( char* a_String, int y1, Pixel color )
 	Print( a_String, x, y1, color );
 }
 
-void Surface::Print( char* a_String, int x1, int y1, Pixel color )
+void Surface::Print( char* a_String, int x1, int y1, Pixel color, bool is_alpha, float opacity)
 {
 	if (!fontInitialized) 
 	{
@@ -115,7 +115,14 @@ void Surface::Print( char* a_String, int x1, int y1, Pixel color )
 			for ( int h = 0; h < 5; h++ )
 				if (*c++ == 'o')
 				{
-					*(a + h) = color;
+					if (is_alpha)
+					{
+						*(a + h) = MixAlpha(color, opacity, 0xFF000000, false);
+					}
+					else
+					{
+						*(a + h) = color;
+					}
 					*(a + h + m_Pitch) = 0;
 				}
 	}

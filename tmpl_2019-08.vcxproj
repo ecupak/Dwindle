@@ -235,6 +235,8 @@
     <ClCompile Include="glow_manager.cpp" />
     <ClCompile Include="glow_orb.cpp" />
     <ClCompile Include="level.cpp" />
+    <ClCompile Include="life_hud.cpp" />
+    <ClCompile Include="life_socket.cpp" />
     <ClCompile Include="obstacle.cpp" />
     <ClCompile Include="player.cpp" />
     <ClCompile Include="safe_glow_orb.cpp" />
@@ -257,6 +259,8 @@
     <ClInclude Include="glow_socket.h" />
     <ClInclude Include="camera_socket.h" />
     <ClInclude Include="intersection.h" />
+    <ClInclude Include="life_hud.h" />
+    <ClInclude Include="life_socket.h" />
     <ClInclude Include="safe_glow_orb.h" />
     <ClInclude Include="socket.h" />
     <ClInclude Include="standard_form.h" />

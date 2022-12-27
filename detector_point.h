@@ -9,6 +9,13 @@
 
 namespace Tmpl8
 {
+	enum class State // Player state based on life/hp.
+	{
+		ALIVE,
+		DEAD,
+	};
+
+
 	class DetectorPoint : public Collidable
 	{
 	public:
@@ -25,6 +32,8 @@ namespace Tmpl8
 		vec2& GetNewVelocity();
 		void UpdatePreviousPosition();
 		void ClearCollisions();
+		void UpdateState(State new_state);
+
 
 		vec2 position;
 		vec2 prev_position;
@@ -64,7 +73,8 @@ namespace Tmpl8
 		vec2 GetCollisionBuffer(EdgeCrossed collision_edge_crossed);
 		int GetPenetrationDepth(Collidable*& collision_object, EdgeCrossed collision_edge_crossed);
 
-		int collision_count{ 0 };		
+		int collision_count{ 0 };
+		State m_state{ State::ALIVE };
 	};
 };
 

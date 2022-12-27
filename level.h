@@ -31,9 +31,7 @@ namespace Tmpl8
 
 		vec2& GetPlayerStartPosition();
 
-		// Viewport collidables are visual things. The glow orbs on the map.
-		// The glow of the light pickups.
-		//std::vector<GlowOrb>& GetViewportCollidables();
+		vec2 GetBounds();
 
 		// Player collidables are interactable things. The obstacles.
 		// The light pickups.

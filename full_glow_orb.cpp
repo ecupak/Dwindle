@@ -26,7 +26,7 @@ namespace Tmpl8
 		}
 		else
 		{
-			radius += radius_delta;
+			radius += radius_delta * deltaTime;
 			opacity = (radius / radius_max) * 255 * m_player_strength;
 		}
 	}
@@ -45,8 +45,8 @@ namespace Tmpl8
 	
 	void FullGlowOrb::UpdateWaningPhase(float deltaTime)
 	{
-		opacity -= opacity_delta;
-		opacity_delta += opacity_delta_delta;
+		opacity -= opacity_delta * deltaTime;
+		opacity_delta += opacity_delta_delta * deltaTime;
 	}
 
 

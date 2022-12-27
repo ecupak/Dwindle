@@ -53,6 +53,10 @@
     <ClCompile Include="temp_glow_orb.cpp">
       <Filter>Glow Files\Temp Glow Orb</Filter>
     </ClCompile>
+    <ClCompile Include="life_hud.cpp">
+      <Filter>Viewport Files\Life HUD</Filter>
+    </ClCompile>
+    <ClCompile Include="life_socket.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="game.h" />
@@ -123,6 +127,10 @@
     <ClInclude Include="camera_socket.h">
       <Filter>Viewport Files</Filter>
     </ClInclude>
+    <ClInclude Include="life_hud.h">
+      <Filter>Viewport Files\Life HUD</Filter>
+    </ClInclude>
+    <ClInclude Include="life_socket.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="template code">
@@ -187,6 +195,9 @@
     </Filter>
     <Filter Include="Player Files\Detector Point">
       <UniqueIdentifier>{661dbebc-035d-4005-907b-e01243c5ec58}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Viewport Files\Life HUD">
+      <UniqueIdentifier>{690c1579-aaad-4773-9d0d-a13d68616187}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

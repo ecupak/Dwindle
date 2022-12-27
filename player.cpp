@@ -135,8 +135,8 @@ namespace Tmpl8
 
 	float Player::GetDistanceToBounceApex()
 	{
-		float time_to_apex{ ground_bounce_power / acceleration.y };
-		float distance_of_apex{ (ground_bounce_power * time_to_apex) + (0.5f * acceleration.y * time_to_apex * time_to_apex) };
+		float time_to_apex{ m_ground_bounce_power / acceleration.y };
+		float distance_of_apex{ (m_ground_bounce_power * time_to_apex) + (0.5f * acceleration.y * time_to_apex * time_to_apex) };
 		return distance_of_apex * magnitude_coefficient.y;
 	}
 
@@ -176,6 +176,12 @@ namespace Tmpl8
 		m_camera_socket = &camera_socket;
 	}
 
+
+	void Player::RegisterLifeSocket(Socket<LifeMessage>& life_socket)
+	{
+		m_life_socket = &life_socket;
+	}
+	
 
 	void Player::ResolveCollision(Collidable*& collision)
 	{
@@ -266,19 +272,35 @@ namespace Tmpl8
 				velocity = ricochet_velocity;
 			}
 
+			
+			// If safe glow needed, make one if life is > 0. Otherwise player has no life and is dead. If safe glow is not needed, no life is lost.
 			if (is_safe_glow_needed)
 			{
-				--m_player_strength;
-			}
+				if (m_player_strength > 0)
+				{
+					--m_player_strength;
+					m_life_socket->SendMessage(LifeMessage{ m_player_strength, 1.0f * m_player_strength / m_player_buffer_strength });
 
-			// Update glow socket.
-			if (new_mode & ~NONE)
-			{				
-				m_glow_socket->SendMessage(GlowMessage{ center, m_player_strength/m_player_max_strength, CollidableType::FULL_GLOW, is_safe_glow_needed });
-			}
-			else if (is_ricochet_set)
-			{
-				m_glow_socket->SendMessage(GlowMessage{ center, m_player_strength / m_player_max_strength, CollidableType::TEMP_GLOW });
+					// Update glow socket.
+					if (new_mode & ~NONE)
+					{
+						m_glow_socket->SendMessage(GlowMessage{ center, 1.0f * m_player_strength / m_player_buffer_strength, CollidableType::FULL_GLOW, is_safe_glow_needed });
+					}
+					else if (is_ricochet_set)
+					{
+						m_glow_socket->SendMessage(GlowMessage{ center, 1.0f * m_player_strength / m_player_buffer_strength, CollidableType::TEMP_GLOW });
+					}
+				}
+				else
+				{
+					state = State::DEAD;
+					for (DetectorPoint& point : points)
+					{
+						point.UpdateState(state);
+					}
+
+					m_ground_bounce_power -= 0.5f;
+				}
 			}
 		}
 		else
@@ -433,8 +455,7 @@ namespace Tmpl8
 		squashValue *= squashDampeningCoefficient;
 		squashValue = ceil(squashValue) - 1;
 
-		printf("squash sec: %f\n", squashValue);
-		m_squash_frame_seconds = 0.5f; //static_cast<int>(squashValue);
+		m_squash_frame_seconds = 0.24f; //static_cast<int>(squashValue);
 	}
 
 
@@ -553,7 +574,7 @@ namespace Tmpl8
 			higher than it started. */
 
 		// Reverse velocity (bounce!).
-		velocity.y = -(ground_bounce_power);
+		velocity.y = -(m_ground_bounce_power);
 	}
 
 
@@ -626,7 +647,7 @@ namespace Tmpl8
 			break;
 		}
 
-		velocity.y = -1 * ground_bounce_power * multiplier;
+		velocity.y = -1 * m_ground_bounce_power * multiplier;
 	}
 
 

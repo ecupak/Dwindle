@@ -6,8 +6,9 @@
 
 namespace Tmpl8
 {
-	GlowOrb::GlowOrb(vec2 position, CollidableType object_type, Surface* source_layer) :
-		m_source_layer{ source_layer }
+	GlowOrb::GlowOrb(vec2 position, float player_stength, CollidableType object_type, Surface* source_layer) :
+		m_source_layer{ source_layer },
+		m_player_strength{ player_stength }
 	{	
 		center = position;
 		m_object_type = object_type;

@@ -3,13 +3,13 @@
 
 namespace Tmpl8
 {
-	SafeGlowOrb::SafeGlowOrb(vec2 position, Surface* source_layer) :
-		GlowOrb{ position, CollidableType::SAFE_GLOW, source_layer}
+	SafeGlowOrb::SafeGlowOrb(vec2 position, float player_strength, Surface* source_layer) :
+		GlowOrb{ position, player_strength, CollidableType::SAFE_GLOW, source_layer}
 	{
 		radius_max = 30.0f;
 		radius = radius_max;
 		phase = Phase::FULL;
-		opacity = 150.0f;
+		opacity = 150.0f * player_strength;
 	}
 
 	void SafeGlowOrb::DrawStep(int x_pos, Pixel*& destination_pix, Pixel*& source_pix, int new_opacity, float intensity)

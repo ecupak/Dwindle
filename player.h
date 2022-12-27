@@ -90,10 +90,8 @@ namespace Tmpl8 {
 
 		// Sprite updates.
 		void updateFrameStretch2Normal();
-		void updateFrameDirectionLockRelease();
 		void setFrameNormal2Squash();
 		void setFrameSquash2Stretch();
-		void setFrameAfterWallBounce(bool isWeakBounce);
 
 		void SetCenterAndBounds();
 		float GetDistanceToMove(int vec2_index, float pre_calculated_t2);
@@ -111,6 +109,9 @@ namespace Tmpl8 {
 
 		// Screen reference.
 		Surface* m_screen;
+
+		float m_player_strength{ 45.0f };
+		float m_player_max_strength{ 45.0f };
 
 		// Player sprite.
 		Sprite m_sprite;
@@ -160,7 +161,7 @@ namespace Tmpl8 {
 
 		// Frame counts determine how long certain conditions last.
 		//int directionLockedFrameCount{ 0 };
-		float squashFrameCount{ 0 };
+		float m_squash_frame_seconds{ 0 };
 		int stretchFrameCount{ 0 };
 		float triggerFrameCount{ 0 };
 	};

@@ -3,8 +3,8 @@
 
 namespace Tmpl8
 {
-	FullGlowOrb::FullGlowOrb(vec2 position, Surface* source_layer, Socket<GlowMessage>* glow_socket, bool is_safe_glow_needed) :
-		GlowOrb{ position, CollidableType::FULL_GLOW, source_layer },
+	FullGlowOrb::FullGlowOrb(vec2 position, float player_strength, Surface* source_layer, Socket<GlowMessage>* glow_socket, bool is_safe_glow_needed) :
+		GlowOrb{ position, player_strength, CollidableType::FULL_GLOW, source_layer },
 		m_glow_socket{ glow_socket }
 	{
 		radius_max = 240.0f;
@@ -13,7 +13,7 @@ namespace Tmpl8
 
 		if (is_safe_glow_needed)
 		{
-			m_glow_socket->SendMessage(GlowMessage{ center, CollidableType::SAFE_GLOW });
+			m_glow_socket->SendMessage(GlowMessage{ center, player_strength, CollidableType::SAFE_GLOW });
 		}
 	}
 
@@ -27,7 +27,7 @@ namespace Tmpl8
 		else
 		{
 			radius += radius_delta;
-			opacity = (radius / radius_max) * 255;
+			opacity = (radius / radius_max) * 255 * m_player_strength;
 		}
 	}
 	

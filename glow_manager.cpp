@@ -5,16 +5,12 @@
 
 namespace Tmpl8
 {
-	GlowManager::GlowManager() :
+	GlowManager::GlowManager(Surface& obstacle_layer, Surface& map_layer) :
 		m_glow_socket{ },
-		m_collision_socket{ }
+		m_collision_socket{ },
+		m_obstacle_layer{ obstacle_layer },
+		m_map_layer{ map_layer }
 	{	}
-
-
-	/*std::vector<GlowOrb>& GlowManager::GetViewportCollidables()
-	{
-		return m_orbs;
-	}*/
 
 
 	Socket<GlowMessage>& GlowManager::GetPlayerGlowSocket()
@@ -84,8 +80,7 @@ namespace Tmpl8
 		if (m_glow_socket.HasNewMessage())
 		{
 			is_orb_list_changed = true;
-			CreateGlowOrb();
-			m_glow_socket.ClearMessages();
+			CreateGlowOrb();			
 		}
 	}
 
@@ -93,35 +88,24 @@ namespace Tmpl8
 	void GlowManager::CreateGlowOrb()
 	{
 		std::vector<GlowMessage> messages = m_glow_socket.ReadMessages();
+		m_glow_socket.ClearMessages();
 
 		// Stored as shared pointer to avoid splicing. All derived classes need to be stored in a single vector.
 
 		for (GlowMessage& message : messages)
-		{
-			std::shared_ptr<GlowOrb> u_orb{ };
+		{	
 			switch (message.m_glow_orb_type)
 			{
 			case CollidableType::FULL_GLOW:
-			{
-				std::shared_ptr<GlowOrb> tu_orb{ new FullGlowOrb{ message.m_orb_position, &m_glow_socket } };
-				u_orb = std::move(tu_orb);
-			}
+				m_orbs.push_back(std::make_shared<FullGlowOrb>(message.m_orb_position, &m_map_layer, &m_glow_socket, message.m_is_safe_glow_needed));
 				break;
 			case CollidableType::TEMP_GLOW:
-			{
-				std::shared_ptr<GlowOrb> tu_orb{ new TempGlowOrb{ message.m_orb_position } };
-				u_orb = std::move(tu_orb);
-			}
+				m_orbs.push_back(std::make_shared<TempGlowOrb>(message.m_orb_position, &m_map_layer));
 				break;
 			case CollidableType::SAFE_GLOW:
-			{
-				std::shared_ptr<GlowOrb> tu_orb{ new SafeGlowOrb{ message.m_orb_position } };
-				u_orb = std::move(tu_orb);
-			}
+				m_orbs.push_back(std::make_shared<SafeGlowOrb>(message.m_orb_position, &m_obstacle_layer));
 				break;
 			}
-
-			m_orbs.push_back(u_orb);
 		}
 	}
 };

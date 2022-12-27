@@ -6,8 +6,9 @@
 
 namespace Tmpl8
 {
-	GlowOrb::GlowOrb(vec2 position, CollidableType object_type)
-	{		
+	GlowOrb::GlowOrb(vec2 position, CollidableType object_type, Surface* source_layer) :
+		m_source_layer{ source_layer }
+	{	
 		center = position;
 		m_object_type = object_type;
 	}
@@ -53,27 +54,27 @@ namespace Tmpl8
 	}
 
 
-	void GlowOrb::Draw(Surface* viewable_screen, Surface* hidden_screen, int v_left, int v_top, int v_right, int v_bottom)
+	void GlowOrb::Draw(Surface* viewable_layer, int c_left, int c_top, int in_left, int in_top, int in_right, int in_bottom)
 	{
 		/*
 			Get bounding box of orb(constrained by window size).
 		*/
 
-		// viewable_screen bounds are already clamped to window bounds and are ints.
+		// viewable_layer bounds are already clamped to window bounds and are ints.
 		// use unaltered results for h_pix math.
 		// v_pix needs to subtract v_left and v_top.
-		int d_top = Max(top, v_top);
-		int d_bottom = Min(bottom, v_bottom);
-		int d_left = Max(left, v_left);
-		int d_right = Min(right, v_right);
+		int d_top = Max(top, in_top);
+		int d_bottom = Min(bottom, in_bottom);
+		int d_left = Max(left, in_left);
+		int d_right = Min(right, in_right);
 	
 		/*
 			Iterate over bounding box and store opacity value in pixel (in blue channel).
 			Only store opacity value if the current value of pixel is less.
 		*/
 
-		Pixel* v_pix = viewable_screen->GetBuffer() + (d_left - v_left) + ((d_top - v_top) * viewable_screen->GetPitch());
-		Pixel* h_pix = hidden_screen->GetBuffer() + d_left + (d_top * hidden_screen->GetPitch());
+		Pixel* d_pix = viewable_layer->GetBuffer() + (d_left - c_left) + ((d_top - c_top - 1) * viewable_layer->GetPitch());
+		Pixel* s_pix = m_source_layer->GetBuffer() + d_left + (d_top * m_source_layer->GetPitch());
 
 
 		// Precalculate values to be reused each loop. 
@@ -93,22 +94,22 @@ namespace Tmpl8
 					// The opacity decreases (becomes more transparent) as we move from the center.
 					float intensity{ 1.0f - (1.0f * dist / radius_squared * 2.0f) };
 
-					DrawStep(x, v_pix, h_pix, new_opacity, intensity);
+					DrawStep(x, d_pix, s_pix, new_opacity, intensity);
 				}
 			}
-			v_pix += viewable_screen->GetPitch();
-			h_pix += hidden_screen->GetPitch();
+			d_pix += viewable_layer->GetPitch();
+			s_pix += m_source_layer->GetPitch();
 		}
 	}
 
 
-	void GlowOrb::DrawStep(int x_pos, Pixel*& visible_pix, Pixel*& hidden_pix, int new_opacity, float intensity)
+	void GlowOrb::DrawStep(int x_pos, Pixel*& destination_pix, Pixel*& source_pix, int new_opacity, float intensity)
 	{		
 		new_opacity *= intensity;
 
-		int current_opacity = visible_pix[x_pos] >> 24;
+		int current_opacity = destination_pix[x_pos] >> 24;
 		if (new_opacity > current_opacity)
-			visible_pix[x_pos] = MixAlpha(hidden_pix[x_pos], new_opacity, 0xFF000000, true);
+			destination_pix[x_pos] = MixAlpha(source_pix[x_pos], new_opacity, 0xFF000000, true);
 	}
 
 };

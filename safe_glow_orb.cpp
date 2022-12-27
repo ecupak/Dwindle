@@ -3,8 +3,8 @@
 
 namespace Tmpl8
 {
-	SafeGlowOrb::SafeGlowOrb(vec2 position) :
-		GlowOrb{ position, CollidableType::SAFE_GLOW }
+	SafeGlowOrb::SafeGlowOrb(vec2 position, Surface* source_layer) :
+		GlowOrb{ position, CollidableType::SAFE_GLOW, source_layer}
 	{
 		radius_max = 30.0f;
 		radius = radius_max;
@@ -12,16 +12,18 @@ namespace Tmpl8
 		opacity = 150.0f;
 	}
 
-	void SafeGlowOrb::DrawStep(int x_pos, Pixel*& visible_pix, Pixel*& hidden_pix, int new_opacity, float intensity)
+	void SafeGlowOrb::DrawStep(int x_pos, Pixel*& destination_pix, Pixel*& source_pix, int new_opacity, float intensity)
 	{
 		/*
-			If pixel on the hidden screen (only obstacles) has any alpha, draw it.
-			The background has 00 alpha, so this will only draw the obstacle itself.
+			If source pixel has a blue channel value greater than 10, draw a glow at that position.
+			Reason is that the solid "black" of the obstacle has an equal alpha to the outline of the obstacle, so that can't be used.
+			Additionally, the "blacK" will be made transparent by the template if left as 0xFF000000. So it has a value of 0xFF000001.
+			Thus, any pixel on the obstacle that has a blue channel value greater than 1 is the outline of the obstacle.
 		*/
 
-		if ((hidden_pix[x_pos] & 15) > 1)
+		if ((source_pix[x_pos] & BlueMask) > 1)
 		{
-			visible_pix[x_pos] = MixAlpha(hidden_pix[x_pos], new_opacity, 0x0000FF00, true);
+			destination_pix[x_pos] = MixAlpha(source_pix[x_pos], new_opacity, 0x0000FF00, true);
 		}
 	}
 };

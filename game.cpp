@@ -17,11 +17,11 @@ namespace Tmpl8
 	// Constructor
 	// -----------------------------------------------------------
 	Game::Game(Surface* surface) :
-		screen{ surface },
-		//level{ },
+		screen{ surface },		
 		player{ surface, leftKey, rightKey, upKey, downKey },
-		//viewport{ },
-		collision_manager{ viewport, player }
+		camera{ player },
+		viewport{ camera },
+		collision_manager{ player, camera }
 	{	}
 
 	// -----------------------------------------------------------
@@ -33,25 +33,14 @@ namespace Tmpl8
 		PrepareLevel();
 		PreparePlayer();
 		PrepareCollisionManager();
-		PrepareViewport();
+		PrepareCamera();
 	}
 
 
 	void Game::PrepareLevel()
 	{
-		CreateLevel();
-		RegisterLevelCollisionSocket();
-	}
-
-	void Game::CreateLevel()
-	{
-		level_id = 2;
+		level_id = 3;
 		level.CreateLevel(level_id); // starts at 1.
-	}
-
-
-	void Game::RegisterLevelCollisionSocket()
-	{
 		level.RegisterCollisionSocket(collision_manager.GetLevelCollisionSocket());
 		level.RegisterCollisionSocketToGlowManager(collision_manager.GetGlowCollisionSocket());
 	}
@@ -59,34 +48,24 @@ namespace Tmpl8
 
 	void Game::PreparePlayer()
 	{
-		SetPlayerStartPosition();
-		RegisterPlayerGlowSocket();
-	}
-
-
-	void Game::SetPlayerStartPosition()
-	{
 		player.SetPosition(level.GetPlayerStartPosition());
-	}
-
-
-	void Game::RegisterPlayerGlowSocket()
-	{
 		player.RegisterGlowSocket(level.GetPlayerGlowSocket());
+		player.RegisterCameraSocket(camera.GetPlayerCameraSocket());
 	}
 
-
+	
 	void Game::PrepareCollisionManager()
 	{
 		collision_manager.SetNewLevel(level);
 	}
 
 
-	void Game::PrepareViewport()
+	void Game::PrepareCamera()
 	{
-		viewport.SetBackgroundLayer(level.GetBackgroundLayer());
-		viewport.SetObstacleLayer(level.GetObstacleLayer());
-		viewport.SetMapLayer(level.GetMapLayer());
+		camera.SetPosition(player.center);
+		camera.SetBackgroundLayer(level.GetBackgroundLayer());
+		camera.SetObstacleLayer(level.GetObstacleLayer());
+		camera.SetMapLayer(level.GetMapLayer());
 	}
 
 	// -----------------------------------------------------------
@@ -104,20 +83,38 @@ namespace Tmpl8
 		deltaTime *= 0.001;
 		deltaTime = Clamp(deltaTime, 0.0f, 0.02f);
 
-		// Move player. Trigger new GlowOrb creation.
+		/*
+			Move player and check for collisions.
+			- Reposition if in obstacle.
+			- Trigger creation of new glow orb.
+			- Set new mode (ground/wall/ceiling).		
+		*/
 		player.Update(deltaTime);
+		collision_manager.UpdateCollisions(CollidableGroup::PLAYER);
 
 		// Update GlowOrbs (destroy old, create new, update sizes).
 		level.Update(deltaTime);
 
-		// Decide what has run into what.
-		collision_manager.UpdateCollisions();
+		/*
+			Follow player if moved too far from center.
+			- Objects only drawn to screen if they collide with the viewport.
+		*/
+		camera.Update(deltaTime);
+		collision_manager.UpdateCollisions(CollidableGroup::CAMERA);
 
-		// Show level.
-		viewport.Draw(screen);
+		/*
+			1. Draw objects the camera sees (glow orbs and pickups).
+			2. Draw player on top of everything else.
+			3. Draw rest of game overlay (HUD, pause menu, etc).
+		*/
+		screen->Clear(0x00000000);
+		camera.Draw(screen);
 
-		// Show player.
-		player.Draw(screen);
+		for (int i{ 0 }; i < player.safe_glows_created; ++i)
+		{
+			screen->Line(20 * i, 20, 20 * i, 40, 0xFFFFFF00);
+		}
+		
 	}
 
 

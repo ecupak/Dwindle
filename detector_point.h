@@ -5,6 +5,7 @@
 #include "collidable.h"
 #include "standard_form.h"
 #include "intersection.h"
+#include "glow_orb.h"
 
 namespace Tmpl8
 {
@@ -23,6 +24,7 @@ namespace Tmpl8
 		void ApplyDeltaPosition(vec2& delta_position);
 		vec2& GetNewVelocity();
 		void UpdatePreviousPosition();
+		void ClearCollisions();
 
 		vec2 position;
 		vec2 prev_position;
@@ -31,10 +33,14 @@ namespace Tmpl8
 		vec2 i_prev_position{ 0.0f, 0.0f };
 
 		vec2 delta_position{ 0.0f, 0.0f };
-		int post;
-		std::vector<Collidable*> collisions;
+		int post_id;
+
+		std::vector<Collidable*> m_obstacles;
+		std::vector<Collidable*> m_glow_orbs;
+
 		vec2 velocity{ 0.0f, 0.0f };
 		int new_mode{ 0 };
+		bool m_is_safe_glow_needed{ false };
 		bool isRicochetCollision{ false };
 
 	private:
@@ -45,6 +51,8 @@ namespace Tmpl8
 		bool GetIsIntersectionInBounds(vec2& intersection, Collidable*& collision_object);
 
 		constexpr int GetNextMode();
+		bool GetIsSafeGlowNeeded();
+
 		bool GetIsRicochetCollision(EdgeCrossed& collision_edge_crossed);
 
 		void ResolveSmoothCollision(Intersection& intersection_info);
@@ -56,8 +64,7 @@ namespace Tmpl8
 		vec2 GetCollisionBuffer(EdgeCrossed collision_edge_crossed);
 		int GetPenetrationDepth(Collidable*& collision_object, EdgeCrossed collision_edge_crossed);
 
-
-		int collision_count{ 0 };
+		int collision_count{ 0 };		
 	};
 };
 

@@ -14,7 +14,7 @@ namespace Tmpl8
 	constexpr unsigned int OPEN_HEX{ 0xFFFFFFFF };
 	constexpr unsigned int EOF_HEX{ 0x00000194 };
 	constexpr unsigned int TILE_SIZE{ 64 };
-	constexpr unsigned int BLUEPRINT_SIZE{ 10 };
+	constexpr unsigned int BLUEPRINT_SIZE{ 20 };
 	constexpr unsigned int AUTOTILE_MAP_FRAME_COUNT{ 47 };
 	/* Tile positions and bit values. */
 	constexpr unsigned int TOP_LEFT = 1;
@@ -28,10 +28,10 @@ namespace Tmpl8
 	
 	// Constructor.
 	Level::Level() :
-		m_glow_manager{ },
 		m_background_layer{ bg },
 		m_obstacle_layer{ BLUEPRINT_SIZE * TILE_SIZE, BLUEPRINT_SIZE * TILE_SIZE },
-		m_map_layer{ BLUEPRINT_SIZE * TILE_SIZE, BLUEPRINT_SIZE * TILE_SIZE }
+		m_map_layer{ BLUEPRINT_SIZE * TILE_SIZE, BLUEPRINT_SIZE * TILE_SIZE },
+		m_glow_manager{ m_obstacle_layer, m_map_layer }
 	{
 		m_current_level_blueprint.height = BLUEPRINT_SIZE;
 		m_current_level_blueprint.width = BLUEPRINT_SIZE;
@@ -65,7 +65,9 @@ namespace Tmpl8
 		{
 			obstacle.Draw(&m_obstacle_layer);
 			obstacle.Draw(&m_map_layer);
+			obstacle.ApplyBitwiseOverlap();
 		}
+
 	}
 
 
@@ -200,7 +202,6 @@ namespace Tmpl8
 		int autotile_id{ GetAutotileId(x, y) };
 		CollidableType type{ GetCollidableType(autotile_id, hex_type) };		
 		int frame_id{ GetFrameId(autotile_id) };
-		frame_id = 27;
 		int bitwise_overlap{ GetBitwiseOverlap(autotile_id) };
 
 		Surface* tilemap{ hex_type == SMOOTH_HEX ? &m_tilemap_smooth : &m_tilemap_rough };

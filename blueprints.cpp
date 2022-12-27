@@ -12,7 +12,7 @@ namespace Tmpl8
 	constexpr unsigned int UNREACHABLE_HEX{ 0xFFFFFF00 };
 	constexpr unsigned int OPEN_HEX{ 0xFFFFFFFF };
 	constexpr unsigned int EOF_HEX{ 0x00000194 };
-	constexpr unsigned int BLUEPRINT_SIZE{ 10 };
+	constexpr unsigned int BLUEPRINT_SIZE{ 20 };
 
 
 	bool Blueprints::LoadBlueprint(int level_id)

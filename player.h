@@ -1,13 +1,10 @@
 #pragma once
 
-#include <memory> // remove after glowsocket is derived from socket.
-
 #include "collidable.h"
 #include "detector_point.h"
 #include "key_state.h"
-#include "template.h"
-#include "surface.h"
 #include "glow_socket.h"
+#include "camera_socket.h"
 
 namespace Tmpl8 {
 	enum class Trigger // Action to trigger wall bounce.
@@ -42,7 +39,7 @@ namespace Tmpl8 {
 		Player(Surface* screen, keyState& leftKey, keyState& rightKey, keyState& upKey, keyState& downKey);
 		
 		void Update(float deltaTime);
-		void Draw(Surface* screen);
+		void Draw(Surface* viewable_layer, int c_left, int c_top, int in_left, int in_top, int in_right, int in_bottom) override;
 		void SetPosition(vec2& start_position);
 		
 		std::vector<DetectorPoint>& GetCollisionPoints();
@@ -54,9 +51,16 @@ namespace Tmpl8 {
 		void UpdatePosition();
 
 		void RegisterGlowSocket(Socket<GlowMessage>& glow_socket);
+		void RegisterCameraSocket(Socket<CameraMessage>& camera_socket);
+
+		float GetDistanceToBounceApex();
+
+
+		int safe_glows_created{ 0 };
 
 	private:
 		/* METHODS */
+		void UpdateCollisionBox();
 
 		// While in air.
 		void updateAir();
@@ -67,7 +71,7 @@ namespace Tmpl8 {
 		void prepareForGroundMode();
 		void setSquashFrameCount();
 		void setStretchFrameCount();
-		void handleWallCollision(std::vector<int>& posts);
+		void handleWallCollision(int post_id);
 		void prepareForWallMode(Trigger trigger);
 		void handleCeilingCollision();
 		void prepareForCeilingMode();
@@ -91,8 +95,10 @@ namespace Tmpl8 {
 		void setFrameSquash2Stretch();
 		void setFrameAfterWallBounce(bool isWeakBounce);
 
-		void SetCenter();
-		float GetDistance(int vec2_index, float pre_calculated_t2);
+		void SetCenterAndBounds();
+		float GetDistanceToMove(int vec2_index, float pre_calculated_t2);
+
+		bool GetIsSafeGlowNeeded(int post_id);
 
 		template <typename T> int GetSign(T val);
 		template <typename T> T GetAbsoluteMax(T val1, T val2);
@@ -101,6 +107,7 @@ namespace Tmpl8 {
 		/* ATTRIBUTES */
 
 		Socket<GlowMessage>* m_glow_socket{ nullptr };
+		Socket<CameraMessage>* m_camera_socket{ nullptr };
 
 		// Screen reference.
 		Surface* m_screen;
@@ -134,16 +141,9 @@ namespace Tmpl8 {
 		vec2 prev_position{ 0.0f, 0.0f };
 		vec2 distance{ 0.0f, 0.0f };
 
-		//vec2 i_position{ 0.0f, 0.0f };
-		//vec2 i_prev_position{ 0.0f, 0.0f };
-
-		//vec2 hiddenPos{ 0.0f, 0.0f }; // Only y component is used; cheats the ball landing on the ground.
 		vec2 velocity{ 0.0f, 0.0f };
 		vec2 max_velocity{ 10.0f, 10.0f }; // x component is increased for strong wall bounce.
 		float maxSpeedNormalX{ max_velocity.x }; // Used to reset max_velocity.x.
-		
-		//vec2 acceleration{ 8.0f, 10.0f };
-		
 		
 		vec2 direction{ 0.0f , 0.0f }; // Only x component is used.
 
@@ -163,15 +163,6 @@ namespace Tmpl8 {
 		float squashFrameCount{ 0 };
 		int stretchFrameCount{ 0 };
 		float triggerFrameCount{ 0 };
-
-		// Collision helpers.
-		/*bool isTouchingSide{ false };
-		bool isTouchingGround{ false };*/
-
-		// Boundaries.
-		/*int ground{ ScreenHeight };
-		int leftWall{ 0 };
-		int rightWall{ ScreenWidth };*/
 	};
 
 

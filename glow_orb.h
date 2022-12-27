@@ -20,9 +20,10 @@ namespace Tmpl8
 	{
 	public:
 		// METHODS.		
-		GlowOrb(vec2 position, CollidableType object_type);
+		GlowOrb(vec2 position, CollidableType object_type, Surface* source_layer);
 		void Update(float deltaTime);
 		bool IsExpired() { return is_expired; }
+		void Draw(Surface* viewable_layer, int c_left, int c_top, int in_left, int in_top, int in_right, int in_bottom) override;
 
 	protected:		
 		virtual void UpdateFullPhase(float deltaTime) {}
@@ -30,7 +31,7 @@ namespace Tmpl8
 		virtual void UpdateWaningPhase(float deltaTime) {}
 		virtual void UpdateEveryPhase(float deltaTime) {}
 
-		virtual void DrawStep(int x_pos, Pixel*& visible_pix, Pixel*& hidden_pix, int new_opacity, float intensity);
+		virtual void DrawStep(int x_pos, Pixel*& destination_pix, Pixel*& source_pix, int new_opacity, float intensity);
 
 		Phase phase{ Phase::WAXING };
 		float opacity{ 1.0f };
@@ -50,7 +51,8 @@ namespace Tmpl8
 	private:
 		// METHODS.
 		void UpdateByPhase(float deltaTime);
-		void UpdateBounds();
-		void Draw(Surface* viewable_screen, Surface* hidden_screen, int v_left, int v_top, int v_right, int v_bottom);
+		void UpdateBounds();		
+
+		Surface* m_source_layer;
 	};
 };

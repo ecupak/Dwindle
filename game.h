@@ -6,6 +6,7 @@
 #include "player.h"
 #include "viewport.h"
 #include "collision_manager.h"
+#include "camera.h"
 
 namespace Tmpl8
 {
@@ -24,27 +25,20 @@ namespace Tmpl8
 		void KeyDown(int key);
 
 	private:		
-		void SetPlayerStartPosition();
-
-		void PreparePlayer();
-		void PrepareCollisionManager();
-		void RegisterPlayerGlowSocket();
-
 		void PrepareLevel();
-		void CreateLevel();
-		void RegisterLevelCollisionSocket();
-
-		void PrepareViewport();
+		void PreparePlayer();
+		void PrepareCollisionManager();		
+		void PrepareCamera();
 
 		// ATTRIBUTES
 		// Core classes.
-		Level level;
-		Player player;
-		Viewport viewport;
-
-		CollisionManager collision_manager;
-
 		Surface* screen{ nullptr };
+		Player player;
+		Camera camera;		
+		Viewport viewport;
+		CollisionManager collision_manager;
+		Level level;
+				
 		keyState leftKey;
 		keyState rightKey;
 		keyState upKey;

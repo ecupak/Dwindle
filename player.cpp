@@ -571,31 +571,28 @@ namespace Tmpl8
 	{
 		/* If trigger window closes with no action, wall bounces weakly off wall.
 			Otherwise it has more powerful bounce. */
-
-		// Press into the wall - drop down.
-		if (wallBounceTrigger == Trigger::LEFT && m_rightKey.isActive
-			|| wallBounceTrigger == Trigger::RIGHT && m_leftKey.isActive)
-		{
-			BounceStrength wall_bounce_x_power = BounceStrength::NONE;
-			BounceStrength wall_bounce_y_power = BounceStrength::NONE;
-
-			bounceOffWall(wall_bounce_x_power, wall_bounce_y_power);
-		}
+				
 		// Press down - soft release.
-		else if (m_downKey.isActive)
+		if (m_downKey.isActive)
 		{
-			BounceStrength wall_bounce_x_power = BounceStrength::WEAK;
-			BounceStrength wall_bounce_y_power = BounceStrength::NONE;
+			BounceStrength wall_bounce_x_power{ BounceStrength::WEAK };
+			BounceStrength wall_bounce_y_power{ BounceStrength::NONE };
 
 			bounceOffWall(wall_bounce_x_power, wall_bounce_y_power);
 		}
-		// Press up or away - strong release.
-		else if (m_upKey.isActive
-			|| wallBounceTrigger == Trigger::LEFT && m_leftKey.isActive
-			|| wallBounceTrigger == Trigger::RIGHT && m_rightKey.isActive)
+		// Press up - high vertical jump, less horizontal movement.
+		else if (m_upKey.isActive)
+		{
+			BounceStrength wall_bounce_x_power{ BounceStrength::WEAK };
+			BounceStrength wall_bounce_y_power{ BounceStrength::STRONG };
+
+			bounceOffWall(wall_bounce_x_power, wall_bounce_y_power);
+		}
+		// Press left/right (away from wall) - good horizontal movement, less vertical jump.
+		else if(wallBounceTrigger == Trigger::LEFT && m_leftKey.isActive || wallBounceTrigger == Trigger::RIGHT && m_rightKey.isActive)
 		{			
-			BounceStrength wall_bounce_x_power = (m_upKey.isActive ? BounceStrength::WEAK : BounceStrength::STRONG);
-			BounceStrength wall_bounce_y_power = (m_upKey.isActive ? BounceStrength::STRONG : BounceStrength::WEAK);
+			BounceStrength wall_bounce_x_power{ BounceStrength::STRONG };
+			BounceStrength wall_bounce_y_power{ BounceStrength::WEAK };
 
 			bounceOffWall(wall_bounce_x_power, wall_bounce_y_power);
 		}
@@ -630,7 +627,7 @@ namespace Tmpl8
 			multiplier = 0.3f;
 			break;
 		case BounceStrength::STRONG:
-			multiplier = 1.3f;
+			multiplier = 1.1f;
 			break;
 		}
 
@@ -652,7 +649,7 @@ namespace Tmpl8
 			max_velocity.x = maxSpeedNormalX;
 			break;
 		case BounceStrength::STRONG:
-			max_velocity.x = maxSpeedNormalX * 2;
+			max_velocity.x = maxSpeedNormalX * 1.5f;
 			break;
 		}
 

@@ -37,7 +37,9 @@ namespace Tmpl8
 		float opacity{ 1.0f };
 		bool is_expired{ false };
 		float radius{ 1.0f };
-	
+		
+		float m_player_strength{ 1.0f };
+
 		/* Orb growth. */
 		float radius_max{ 140.0f };
 		float radius_delta{ 8.0f };

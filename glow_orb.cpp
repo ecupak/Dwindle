@@ -73,7 +73,7 @@ namespace Tmpl8
 			Only store opacity value if the current value of pixel is less.
 		*/
 
-		Pixel* d_pix = viewable_layer->GetBuffer() + (d_left - c_left) + ((d_top - c_top - 1) * viewable_layer->GetPitch());
+		Pixel* d_pix = viewable_layer->GetBuffer() + (d_left - c_left) + ((d_top - c_top) * viewable_layer->GetPitch());
 		Pixel* s_pix = m_source_layer->GetBuffer() + d_left + (d_top * m_source_layer->GetPitch());
 
 
@@ -81,7 +81,7 @@ namespace Tmpl8
 		int new_opacity = static_cast<int>(floor(opacity));
 		int radius_squared = radius * radius;
 
-		for (int y{ d_top }; y <= d_bottom; y++)
+		for (int y{ d_top }; y < d_bottom; y++)
 		{
 			for (int x{ 0 }; x <= (d_right - d_left); x++)
 			{

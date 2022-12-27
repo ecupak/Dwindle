@@ -96,7 +96,7 @@ namespace Tmpl8
 			// Follow y position exactly (when following) unless it is initial cling to wall from ground.
 			// Because we don't follow every y move, we do not know we are in a fast-follow y state until
 			// a trigger happens.
-			if (m_subject_prev_location == Location::GROUND && m_subject_location == Location::WALL)
+			if (m_subject_prev_location == Location::GROUND && (m_subject_location == Location::WALL || m_subject_location == Location::GROUND))
 			{
 				m_is_slow_following = true;
 			}
@@ -105,7 +105,7 @@ namespace Tmpl8
 		// Always follow x position exactly.
 		m_focus.x = m_subject.center.x;
 
-		// Only follow y position if we just went from ground to wall, from wall to anything, or have fallen below previous y position.
+		// Only follow y position if we just went from ground to wall, ground to higher ground, from wall to anything, or have fallen below previous y position.
 		if (m_is_slow_following || m_subject.center.y > m_focus.y || m_subject_location == Location::WALL)
 		{
 			m_focus.y = m_subject.center.y;

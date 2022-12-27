@@ -81,10 +81,10 @@ namespace Tmpl8
 
 	void Player::Draw(Surface* viewable_layer, int c_left, int c_top, int in_left, int in_top, int in_right, int in_bottom)
 	{
-		for (DetectorPoint& point : points)
+		/*for (DetectorPoint& point : points)
 		{
 			viewable_layer->Box(point.left - c_left, point.top - c_top, point.right - c_left, point.bottom - c_top, 0xFFFFFFFF);
-		}
+		}*/
 
 		m_sprite.Draw(viewable_layer, position.x - c_left, position.y - c_top);
 	}

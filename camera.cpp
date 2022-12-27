@@ -1,110 +1,164 @@
 #include "camera.h"
-
+#include <cmath>
 
 namespace Tmpl8
 {
-	Camera::Camera(Collidable& subject) :
+	Camera::Camera(Player& subject) :
 		m_subject{ subject }
-	{	
-		center = m_subject.center;
-		UpdateBounds();
+	{
+		m_offset.x = floor(ScreenWidth * 0.5f);
+		m_offset.y = floor(ScreenHeight * 0.5f);
 	}
 
 
 	void Camera::SetPosition(vec2 position)
 	{
 		center = position;
+		m_focus = center;
 		UpdateBounds();
 		m_has_moved = true;
 	}
 
 
-	bool Camera::HasMoved()
+	void Camera::SetBackgroundLayer(Surface* surface)
 	{
-		return m_has_moved;
-	
+		m_background_layer = surface;
+	}
+
+
+	void Camera::SetObstacleLayer(Surface* surface)
+	{
+		m_obstacle_layer = surface;
+	}
+
+
+	void Camera::SetMapLayer(Surface* surface)
+	{
+		m_map_layer = surface;
+	}
+
+
+	Socket<CameraMessage>& Camera::GetPlayerCameraSocket()
+	{
+		return m_camera_socket;
 	}
 
 
 	void Camera::ResolveCollision(Collidable*& collision)
 	{
-		/*if (collision->m_object_type == CollidableType::PLAYER)
-		{
-			m_focus = collision->center;
-			is_refocusing = true;
-		}*/
+		m_collisions.push_back(collision);
 	}
-
+	
 
 	void Camera::Draw(Surface* screen)
 	{
-		screen->Box(left, top, right, bottom, 0xFFFF0000);
+		// Set bounds constrained by screen boundary.
+		float inbound_left = Max(left, 0);
+		float inbound_right = Min(right, m_obstacle_layer->GetWidth() - 1);
+		float inbound_top = Max(top, 0);
+		float inbound_bottom = Min(bottom, m_obstacle_layer->GetHeight() - 1);
+
+		// Draw any part of a collidable that overlaps with view.
+		for (Collidable*& collision : m_collisions)
+		{
+			collision->Draw(screen, left, top, inbound_left, inbound_top, inbound_right, inbound_bottom);
+		}
+		m_collisions.clear();
+
+		// Draw player (draw last so always on top).
+		m_subject.Draw(screen, left, top, inbound_left, inbound_top, inbound_right, inbound_bottom);
+
+		//// Camera bounds.
+		//screen->Box(left - left, top - top, right - left, bottom - top, 0xFFFF0000);
+		//// Crosshairs.
+		//screen->Line(left - left, center.y - top, right - left, center.y - top, 0x000000FF);
+		//screen->Line(center.x - left, top - top, center.x - left, bottom - top, 0x000000FF);
+		//// Focus box.
+		//screen->Box(m_focus.x - 10 - left, m_focus.y - 10 - top, m_focus.x + 10 - left, m_focus.y + 10 - top, 0x00FF0000);
 	}
 
 
 	void Camera::Update(float deltaTime)
 	{
-		// make it so it tracks distance from center of camera to subject center. if that distance exceeds a certain limit, begin closing the gap.
-
-		if (!is_refocusing)
+		// Find new focus.
+		if (m_camera_socket.HasNewMessage())
 		{
-			if (m_subject.left < left || m_subject.right > right || m_subject.top < top || m_subject.bottom > bottom)
+			std::vector<CameraMessage>& messages = m_camera_socket.ReadMessages();
+
+			m_focus.y = messages.back().m_new_center.y;
+
+			m_subject_prev_location = m_subject_location;
+			m_subject_location = messages.back().m_new_location;
+			
+			m_camera_socket.ClearMessages();
+
+
+			// Follow y position exactly (when following) unless it is initial cling to wall from ground.
+			// Because we don't follow every y move, we do not know we are in a fast-follow y state until
+			// a trigger happens.
+			if (m_subject_prev_location == Location::GROUND && m_subject_location == Location::WALL)
 			{
-				m_focus = m_subject.center;
-				is_refocusing = true;
+				m_is_slow_following = true;
 			}
 		}
+		
+		// Always follow x position exactly.
+		m_focus.x = m_subject.center.x;
 
-		if (is_refocusing)
+		// Only follow y position if we just went from ground to wall, from wall to anything, or have fallen below previous y position.
+		if (m_is_slow_following || m_subject.center.y > m_focus.y || m_subject_location == Location::WALL)
 		{
-			BringSubjectIntoFocus(deltaTime);
+			m_focus.y = m_subject.center.y;
+		}
+
+
+		// Move to new focus.
+		m_has_moved = false;
+				
+		float dist_x{ m_focus.x - center.x };
+		float dist_y{ m_focus.y - center.y };
+		float distance_to_move = speed * deltaTime;
+
+		if (dist_x != 0.0f)
+		{
+			center.x = m_focus.x;
 			m_has_moved = true;
 		}
-		else
-		{
-			m_has_moved = false;
-		}
-	}
-
 		
-	void Camera::BringSubjectIntoFocus(float deltaTime)
-	{
-		int dist_x = m_focus.x - center.x;
-		int dist_y = m_focus.y - center.y;
 
-		if (dist_x == 0 && dist_y == 0)
+		if (dist_y != 0.0f)
 		{
-			is_refocusing = false;
-			return;
-		}
-
-		if (abs(dist_x) < m_dead_zone)
-		{
-			m_focus.x = center.x;
-		}
-		else
-		{
-			center.x += dist_x * deltaTime;
-		}
-
-		if (abs(dist_y) < m_dead_zone)
-		{
-			m_focus.y = center.y;
-		}
-		else
-		{
-			center.y += dist_y * deltaTime;
+			if (m_is_slow_following && std::abs(dist_y) > distance_to_move)
+			{
+				center.y += GetSign(dist_y) * distance_to_move;
+			}
+			else
+			{
+				center.y = m_focus.y;
+				if (m_is_slow_following)
+					m_is_slow_following = false;
+			}
+			m_has_moved = true;
 		}
 
 		UpdateBounds();
+	}
+	
+
+	/*
+		Credit to user79785: https://stackoverflow.com/questions/1903954/is-there-a-standard-sign-function-signum-sgn-in-c-c
+	*/
+	template <typename T>
+	int Camera::GetSign(T val) {
+		return (T(0) < val) - (val < T(0));
 	}
 
 
 	void Camera::UpdateBounds()
 	{
-		left = center.x - offset_x;
-		right = center.x + offset_x;
-		top = center.y - offset_y;
-		bottom = center.y + offset_y;
+		left = center.x - m_offset.x;
+		right = center.x + m_offset.x;
+		top = center.y - m_offset.y;
+		bottom = center.y + m_offset.y;
 	}
 };

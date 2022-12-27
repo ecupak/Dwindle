@@ -8,7 +8,7 @@ namespace Tmpl8
 		m_autotile_id{ autotile_frame_id }
 	{
 		m_sprite.SetFrame(m_autotile_id);
-		
+
 		m_object_type = object_type;
 
 		left = x * tile_size;
@@ -19,14 +19,19 @@ namespace Tmpl8
 		center.x = left + m_sprite.GetWidth() / 2;
 		center.y = top + m_sprite.GetHeight() / 2;
 
+		m_bitwise_overlap = bitwise_overlap;
+	}
+
+	void Obstacle::ApplyBitwiseOverlap()
+	{
 		// Extend bounding box into neighbor by 1 pixel.
 		// Solution to player sometimes "slipping" between obstacles.
 		if (m_object_type != CollidableType::UNREACHABLE)
 		{
-			left -= ((bitwise_overlap & 0x0001) > 0 ? 1 : 0);
-			right += ((bitwise_overlap & 0x0010) > 0 ? 1 : 0);
-			top -= ((bitwise_overlap & 0x0100) > 0 ? 1 : 0);
-			bottom += ((bitwise_overlap & 0x1000) > 0 ? 1 : 0);
+			left -= ((m_bitwise_overlap & 0x0001) > 0 ? 1 : 0);
+			right += ((m_bitwise_overlap & 0x0010) > 0 ? 1 : 0);
+			top -= ((m_bitwise_overlap & 0x0100) > 0 ? 1 : 0);
+			bottom += ((m_bitwise_overlap & 0x1000) > 0 ? 1 : 0);
 		}
 		
 	}

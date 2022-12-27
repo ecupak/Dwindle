@@ -15,10 +15,12 @@ namespace Tmpl8
 		virtual void ResolveCollision(Collidable*& collision);
 		virtual void ResolveCollision(std::vector<Collidable*> collisions);
 		virtual void Draw(Surface* screen);
+		void Obstacle::ApplyBitwiseOverlap();
 
 	private:
 		Sprite m_sprite;
 		int m_autotile_id;
+		int m_bitwise_overlap;
 
 	};
 

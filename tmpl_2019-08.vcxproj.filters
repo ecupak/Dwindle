@@ -120,6 +120,9 @@
     <ClInclude Include="glow_socket.h">
       <Filter>Glow Files</Filter>
     </ClInclude>
+    <ClInclude Include="camera_socket.h">
+      <Filter>Viewport Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="template code">

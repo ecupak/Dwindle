@@ -36,7 +36,7 @@ namespace Tmpl8
 
 
 	DetectorPoint::DetectorPoint(int assigned_post) :
-		post{ assigned_post }
+		post_id{ assigned_post }
 	{	
 		m_object_type = CollidableType::PLAYER;
 	}
@@ -46,8 +46,8 @@ namespace Tmpl8
 	{
 		float deg45{ (2 * PI) / 8 };
 
-		position.x = center.x + radius * cos(deg45 * post);
-		position.y = center.y - radius * sin(deg45 * post);
+		position.x = center.x + radius * cos(deg45 * post_id);
+		position.y = center.y - radius * sin(deg45 * post_id);
 		prev_position = position;
 
 		UpdateCollisionBox();
@@ -89,7 +89,11 @@ namespace Tmpl8
 	{
 		if (collision->m_object_type == CollidableType::SMOOTH)
 		{
-			collisions.push_back(collision);
+			m_obstacles.push_back(collision);
+		}
+		else if (collision->m_object_type == CollidableType::SAFE_GLOW)
+		{
+			m_glow_orbs.push_back(collision);
 		}
 	}
 
@@ -114,31 +118,31 @@ namespace Tmpl8
 
 	int DetectorPoint::GetCollisionPointBinary()
 	{
-		return (post == 0 ? 0 : 1 << (post - 1));
+		return (post_id == 0 ? 0 : 1 << (post_id - 1));
 	}
 
 
 	void DetectorPoint::ApplyDeltaPosition(vec2& delta_position)
 	{
-		if (collisions.size() > 0)
-			collisions.clear();
-
-		if (post == 6)
-		{
-			printf("before delta: %f, %f\n", position.x, position.y);
-			printf("delta: %f, %f\n", delta_position.x, delta_position.y);
-		}
-
-		position += delta_position;		
-
-		if (post == 6)
-		{
-			printf("after delta: %f, %f\n", position.x, position.y);
-			printf("\n");
-		}
+		position += delta_position;
 
 		UpdateCollisionBox();
 	}
+
+
+	void DetectorPoint::ClearCollisions()
+	{
+		if (m_obstacles.size() > 0)
+		{
+			m_obstacles.clear();
+		}
+
+		if (m_glow_orbs.size() > 0)
+		{
+			m_glow_orbs.clear();
+		}
+	}
+
 
 	void DetectorPoint::UpdatePreviousPosition()
 	{
@@ -158,17 +162,11 @@ namespace Tmpl8
 		delta_position.y = 0.0f;
 		new_mode = NONE;
 
-		if (collisions.size() == 0)
+		if (m_obstacles.size() == 0)
 			return false;
 		
 		debug_mode = false;
 
-		if (post == 6)
-		{
-			printf("prev pos: %f, %f\n", prev_position.x, prev_position.y);
-			printf("landing pos: %f, %f\n", position.x, position.y);
-			debug_mode = true;
-		}
 
 		// Precalculate the rounding down and conversion to int.
 		int i_pre_pos_x{ (int)floor(prev_position.x) },
@@ -219,53 +217,53 @@ namespace Tmpl8
 
 		std::vector<Intersection> intersections;
 
-		for (Collidable*& collision : collisions)
+		for (Collidable*& obstacle : m_obstacles)
 		{
-			bool collision_found{ false };
+			if (obstacle == nullptr) continue;
 
-			if (collision->top >= top && collision->top <= bottom)
+			bool obstacle_found{ false };
+
+			if (obstacle->top >= top && obstacle->top <= bottom)
 			{
-				collision_found = true;
-				CheckForIntersection(intersections, line1, collision, EdgeCrossed::TOP);
+				obstacle_found = true;
+				CheckForIntersection(intersections, line1, obstacle, EdgeCrossed::TOP);
 			}
 
-			if (collision->bottom >= top && collision->bottom <= bottom)
+			if (obstacle->bottom >= top && obstacle->bottom <= bottom)
 			{
-				collision_found = true;
+				obstacle_found = true;
 				// Bottom edge of obstacle was crossed.
-				CheckForIntersection(intersections, line1, collision, EdgeCrossed::BOTTOM);
+				CheckForIntersection(intersections, line1, obstacle, EdgeCrossed::BOTTOM);
 			}
 
-			if (collision->left >= left && collision->left <= right)
+			if (obstacle->left >= left && obstacle->left <= right)
 			{
-				collision_found = true;
+				obstacle_found = true;
 				// Left edge of obstacle was crossed.
-				CheckForIntersection(intersections, line1, collision, EdgeCrossed::LEFT);
+				CheckForIntersection(intersections, line1, obstacle, EdgeCrossed::LEFT);
 			}
 
-			if (collision->right >= left && collision->right <= right)
+			if (obstacle->right >= left && obstacle->right <= right)
 			{
-				collision_found = true;
+				obstacle_found = true;
 				// Right edge of obstacle was crossed.
-				CheckForIntersection(intersections, line1, collision, EdgeCrossed::RIGHT);
+				CheckForIntersection(intersections, line1, obstacle, EdgeCrossed::RIGHT);
 			}
 
-			if (!collision_found)
+			if (!obstacle_found)
 			{
-				if (i_pos_x >= collision->left && i_pos_x <= collision->right
-					&& i_pos_y >= collision->top && i_pos_y <= collision->bottom)
+				if (i_pos_x >= obstacle->left && i_pos_x <= obstacle->right
+					&& i_pos_y >= obstacle->top && i_pos_y <= obstacle->bottom)
 				{
 					printf("Currently in object but not detected!");
 				}
 			}
 		}
 
-		// Clear collisions for next step.
-		//collisions.clear();
 
 		/*
 			Now find the intersection that is closest to the previous center.
-			The will be the first collision encountered and the one that
+			This will be the first obstacle encountered and the one that
 			will be processed. The rest are discarded.
 		*/
 
@@ -340,16 +338,8 @@ namespace Tmpl8
 
 			if (GetIsIntersectionInBounds(intersection, collision_object))
 			{
-				if (debug_mode)
-					printf("edge crossed: %d - ok\n", collision_edge_crossed);
-
 				int penetration{ GetPenetrationDepth(collision_object, collision_edge_crossed) };
 				intersects.push_back(Intersection{ collision_object, intersection, collision_edge_crossed, penetration });
-			}
-			else
-			{
-				if (debug_mode)
-					printf("edge crossed: %d - out of bounds\n", collision_edge_crossed);
 			}
 		}
 	}
@@ -439,6 +429,7 @@ namespace Tmpl8
 		else
 		{
 			new_mode = GetNextMode();
+			m_is_safe_glow_needed = GetIsSafeGlowNeeded();
 		}
 	}
 
@@ -449,7 +440,7 @@ namespace Tmpl8
 			Hits on the cardinal points will put the player in a new mode.
 		*/
 
-		switch (post)
+		switch (post_id)
 		{
 		case RIGHT:
 			return WALL;
@@ -462,6 +453,24 @@ namespace Tmpl8
 		default:
 			return NONE; // Shouldn't reach.
 		}
+	}
+
+
+	bool DetectorPoint::GetIsSafeGlowNeeded()
+	{
+		// If none of the safe glow orbs are overlapping the point, a new safe glow orb is needed.
+		for (Collidable*& safe_orb : m_glow_orbs)
+		{
+			float dist_x{ position.x - safe_orb->center.x };
+			float dist_y{ position.y - safe_orb->center.y };
+			float dist = (dist_x * dist_x) + (dist_y * dist_y);
+			float radius = safe_orb->center.x - safe_orb->left;
+			if (dist <= radius * radius)
+			{
+				return false;
+			}
+		}
+		return true;
 	}
 
 
@@ -484,7 +493,7 @@ namespace Tmpl8
 		*/
 
 
-		switch (post)
+		switch (post_id)
 		{
 		case RIGHT:
 			return (collision_edge_crossed != EdgeCrossed::LEFT);		
@@ -544,9 +553,6 @@ namespace Tmpl8
 
 	vec2 DetectorPoint::GetCollisionBuffer(EdgeCrossed collision_edge_crossed)
 	{
-		if (debug_mode)
-			printf("buffer for: %d\n", collision_edge_crossed);
-
 		switch (collision_edge_crossed)
 		{
 		case EdgeCrossed::LEFT:

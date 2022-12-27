@@ -10,10 +10,10 @@ namespace Tmpl8
 	{
 	public:
 		// METHODS.		
-		SafeGlowOrb(vec2 position);
+		SafeGlowOrb(vec2 position, Surface* source_layer);
 
 	private:
 		// METHODS.
-		void DrawStep(int x_pos, Pixel*& visible_pix, Pixel*& hidden_pix, int new_opacity, float intensity) override;
+		void DrawStep(int x_pos, Pixel*& destination_pix, Pixel*& source_pix, int new_opacity, float intensity) override;
 	};
 };

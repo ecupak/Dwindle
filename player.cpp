@@ -79,11 +79,11 @@ namespace Tmpl8
 	}
 
 
-	void Player::Draw(Surface* screen)
+	void Player::Draw(Surface* viewable_layer, int c_left, int c_top, int in_left, int in_top, int in_right, int in_bottom)
 	{
 		for (DetectorPoint& point : points)
 		{
-			screen->Box(point.left, point.top, point.right, point.bottom, 0xFFFFFFFF);
+			viewable_layer->Box(point.left - c_left, point.top - c_top, point.right - c_left, point.bottom - c_top, 0xFFFFFFFF);
 		}
 
 		//m_sprite.Draw(screen, position.x, position.y);
@@ -109,8 +109,8 @@ namespace Tmpl8
 		float half_t2{ 0.5f * m_delta_time * m_delta_time };
 
 		// If player isn't pressing left/right and we have no velocity, don't move.
-		distance.x = (direction.x == 0.0f && velocity.x == 0.0f) ? 0.0f : GetDistance(0, half_t2);
-		distance.y = GetDistance(1, half_t2);
+		distance.x = (direction.x == 0.0f && velocity.x == 0.0f) ? 0.0f : GetDistanceToMove(0, half_t2);
+		distance.y = GetDistanceToMove(1, half_t2);
 
 		position.x += distance.x;
 		position.y += distance.y;
@@ -124,7 +124,7 @@ namespace Tmpl8
 	}
 
 
-	float Player::GetDistance(int vec2_index, float pre_calculated_half_t2)
+	float Player::GetDistanceToMove(int vec2_index, float pre_calculated_half_t2)
 	{
 		// distance = velocity * time + 1/2 * acceleration * time^2.
 		return ((velocity[vec2_index] * m_delta_time) + (velocity[vec2_index] * pre_calculated_half_t2))
@@ -133,7 +133,15 @@ namespace Tmpl8
 	}
 
 
-	void Player::SetCenterAndBounds()
+	float Player::GetDistanceToBounceApex()
+	{
+		float time_to_apex{ ground_bounce_power / acceleration.y };
+		float distance_of_apex{ (ground_bounce_power * time_to_apex) + (0.5f * acceleration.y * time_to_apex * time_to_apex) };
+		return distance_of_apex * magnitude_coefficient.y;
+	}
+
+
+	void Player::SetCenterAndBounds()	
 	{
 		center = vec2(position.x + half_width, position.y + half_height);
 		UpdateCollisionBox();
@@ -163,6 +171,12 @@ namespace Tmpl8
 	}
 
 
+	void Player::RegisterCameraSocket(Socket<CameraMessage>& camera_socket)
+	{
+		m_camera_socket = &camera_socket;
+	}
+
+
 	void Player::ResolveCollision(Collidable*& collision)
 	{
 		collisions.push_back(collision);
@@ -173,7 +187,7 @@ namespace Tmpl8
 	{
 		int new_mode{ NONE };
 		bool is_ricochet_set{ false };
-		std::vector<int> posts;		
+		int post_id{ NONE };
 		vec2 delta_position{ 0.0f, 0.0f };
 		vec2 ricochet_velocity{ 0.0f, 0.0f };
 
@@ -197,8 +211,10 @@ namespace Tmpl8
 				*/
 				new_mode |= point.GetNewMode();
 				if (point.GetNewMode() & WALL)
-					posts.push_back(point.post);
-				
+				{
+					post_id = point.post_id;
+				}
+
 				// If a ricochet collision, store the first instance.
 				if (point.isRicochetCollision && !is_ricochet_set)
 				{
@@ -221,37 +237,55 @@ namespace Tmpl8
 			for (DetectorPoint& point : points)
 			{
 				point.ApplyDeltaPosition(delta_position);
+				point.ClearCollisions();
 			}
 
 
 			// Update mode. If no mode, check if ricochet and apply new velocity.
+			bool is_safe_glow_needed{ false };
 			if (new_mode & ~NONE)
 			{
 				if (new_mode & GROUND)
+				{
 					handleGroundCollision();
+					is_safe_glow_needed = GetIsSafeGlowNeeded(BOTTOM);
+				}
 				else if (new_mode & WALL)
-					handleWallCollision(posts);
+				{
+					handleWallCollision(post_id);
+					is_safe_glow_needed = GetIsSafeGlowNeeded(post_id);
+				}
 				else
+				{
 					handleCeilingCollision();
+					is_safe_glow_needed = GetIsSafeGlowNeeded(TOP);
+				}
 			}
 			else if (is_ricochet_set)
-				velocity = ricochet_velocity;
-
-
-			// Update GlowSocket.
-			if (new_mode & ~NONE)
 			{
-				m_glow_socket->SendMessage(GlowMessage{ center, CollidableType::FULL_GLOW });
-				//m_glow_socket->SendMessage(std::make_unique<Message>center, CollidableType::FULL_GLOW);
-				//m_glow_socket->SendMessage(center, CollidableType::FULL_GLOW);
+				velocity = ricochet_velocity;
+			}
+
+
+			// Update glow socket.
+			if (new_mode & ~NONE)
+			{				
+				m_glow_socket->SendMessage(GlowMessage{ center, CollidableType::FULL_GLOW, is_safe_glow_needed });
+				if (is_safe_glow_needed)
+					++safe_glows_created;
 			}
 			else if (is_ricochet_set)
 			{
 				m_glow_socket->SendMessage(GlowMessage{ center, CollidableType::TEMP_GLOW });
-				//glow_message; std::make_unique<GlowMessage>(center, CollidableType::FULL_GLOW)
-				//m_glow_socket->SendMessage(center, CollidableType::TEMP_GLOW);
 			}
-		}			
+		}
+		else
+		{
+			for (DetectorPoint & point : points)
+			{
+				point.ClearCollisions();
+			}
+		}
 	}
 
 
@@ -266,6 +300,12 @@ namespace Tmpl8
 	template <typename T>
 	T Player::GetAbsoluteMax(T val1, T val2) {
 		return (abs(val1) > abs(val2) ? val1 : val2);
+	}
+
+
+	bool Player::GetIsSafeGlowNeeded(int post_id)
+	{
+		return points[post_id].m_is_safe_glow_needed;
 	}
 
 
@@ -292,18 +332,8 @@ namespace Tmpl8
 
 		//updateFrameStretch2Normal();
 
-		bool going_up{ velocity.y < 0.0f };
-
 		// V.final = V.initial + (acceleration * time);
 		velocity.y += acceleration.y * m_delta_time;
-
-		bool going_down{ velocity.y >= 0.0f };
-
-		if (going_up && going_down)
-		{
-			printf("Apex at: %f, %f\n", center.x, center.y);
-			printf("DetlaTime is: %f\n", m_delta_time);
-		}
 	}
 
 
@@ -351,7 +381,12 @@ namespace Tmpl8
 		else
 		{
 			prepareForGroundMode();
-		}		
+		}
+
+		m_camera_socket->SendMessage(CameraMessage{ center, Location::GROUND });
+
+		// Set next mode.
+		mode = Mode::GROUND;
 	}
 
 
@@ -385,9 +420,6 @@ namespace Tmpl8
 		{
 			point.UpdatePreviousPosition();
 		}
-
-		// Set next mode.
-		mode = Mode::GROUND;
 	}
 
 
@@ -416,12 +448,12 @@ namespace Tmpl8
 	}
 
 
-	void Player::handleWallCollision(std::vector<int>& posts)
+	void Player::handleWallCollision(int post_id)
 	{
 		/* Based on wall, prepare for WALL mode. Frame int is based on 3 images per
 			orientation and style of ball. */
 
-		bool isOnLeftWall = (std::find(posts.begin(), posts.end(), LEFT) != posts.end());
+		bool isOnLeftWall = (post_id == LEFT);
 
 		if (isOnLeftWall)
 			prepareForWallMode(Trigger::RIGHT);
@@ -432,6 +464,11 @@ namespace Tmpl8
 		m_rightKey.isActive = false;
 		m_upKey.isActive = false;
 		m_downKey.isActive = false;
+
+		m_camera_socket->SendMessage(CameraMessage{ center, Location::WALL });
+
+		// Set next mode.
+		mode = Mode::WALL;
 	}
 
 
@@ -448,9 +485,6 @@ namespace Tmpl8
 		triggerFrameCount = 1.0f;
 		
 		//m_sprite.SetFrame(newFrame);
-
-		// Set next mode.
-		mode = Mode::WALL;
 	}
 
 
@@ -460,6 +494,11 @@ namespace Tmpl8
 			orientation and style of ball. */
 
 		prepareForCeilingMode();
+
+		m_camera_socket->SendMessage(CameraMessage{ center, Location::OTHER });
+
+		// Set next mode.
+		mode = Mode::CEILING;
 	}
 
 
@@ -479,9 +518,6 @@ namespace Tmpl8
 		setStretchFrameCount();
 
 		setFrameNormal2Squash();
-
-		// Set next mode.
-		mode = Mode::CEILING;
 	}
 
 
@@ -542,8 +578,6 @@ namespace Tmpl8
 		{
 			BounceStrength wall_bounce_x_power = BounceStrength::NONE;
 			BounceStrength wall_bounce_y_power = BounceStrength::NONE;
-			/*m_leftKey.isActive = false;
-			m_rightKey.isActive = false;*/
 
 			bounceOffWall(wall_bounce_x_power, wall_bounce_y_power);
 		}
@@ -552,7 +586,6 @@ namespace Tmpl8
 		{
 			BounceStrength wall_bounce_x_power = BounceStrength::WEAK;
 			BounceStrength wall_bounce_y_power = BounceStrength::NONE;
-			/*m_downKey.isActive = false;*/
 
 			bounceOffWall(wall_bounce_x_power, wall_bounce_y_power);
 		}
@@ -563,9 +596,6 @@ namespace Tmpl8
 		{			
 			BounceStrength wall_bounce_x_power = (m_upKey.isActive ? BounceStrength::WEAK : BounceStrength::STRONG);
 			BounceStrength wall_bounce_y_power = (m_upKey.isActive ? BounceStrength::STRONG : BounceStrength::WEAK);
-			/*m_upKey.isActive = false;
-			m_leftKey.isActive = false;
-			m_rightKey.isActive = false;*/
 
 			bounceOffWall(wall_bounce_x_power, wall_bounce_y_power);
 		}

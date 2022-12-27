@@ -6,8 +6,7 @@
 
 namespace Tmpl8
 {
-	CollisionManager::CollisionManager(Viewport& viewport, Player& player, Camera& camera) :
-		m_viewport{ viewport },
+	CollisionManager::CollisionManager(Player& player, Camera& camera) :
 		m_player{ player },
 		m_camera{ camera },
 		m_level{ nullptr }	// Set via method after level has been created and initialized.
@@ -22,7 +21,8 @@ namespace Tmpl8
 		/* Update reference to the level and recreate collidables. */
 
 		m_level = &current_level;
-		CreateCollidables();
+		CreateCollidables(CollidableGroup::CAMERA);
+		CreateCollidables(CollidableGroup::PLAYER);
 	}
 
 
@@ -38,65 +38,94 @@ namespace Tmpl8
 	}
 
 
-	void CollisionManager::UpdateCollisions()
+	void CollisionManager::UpdateCollisions(CollidableGroup c_group)
 	{
-		// Update any dynamic lists if they changed.
-		if (m_glow_connection.HasNewMessage())
-		{
-			CreateViewportCollidables();
-		}
-
-		/* Find all collisions and resolve them. */
-
-		RunCollisionChecks();
-		ProcessCollisions();
+		UpdateCollidables(c_group);
+		CheckForCollisions(c_group);
+		ProcessCollisions(c_group);
 	}
 
 
 	// Private methods. 
 
 
-	void CollisionManager::ProcessCollisions()
+	void CollisionManager::ProcessCollisions(CollidableGroup c_group)
 	{
-		m_viewport.ProcessCollisions();
-		m_player.ProcessCollisions();
+		switch (c_group)
+		{
+		case CollidableGroup::CAMERA:
+			m_camera.ProcessCollisions();
+			break;
+		case CollidableGroup::PLAYER:
+			m_player.ProcessCollisions();
+			break;
+		}
 	}
 
 
-	void CollisionManager::RunCollisionChecks()
+	void CollisionManager::CreateCollidables(CollidableGroup c_group)
 	{
-		CheckForCollisions(CollidableGroup::VIEWPORT);
-		CheckForCollisions(CollidableGroup::PLAYER);
-		CheckForCollisions(CollidableGroup::CAMERA);
+		switch (c_group)
+		{
+		case CollidableGroup::CAMERA:
+			UpdateCameraCollidables();
+			break;
+		case CollidableGroup::PLAYER:
+			UpdatePlayerCollidables();
+			break;
+		}
 	}
 
 
-	void CollisionManager::CreateCollidables()
+	void CollisionManager::UpdateCollidables(CollidableGroup c_group)
 	{
-		CreateViewportCollidables();
-		CreatePlayerCollidables();
-		CreateCameraCollidables();
+		switch (c_group)
+		{
+		case CollidableGroup::CAMERA:
+			UpdateCameraCollidables();
+			break;
+		default:
+			UpdatePlayerCollidables();
+			break;
+		}		
 	}
-
 	
-	void CollisionManager::CreateViewportCollidables()
+
+	void CollisionManager::UpdateCameraCollidables()
 	{
 		/*
 			Called after new level has been registered or during collision loop.
 			If there is a new glow orb in the list, update list.
 			Add unique item (viewport) that cares about the glow orbs.
 		*/
+		
+		UpdateGlowOrbList();
 
-		if (m_glow_connection.HasNewMessage())
+		if (m_is_glow_orb_list_updated)
 		{
-			GetCollidablesFromLevel(CollidableGroup::VIEWPORT);
-			AddUniqueElementToCollidables(CollidableGroup::VIEWPORT);
-			m_glow_connection.ClearMessages();
+			GetCollidablesFromLevel(CollidableGroup::CAMERA);
+			AddUniqueElementToCollidables(CollidableGroup::CAMERA);
 		}
 	}
 
 
-	void CollisionManager::CreatePlayerCollidables()
+	void CollisionManager::UpdateGlowOrbList()
+	{
+		m_is_glow_orb_list_updated = false;
+
+		if (m_glow_connection.HasNewMessage())
+		{
+			std::vector<CollisionMessage>& messages = m_glow_connection.ReadMessages();
+
+			// If we somehow missed getting an update, get the latest update.
+			m_glow_orb_collidables = messages.back().m_collidables;
+			m_glow_connection.ClearMessages();
+			m_is_glow_orb_list_updated = true;
+		}
+	}
+
+
+	void CollisionManager::UpdatePlayerCollidables()
 	{
 		/*
 			Called after new level has been registered.
@@ -109,42 +138,21 @@ namespace Tmpl8
 	}
 
 
-	void CollisionManager::CreateCameraCollidables()
-	{
-		/*
-			Called after new level has been registered.
-			Adds obstacles to list.
-			Add unique item (player) that cares about obstacles.
-		*/
-				
-		AddUniqueElementToCollidables(CollidableGroup::CAMERA);
-	}
-
-
 	void CollisionManager::GetCollidablesFromLevel(CollidableGroup c_group)
 	{
 		/* Get collidables from level. Will stay synced. */
 
 		switch (c_group)
 		{
-		case CollidableGroup::VIEWPORT:
-			GetCollidablesFromGlowConnection();
+		case CollidableGroup::CAMERA:
+			m_camera_collidables = m_glow_orb_collidables;
 			break;
 		case CollidableGroup::PLAYER:			
-			m_player_collidables = m_level->GetPlayerCollidables();
+			m_player_collidables = m_level->GetPlayerCollidables();			
 			break;
 		}
 	}
 	
-
-	void CollisionManager::GetCollidablesFromGlowConnection()
-	{
-		std::vector<CollisionMessage>& messages = m_glow_connection.ReadMessages();
-
-		// If we somehow missed getting an update, get the latest update.
-		m_viewport_collidables = messages.back().m_collidables;
-	}
-
 
 	void CollisionManager::AddUniqueElementToCollidables(CollidableGroup c_group)
 	{
@@ -152,8 +160,13 @@ namespace Tmpl8
 
 		switch (c_group)
 		{
-		case CollidableGroup::VIEWPORT:
-			m_viewport_collidables.push_back(&m_viewport);
+		case CollidableGroup::CAMERA:
+			m_camera_collidables.push_back(&m_camera);
+			// Player collidable is a set of collidables along perimeter.
+			for (DetectorPoint& point : m_player.GetCollisionPoints())
+			{
+				m_camera_collidables.push_back(&point);
+			}
 			break;
 		case CollidableGroup::PLAYER:
 			// Player collidable is a set of collidables along perimeter.
@@ -161,13 +174,6 @@ namespace Tmpl8
 			{
 				m_player_collidables.push_back(&point);
 			}
-			break;
-		case CollidableGroup::CAMERA:
-			for (DetectorPoint& point : m_player.GetCollisionPoints())
-			{
-				m_camera_collidables.push_back(&point);
-			}
-			m_camera_collidables.push_back(&m_camera);
 			break;
 		}
 	}
@@ -289,12 +295,10 @@ namespace Tmpl8
 	{
 		switch (c_group)
 		{
-		case CollidableGroup::VIEWPORT:
-			return m_viewport_collidables;
-		case CollidableGroup::PLAYER:			
-			return m_player_collidables;
 		case CollidableGroup::CAMERA:
 			return m_camera_collidables;
+		case CollidableGroup::PLAYER:			
+			return m_player_collidables;
 		}
 	}
 };

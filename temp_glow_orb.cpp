@@ -7,8 +7,8 @@
 
 namespace Tmpl8
 {
-	TempGlowOrb::TempGlowOrb(vec2 position) :
-		GlowOrb{ position, CollidableType::TEMP_GLOW }
+	TempGlowOrb::TempGlowOrb(vec2 position, Surface* source_layer) :
+		GlowOrb{ position, CollidableType::TEMP_GLOW, source_layer }
 	{
 		radius_max = 50.0f;
 		delay_max = 0.15f;

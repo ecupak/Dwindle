@@ -12,9 +12,8 @@ namespace Tmpl8
 {
 	enum class CollidableGroup
 	{
-		VIEWPORT,
-		PLAYER,
 		CAMERA,
+		PLAYER,
 		NONE,
 	};
 
@@ -23,11 +22,11 @@ namespace Tmpl8
 	{
 	public:
 		// Structor.
-		CollisionManager(Viewport& viewport, Player& player, Camera& camera);
+		CollisionManager(Player& player, Camera& camera);
 		// Updates level reference for when level changes.
 		void SetNewLevel(Level& current_level);		
 		// Runs collision checks on viewport and player collidables and tells objects to resolve any detected collisions.
-		void UpdateCollisions();
+		void UpdateCollisions(CollidableGroup c_group);
 		
 		Socket<CollisionMessage>& GetLevelCollisionSocket();
 		Socket<CollisionMessage>& GetGlowCollisionSocket();
@@ -35,21 +34,21 @@ namespace Tmpl8
 	private:
 		// METHODS.
 		
+		void UpdateGlowOrbList();
+
 		// Builds viewport and player collidables. Called during constructor or when m_level is set.
-		void CreateCollidables();
+		void CreateCollidables(CollidableGroup c_group);
+		void UpdateCollidables(CollidableGroup c_group);
 		// Each adds relevant objects to their collidables vector.
-		void CreateViewportCollidables();
-		void CreatePlayerCollidables();
-		void CreateCameraCollidables();
+		void UpdateCameraCollidables();
+		void UpdatePlayerCollidables();
 		// Gets collidable info from level (glows or obstacles) and adds viewport or player object to collidables vector.
 		void GetCollidablesFromLevel(CollidableGroup c_group);
 		void AddUniqueElementToCollidables(CollidableGroup c_group);
 
-		void GetCollidablesFromGlowConnection();
-
 
 		// Tell viewport and player to resolve collisions.
-		void CollisionManager::ProcessCollisions();
+		void CollisionManager::ProcessCollisions(CollidableGroup c_group);
 
 		/*
 			Collision checking for all collidables in each group.
@@ -59,8 +58,6 @@ namespace Tmpl8
 			With a very many thanks to YulyaLesheva for the example code and explanatory graphic
 			of the sweep and prune method: https://github.com/YulyaLesheva/Sweep-And-Prune-algorithm
 		*/
-		// Starts sequence for each collidable group.
-		void RunCollisionChecks();
 		// Sequence.
 		void CheckForCollisions(CollidableGroup c_group);
 		void SortCollidablesOnXAxis(std::vector<Collidable*>& collidables);
@@ -70,8 +67,7 @@ namespace Tmpl8
 		// Helper to determine which collidable group to check.
 		std::vector<Collidable*>& GetCollidableByGroup(CollidableGroup c_group);
 
-		// ATTRIBUTES.		
-		Viewport &m_viewport;
+		// ATTRIBUTES.
 		Player &m_player;
 		Camera& m_camera;
 		Level* m_level;	// Not set during constructor; has no default constructor.
@@ -83,7 +79,8 @@ namespace Tmpl8
 			Contains glow objects (masks for the level).
 			When they collide with the viewport, we know to draw them to the screen.
 		*/
-		std::vector<Collidable*> m_viewport_collidables;
+		std::vector<Collidable*> m_camera_collidables;
+
 
 		/*
 			Contains physical objects (things the player interacts with).
@@ -92,8 +89,8 @@ namespace Tmpl8
 		std::vector<Collidable*> m_player_collidables;
 
 
-		std::vector<Collidable*> m_camera_collidables;
-
+		std::vector<Collidable*> m_glow_orb_collidables;
+		bool m_is_glow_orb_list_updated{ false };
 	};
 };
 

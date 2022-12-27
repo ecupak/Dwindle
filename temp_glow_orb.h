@@ -10,7 +10,7 @@ namespace Tmpl8
 	{
 	public:
 		// METHODS.		
-		TempGlowOrb(vec2 position);
+		TempGlowOrb(vec2 position, Surface* source_layer);
 
 	private:
 		// METHODS.

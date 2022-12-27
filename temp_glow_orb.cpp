@@ -7,8 +7,8 @@
 
 namespace Tmpl8
 {
-	TempGlowOrb::TempGlowOrb(vec2 position, Surface* source_layer) :
-		GlowOrb{ position, CollidableType::TEMP_GLOW, source_layer }
+	TempGlowOrb::TempGlowOrb(vec2 position, float player_strength, Surface* source_layer) :
+		GlowOrb{ position, player_strength, CollidableType::TEMP_GLOW, source_layer }
 	{
 		radius_max = 50.0f;
 		delay_max = 0.15f;
@@ -25,7 +25,7 @@ namespace Tmpl8
 		else
 		{
 			radius += radius_delta;
-			opacity = (radius / radius_max / 2) * 255;
+			opacity = (radius / radius_max) * 255 * m_player_strength;
 		}
 	}
 

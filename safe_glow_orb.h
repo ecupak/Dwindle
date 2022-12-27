@@ -10,7 +10,7 @@ namespace Tmpl8
 	{
 	public:
 		// METHODS.		
-		SafeGlowOrb(vec2 position, Surface* source_layer);
+		SafeGlowOrb(vec2 position, float player_strength, Surface* source_layer);
 
 	private:
 		// METHODS.

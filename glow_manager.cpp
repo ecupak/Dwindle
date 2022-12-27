@@ -97,13 +97,13 @@ namespace Tmpl8
 			switch (message.m_glow_orb_type)
 			{
 			case CollidableType::FULL_GLOW:
-				m_orbs.push_back(std::make_shared<FullGlowOrb>(message.m_orb_position, &m_map_layer, &m_glow_socket, message.m_is_safe_glow_needed));
+				m_orbs.push_back(std::make_shared<FullGlowOrb>(message.m_orb_position, message.m_player_strength, &m_map_layer, &m_glow_socket, message.m_is_safe_glow_needed));
 				break;
 			case CollidableType::TEMP_GLOW:
-				m_orbs.push_back(std::make_shared<TempGlowOrb>(message.m_orb_position, &m_map_layer));
+				m_orbs.push_back(std::make_shared<TempGlowOrb>(message.m_orb_position, message.m_player_strength, &m_map_layer));
 				break;
 			case CollidableType::SAFE_GLOW:
-				m_orbs.push_back(std::make_shared<SafeGlowOrb>(message.m_orb_position, &m_obstacle_layer));
+				m_orbs.push_back(std::make_shared<SafeGlowOrb>(message.m_orb_position, message.m_player_strength, &m_obstacle_layer));
 				break;
 			}
 		}

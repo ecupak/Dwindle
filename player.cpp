@@ -31,7 +31,7 @@ namespace Tmpl8
 	// Constructor.
 	Player::Player(Surface* screen, keyState& leftKey, keyState& rightKey, keyState& upKey, keyState& downKey) :
 		m_screen{ screen },
-		m_sprite{ Sprite{new Surface("assets/player.png"), 6, true} }, // player.png is 40px by 40px.
+		m_sprite{ Sprite{new Surface("assets/ball.png"), 3, true} }, // player.png is 40px by 40px.
 		half_height{ m_sprite.GetHeight() / 2 },
 		half_width{ m_sprite.GetWidth() / 2 },
 		half_size{ half_height },
@@ -86,7 +86,7 @@ namespace Tmpl8
 			viewable_layer->Box(point.left - c_left, point.top - c_top, point.right - c_left, point.bottom - c_top, 0xFFFFFFFF);
 		}
 
-		//m_sprite.Draw(screen, position.x, position.y);
+		m_sprite.Draw(viewable_layer, position.x - c_left, position.y - c_top);
 	}
 
 
@@ -97,7 +97,7 @@ namespace Tmpl8
 
 		for (DetectorPoint& point : points)
 		{
-			point.SetPosition(center, half_size);
+			point.SetPosition(center, half_size - 4);
 		}
 	}
 
@@ -266,17 +266,19 @@ namespace Tmpl8
 				velocity = ricochet_velocity;
 			}
 
+			if (is_safe_glow_needed)
+			{
+				--m_player_strength;
+			}
 
 			// Update glow socket.
 			if (new_mode & ~NONE)
 			{				
-				m_glow_socket->SendMessage(GlowMessage{ center, CollidableType::FULL_GLOW, is_safe_glow_needed });
-				if (is_safe_glow_needed)
-					++safe_glows_created;
+				m_glow_socket->SendMessage(GlowMessage{ center, m_player_strength/m_player_max_strength, CollidableType::FULL_GLOW, is_safe_glow_needed });
 			}
 			else if (is_ricochet_set)
 			{
-				m_glow_socket->SendMessage(GlowMessage{ center, CollidableType::TEMP_GLOW });
+				m_glow_socket->SendMessage(GlowMessage{ center, m_player_strength / m_player_max_strength, CollidableType::TEMP_GLOW });
 			}
 		}
 		else
@@ -330,7 +332,7 @@ namespace Tmpl8
 			immediate result of squashed/GROUND state. Update vertical movement
 			and velocity.y, keeping within bounds. */
 
-		//updateFrameStretch2Normal();
+		updateFrameStretch2Normal();
 
 		// V.final = V.initial + (acceleration * time);
 		velocity.y += acceleration.y * m_delta_time;
@@ -406,16 +408,12 @@ namespace Tmpl8
 			squashed anyway. Calculate the squash and stretch frame counts. Slower
 			speeds result in less frames of each. GROUND mode squashes the ball. */
 
-		//UpdatePosition(0.0f, 0.0f);
-
-		//directionLockedFrameCount = 0;
-
 		setSquashFrameCount();
 		setStretchFrameCount();
 
 		setFrameNormal2Squash();
 
-		// Update positions.
+		// Update positions. Brings them above ground after collision.
 		for (DetectorPoint& point : points)
 		{
 			point.UpdatePreviousPosition();
@@ -429,13 +427,14 @@ namespace Tmpl8
 			to reduce / remove squashing when at low speeds. Around 4 velocity there
 			should be no squashing at all, but kept it generalized just in case. */
 
-			// Easier to step through.
+		// Easier to step through when spaced out.
 		float squashValue = fabsf(velocity.y);
 		squashValue -= squashDampeningMagnitude;
 		squashValue *= squashDampeningCoefficient;
 		squashValue = ceil(squashValue) - 1;
 
-		squashFrameCount = 0.5f; //static_cast<int>(squashValue);
+		printf("squash sec: %f\n", squashValue);
+		m_squash_frame_seconds = 0.5f; //static_cast<int>(squashValue);
 	}
 
 
@@ -444,7 +443,7 @@ namespace Tmpl8
 		/* Stretch animation is a function of squash delay. Must be calculated
 			before the squash frames begin counting down. */
 
-		stretchFrameCount = (squashFrameCount - 1) * 2;
+		stretchFrameCount = m_squash_frame_seconds;
 	}
 
 
@@ -479,11 +478,11 @@ namespace Tmpl8
 
 		velocity.x = 0.0f;
 
-		//UpdatePosition(0.0f, 0.0f);
-
 		wallBounceTrigger = trigger;
 		triggerFrameCount = 1.0f;
 		
+		// Need to figure out how to rotate sprite for side squash. Matrix rotation preferred.
+		// But can also create static sprite frames for each wall and ceiling.
 		//m_sprite.SetFrame(newFrame);
 	}
 
@@ -508,11 +507,7 @@ namespace Tmpl8
 			squashed anyway. Calculate the squash and stretch frame counts. Slower
 			speeds result in less frames of each. GROUND mode squashes the ball. */
 
-		//UpdatePosition(0.0f, 0.0f);
-
 		velocity.y = 0.0f;
-
-		//directionLockedFrameCount = 0;
 
 		setSquashFrameCount();
 		setStretchFrameCount();
@@ -535,9 +530,9 @@ namespace Tmpl8
 
 		updateHorizontalMovement();
 
-		squashFrameCount -= m_delta_time;
+		m_squash_frame_seconds -= m_delta_time;
 
-		if (squashFrameCount <= 0)
+		if (m_squash_frame_seconds <= 0)
 		{
 			bounceOffGround();
 			setFrameSquash2Stretch();
@@ -667,9 +662,9 @@ namespace Tmpl8
 		/* "Freeze" ball in squash mode for squash frame count. AIR mode 
 			handles movement and collisions. */
 
-		squashFrameCount -= m_delta_time;
+		m_squash_frame_seconds -= m_delta_time;
 
-		if (squashFrameCount <= 0)
+		if (m_squash_frame_seconds <= 0)
 		{
 			setFrameSquash2Stretch();
 
@@ -690,26 +685,9 @@ namespace Tmpl8
 	{
 		/* Countdown until switching from stretched image to normal image. Must
 			also not be direction locked from a weak wall bounce. */
+		
+		stretchFrameCount -= m_delta_time;
 
-		//if (stretchFrameCount <= 0 && directionLockedFrameCount <= 0)
-		if (stretchFrameCount <= 0)
-		{
-			m_sprite.SetFrame(0);
-		}
-		else
-		{
-			stretchFrameCount--;
-		}
-	}
-
-
-	void Player::updateFrameDirectionLockRelease()
-	{
-		/* Switch to normal image once direction lock has ended. Used to signal to
-			player when control is restored. Must also not be in stretch mode from
-			a ground bounce (or else stretch image is ended too early). */
-
-		//if (directionLockedFrameCount <= 0 && stretchFrameCount <= 0)
 		if (stretchFrameCount <= 0)
 		{
 			m_sprite.SetFrame(0);
@@ -721,7 +699,7 @@ namespace Tmpl8
 	{
 		/* If velocity was fast enough to generate a frame of squash, change image. */
 
-		if (squashFrameCount > 0)
+		if (m_squash_frame_seconds > 0.0f)
 		{
 			m_sprite.SetFrame(1);
 		}
@@ -731,17 +709,9 @@ namespace Tmpl8
 	void Player::setFrameSquash2Stretch()
 	{
 		// Set mode to stretch.
-		if (stretchFrameCount > 0)
+		if (stretchFrameCount > 0.0f)
 		{
 			m_sprite.SetFrame(2);
 		}
-	}
-
-
-	void Player::setFrameAfterWallBounce(bool isWeakBounce)
-	{
-		/* Weak bounce sprite is unfilled until control is given back to player. */
-
-		m_sprite.SetFrame(isWeakBounce ? 3 : 0);
 	}
 };

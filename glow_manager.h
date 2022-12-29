@@ -18,17 +18,20 @@ namespace Tmpl8
 	public:
 		GlowManager(Surface& obstacle_layer, Surface& map_layer);
 
-		//std::vector<GlowOrb>& GetViewportCollidables();
 		Socket<GlowMessage>& GetPlayerGlowSocket();
-		void CheckSocketForNewGlowOrbMessage(bool& has_new_data_for_collision_socket);
+		void CheckSocketForNewGlowOrbMessage();
 		void Update(float deltaTime);
-		void UpdateGlowOrbs(bool& has_new_data_for_collision_socket, float deltaTime);
+		void UpdateGlowOrbs(float deltaTime);
 
 		void RegisterCollisionSocket(Socket<CollisionMessage>& collision_socket);
 
 	private:
-		void CreateGlowOrb();
+		void ProcessMessages();
+		void CreateGlowOrb(GlowMessage& message);
+		void TriggerSafeOrbDestruction(GlowMessage& message);
 		void RemoveExpiredGlowOrb(std::vector<std::shared_ptr<GlowOrb>>::const_iterator index_it);
+
+		bool is_orb_list_changed{ false };
 
 		Surface& m_obstacle_layer;
 		Surface& m_map_layer;

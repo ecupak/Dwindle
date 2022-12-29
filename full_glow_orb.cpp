@@ -8,12 +8,12 @@ namespace Tmpl8
 		m_glow_socket{ glow_socket }
 	{
 		radius_max = 240.0f;
-		delay_max = 0.25f;
+		//delay_max = 0.25f;
 		delay = delay_max;
 
 		if (is_safe_glow_needed)
 		{
-			m_glow_socket->SendMessage(GlowMessage{ center, player_strength, CollidableType::SAFE_GLOW });
+			m_glow_socket->SendMessage(GlowMessage{ GlowAction::MAKE_ORB, center, player_strength, CollidableType::SAFE_GLOW });
 		}
 	}
 

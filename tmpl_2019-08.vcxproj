@@ -231,6 +231,7 @@
     <ClCompile Include="collidable.cpp" />
     <ClCompile Include="collision_manager.cpp" />
     <ClCompile Include="detector_point.cpp" />
+    <ClCompile Include="first_echo.cpp" />
     <ClCompile Include="game.cpp" />
     <ClCompile Include="glow_manager.cpp" />
     <ClCompile Include="glow_orb.cpp" />
@@ -239,7 +240,9 @@
     <ClCompile Include="life_socket.cpp" />
     <ClCompile Include="obstacle.cpp" />
     <ClCompile Include="player.cpp" />
+    <ClCompile Include="player_echo.cpp" />
     <ClCompile Include="safe_glow_orb.cpp" />
+    <ClCompile Include="second_echo.cpp" />
     <ClCompile Include="surface.cpp" />
     <ClCompile Include="template.cpp" />
     <ClCompile Include="full_glow_orb.cpp" />
@@ -253,6 +256,7 @@
     <ClInclude Include="collision_manager.h" />
     <ClInclude Include="collision_socket.h" />
     <ClInclude Include="detector_point.h" />
+    <ClInclude Include="first_echo.h" />
     <ClInclude Include="game.h" />
     <ClInclude Include="glow_manager.h" />
     <ClInclude Include="glow_orb.h" />
@@ -261,7 +265,9 @@
     <ClInclude Include="intersection.h" />
     <ClInclude Include="life_hud.h" />
     <ClInclude Include="life_socket.h" />
+    <ClInclude Include="player_echo.h" />
     <ClInclude Include="safe_glow_orb.h" />
+    <ClInclude Include="second_echo.h" />
     <ClInclude Include="socket.h" />
     <ClInclude Include="standard_form.h" />
     <ClInclude Include="key_state.h" />

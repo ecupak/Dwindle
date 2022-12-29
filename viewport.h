@@ -11,7 +11,7 @@ namespace Tmpl8
 	class Viewport
 	{
 	public:
-		Viewport(Camera& camera);
+		Viewport(Camera& camera, int player_starting_life);
 		void Update(float deltaTime);
 		void Draw(Surface* visible_layer);
 

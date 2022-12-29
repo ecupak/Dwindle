@@ -57,6 +57,11 @@
       <Filter>Viewport Files\Life HUD</Filter>
     </ClCompile>
     <ClCompile Include="life_socket.cpp" />
+    <ClCompile Include="player_echo.cpp">
+      <Filter>Base Classes\Player Echo</Filter>
+    </ClCompile>
+    <ClCompile Include="first_echo.cpp" />
+    <ClCompile Include="second_echo.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="game.h" />
@@ -131,6 +136,11 @@
       <Filter>Viewport Files\Life HUD</Filter>
     </ClInclude>
     <ClInclude Include="life_socket.h" />
+    <ClInclude Include="player_echo.h">
+      <Filter>Base Classes\Player Echo</Filter>
+    </ClInclude>
+    <ClInclude Include="first_echo.h" />
+    <ClInclude Include="second_echo.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="template code">
@@ -198,6 +208,9 @@
     </Filter>
     <Filter Include="Viewport Files\Life HUD">
       <UniqueIdentifier>{690c1579-aaad-4773-9d0d-a13d68616187}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Base Classes\Player Echo">
+      <UniqueIdentifier>{1a1eb5f4-813d-4d12-885a-9e7996d2bbb1}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

@@ -98,7 +98,7 @@ namespace Tmpl8
 
 		if (m_flash_opacity > m_opacity)
 		{
-			m_flash_opacity = Max(m_flash_opacity - deltaTime, m_opacity);
+			m_flash_opacity = Max(m_flash_opacity - (deltaTime * 0.3f), m_opacity);
 		}
 
 	}
@@ -111,9 +111,6 @@ namespace Tmpl8
 		m_value_as_char = ConvertInt2CharPointer(new_value);
 		m_opacity = new_opacity;
 		m_flash_opacity = Min(m_opacity + 0.3f, 1.0f);
-
-		/*m_value_layer.Clear(0xFF000000);
-		m_value_layer.Print(cstr, 0, 0, 0xFFFFFFFF, true, m_opacity);*/
 	}
 
 	
@@ -136,8 +133,8 @@ namespace Tmpl8
 		m_value_layer.Clear(0xFF000000);
 		m_value_layer.Print(m_value_as_char, 0, 0, 0xFFFFFFFF, true, m_flash_opacity);
 
-		visible_layer->Bar(m_box_start.x, m_box_start.y, m_box_end.x, m_box_end.y, 0xFF000000, true, 0.8f);
-		visible_layer->Box(m_box_start.x, m_box_start.y, m_box_end.x, m_box_end.y, 0xFFFFFFFF);
+		visible_layer->Bar(m_box_start.x, m_box_start.y, m_box_end.x, m_box_end.y, 0xFF000000);
+		visible_layer->Box(m_box_start.x, m_box_start.y, m_box_end.x, m_box_end.y, 0xFFFFFFFF, true, m_flash_opacity);
 
 		m_heart_sprite.Draw(visible_layer, m_heart_start.x, m_heart_start.y, true, m_flash_opacity);
 

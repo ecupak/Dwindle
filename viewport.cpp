@@ -5,8 +5,8 @@
 
 namespace Tmpl8
 {
-	Viewport::Viewport(Camera& camera) :
-		m_life_hud{ LifeHUD() },
+	Viewport::Viewport(Camera& camera, int player_starting_life) :
+		m_life_hud{ LifeHUD(player_starting_life) },
 		m_camera{ camera }
 	{	}
 
@@ -22,11 +22,13 @@ namespace Tmpl8
 		return m_life_hud;
 	}
 
+
 	void Viewport::Update(float deltaTime)
 	{
 		m_camera.Update(deltaTime);
 		m_life_hud.Update(deltaTime);
 	}
+
 
 	void Viewport::Draw(Surface* visible_layer)
 	{

@@ -20,7 +20,7 @@ namespace Tmpl8
 		screen{ surface },		
 		player{ surface, leftKey, rightKey, upKey, downKey },
 		camera{ player },
-		viewport{ camera },
+		viewport{ camera, player.GetStartingLife() },
 		collision_manager{ player, camera }
 	{	}
 
@@ -106,8 +106,17 @@ namespace Tmpl8
 			3. Draw rest of game overlay (HUD, pause menu, etc).
 		*/
 		screen->Clear(0x00000000);
-		viewport.Draw(screen);
 
+		/*
+			when dead
+			- start dead bouncing (keep going in direction. rebound off walls.)
+			- darken glow orbs to 0 opacity (automatically deleted by glow manager).
+			- remove collision detection after glow orbs go away.
+			- resume regular bouncing (restore health).
+			- place ball back at start.
+			- resume collisions.
+		*/		
+		viewport.Draw(screen);
 	}
 
 

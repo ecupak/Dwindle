@@ -15,13 +15,6 @@ typedef unsigned int Pixel; // unsigned int is assumed to be 32-bit, which seems
 // More opacity = more of the over_color will be present.
 inline Pixel MixAlpha(Pixel over_color, float over_color_opacity, Pixel under_color, bool is_opacity_in_hex)
 {
-	//// Hacky way to say if one of the colors is supposed to be 100% transparent, don't show it.
-	//if (under_color >> 24 == 0)
-	//	return over_color;
-
-	//if (over_color >> 24 == 0)
-	//	return under_color;
-
 	// Extract over color values.
 	unsigned int oR = (over_color & RedMask) >> 16;
 	unsigned int oG = (over_color & GreenMask) >> 8;
@@ -90,9 +83,9 @@ public:
 	void InitCharset();
 	void SetChar( int c, char* c1, char* c2, char* c3, char* c4, char* c5 );
 	void Centre( char* a_String, int y1, Pixel color );
-	void Print( char* a_String, int x1, int y1, Pixel color );
+	void Print( char* a_String, int x1, int y1, Pixel color, bool is_alpha = false, float opacity = 1.0f);
 	void Clear( Pixel a_Color );
-	void Line( float x1, float y1, float x2, float y2, Pixel color );
+	void Line( float x1, float y1, float x2, float y2, Pixel color, bool hasOpacity = false, float opacity = 1.0f);
 	void Plot( int x, int y, Pixel c );
 	void LoadImage( char* a_File );
 	Surface GetPartialCopy(int src_start_X, int src_start_Y, int width, int height);
@@ -100,7 +93,7 @@ public:
 	void CopyTo( Surface* a_Dst, int a_X, int a_Y );
 	void BlendCopyTo( Surface* a_Dst, int a_X, int a_Y );
 	void ScaleColor( unsigned int a_Scale );
-	void Box( int x1, int y1, int x2, int y2, Pixel color );
+	void Box( int x1, int y1, int x2, int y2, Pixel color, bool hasOpacity = false, float opacity = 1.0f);
 	void Bar( int x1, int y1, int x2, int y2, Pixel color, bool hasOpacity = false, float opacity = 1.0f );
 	void Resize( Surface* a_Orig );
 private:

@@ -3,7 +3,7 @@
 
 namespace Tmpl8
 {
-	Camera::Camera(Player& subject) :
+	Camera::Camera(Collidable& subject) :
 		m_subject{ subject }
 	{
 		m_offset.x = floor(ScreenWidth * 0.5f);
@@ -19,30 +19,16 @@ namespace Tmpl8
 		m_has_moved = true;
 	}
 
-
-	void Camera::SetBackgroundLayer(Surface* surface)
-	{
-		m_background_layer = surface;
-	}
-
-
-	void Camera::SetObstacleLayer(Surface* surface)
-	{
-		m_obstacle_layer = surface;
-	}
-
-
-	void Camera::SetMapLayer(Surface* surface)
-	{
-		m_map_layer = surface;
-	}
-
-
+		
 	Socket<CameraMessage>& Camera::GetPlayerCameraSocket()
 	{
 		return m_camera_socket;
 	}
 
+	void Camera::SetLevelBounds(vec2& level_bounds)
+	{
+		m_level_size = level_bounds;
+	}
 
 	void Camera::ResolveCollision(Collidable*& collision)
 	{
@@ -54,9 +40,9 @@ namespace Tmpl8
 	{
 		// Set bounds constrained by screen boundary.
 		float inbound_left = Max(left, 0);
-		float inbound_right = Min(right, m_obstacle_layer->GetWidth() - 1);
+		float inbound_right = Min(right, static_cast<int>(m_level_size.x) - 1);
 		float inbound_top = Max(top, 0);
-		float inbound_bottom = Min(bottom, m_obstacle_layer->GetHeight() - 1);
+		float inbound_bottom = Min(bottom, static_cast<int>(m_level_size.y) - 1);
 
 		// Draw any part of a collidable that overlaps with view.
 		for (Collidable*& collision : m_collisions)
@@ -110,7 +96,6 @@ namespace Tmpl8
 		{
 			m_focus.y = m_subject.center.y;
 		}
-
 
 		// Move to new focus.
 		m_has_moved = false;

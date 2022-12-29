@@ -5,8 +5,17 @@
 #include "key_state.h"
 #include "glow_socket.h"
 #include "camera_socket.h"
+#include "life_socket.h"
+#include "first_echo.h"
 
 namespace Tmpl8 {
+
+	enum class VectorIndex
+	{
+		X,
+		Y,
+	};
+
 	enum class Trigger // Action to trigger wall bounce.
 	{
 		LEFT,
@@ -30,7 +39,7 @@ namespace Tmpl8 {
 		REST,
 		NONE,
 	};
-
+	
 	class Player : public Collidable
 	{
 	public:
@@ -52,9 +61,10 @@ namespace Tmpl8 {
 
 		void RegisterGlowSocket(Socket<GlowMessage>& glow_socket);
 		void RegisterCameraSocket(Socket<CameraMessage>& camera_socket);
+		void RegisterLifeSocket(Socket<LifeMessage>& life_socket);
 
-		float GetDistanceToBounceApex();
-
+		int GetStartingLife();
+		bool IsAlive();
 
 		int safe_glows_created{ 0 };
 
@@ -94,7 +104,7 @@ namespace Tmpl8 {
 		void setFrameSquash2Stretch();
 
 		void SetCenterAndBounds();
-		float GetDistanceToMove(int vec2_index, float pre_calculated_t2);
+		float GetDistanceToMove(VectorIndex vector_index, float pre_calculated_t2);
 
 		bool GetIsSafeGlowNeeded(int post_id);
 
@@ -103,15 +113,20 @@ namespace Tmpl8 {
 
 
 		/* ATTRIBUTES */
+		int m_frame_id{ 0 };
+		
+		FirstEcho m_player_echo;
 
 		Socket<GlowMessage>* m_glow_socket{ nullptr };
 		Socket<CameraMessage>* m_camera_socket{ nullptr };
+		Socket<LifeMessage>* m_life_socket{ nullptr };
 
 		// Screen reference.
 		Surface* m_screen;
-
-		float m_player_strength{ 45.0f };
-		float m_player_max_strength{ 45.0f };
+				
+		int m_player_max_strength{ 45 };
+		int m_player_strength{ 5 };
+		int m_player_buffer{ 10 };
 
 		// Player sprite.
 		Sprite m_sprite;
@@ -121,6 +136,7 @@ namespace Tmpl8 {
 
 		// State change tracker.
 		Mode mode{ Mode::AIR };
+		State state{ State::ALIVE };
 
 		keyState& m_leftKey;
 		keyState& m_rightKey;
@@ -129,10 +145,17 @@ namespace Tmpl8 {
 
 		float m_delta_time{ 0.0f };
 
+		bool m_allow_horizontal_movement{ true };
+		float m_horizontal_dead_zone{ 0.3f };
+
 		// Movement related.
-		float ground_bounce_power{ 4.0f };
+		float m_ground_bounce_power{ 4.0f };
+		float m_max_ground_bounce_power{ m_ground_bounce_power };
+		float m_ground_bounce_power_dead_zone{ 0.0f };
+
 		vec2 acceleration{ 25.0f, 5.0f };
 		vec2 magnitude_coefficient{ 10.0f, 48.0f };
+		float m_acceleration_x_dead_dampening{ 0.1f };
 
 		std::vector<Collidable*> collisions;
 
@@ -153,17 +176,18 @@ namespace Tmpl8 {
 		BounceStrength wall_bounce_y_power{}; // Strength of wall bounce.
 		BounceStrength wall_bounce_x_power{};
 
-		// Intrinsic properties.
-		//float elasticity{ 1.0f }; // Anything less than 1 and ball loses velocity with each bounce.
+		// Intrinsic properties.		
 		float squashDampeningMagnitude{ 0.5f }; // Subtracts from squash value to get squash duration.
-		float squashDampeningCoefficient{ 0.25f }; // Multiplies by squash value to get squash duration.
-		float deadZone{ 0.0f }; //{ acceleration.y * 0.4f }; // When velocity.y is less than this, ball stops bouncing.
+		float squashDampeningCoefficient{ 0.25f }; // Multiplies by squash value to get squash duration.		
 
 		// Frame counts determine how long certain conditions last.
 		//int directionLockedFrameCount{ 0 };
 		float m_squash_frame_seconds{ 0 };
 		int stretchFrameCount{ 0 };
 		float triggerFrameCount{ 0 };
+
+		bool m_vertical_gameover{ false };
+		bool m_horizontal_gameover{ false };
 	};
 
 

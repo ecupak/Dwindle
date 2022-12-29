@@ -8,12 +8,12 @@ namespace Tmpl8
 		m_glow_socket{ glow_socket }
 	{
 		radius_max = 240.0f;
-		delay_max = 0.25f;
+		//delay_max = 0.25f;
 		delay = delay_max;
 
 		if (is_safe_glow_needed)
 		{
-			m_glow_socket->SendMessage(GlowMessage{ center, player_strength, CollidableType::SAFE_GLOW });
+			m_glow_socket->SendMessage(GlowMessage{ GlowAction::MAKE_ORB, center, player_strength, CollidableType::SAFE_GLOW });
 		}
 	}
 
@@ -26,7 +26,7 @@ namespace Tmpl8
 		}
 		else
 		{
-			radius += radius_delta;
+			radius += radius_delta * deltaTime;
 			opacity = (radius / radius_max) * 255 * m_player_strength;
 		}
 	}
@@ -45,8 +45,8 @@ namespace Tmpl8
 	
 	void FullGlowOrb::UpdateWaningPhase(float deltaTime)
 	{
-		opacity -= opacity_delta;
-		opacity_delta += opacity_delta_delta;
+		opacity -= opacity_delta * deltaTime;
+		opacity_delta += opacity_delta_delta * deltaTime;
 	}
 
 

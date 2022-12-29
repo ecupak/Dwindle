@@ -1,22 +1,26 @@
 #pragma once
 
 #include <vector>
-#include "collidable.h"
+
 #include "camera.h"
+#include "life_hud.h"
+
 
 namespace Tmpl8
 {
-	class Viewport : public Collidable
+	class Viewport
 	{
 	public:
-		Viewport(Camera& camera);
+		Viewport(Camera& camera, int player_starting_life);
+		void Update(float deltaTime);
+		void Draw(Surface* visible_layer);
 
+		Camera& GetCamera();
+		LifeHUD& GetLifeHUD();
 
 	private:
-		void UpdatePosition();
-
 		Camera& m_camera;
-		std::vector<Collidable*> m_collisions;
+		LifeHUD m_life_hud;
 	};
 };
 

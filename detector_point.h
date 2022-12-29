@@ -9,6 +9,13 @@
 
 namespace Tmpl8
 {
+	enum class State // Player state based on life/hp.
+	{
+		ALIVE,
+		DEAD,
+	};
+
+
 	class DetectorPoint : public Collidable
 	{
 	public:
@@ -16,7 +23,7 @@ namespace Tmpl8
 		void SetPosition(vec2& center, int radius);
 		void UpdatePosition(vec2& player_velocity, vec2& distance);
 		void UpdateCollisionBox();
-		virtual void ResolveCollision(Collidable*& collision);
+		void ResolveCollision(Collidable*& collision) override;
 		bool CheckForCollisions();
 		vec2& GetDeltaPosition();
 		int GetNewMode();		
@@ -25,6 +32,9 @@ namespace Tmpl8
 		vec2& GetNewVelocity();
 		void UpdatePreviousPosition();
 		void ClearCollisions();
+		void UpdateState(State new_state);
+
+		bool is_part_of_collision{ false };
 
 		vec2 position;
 		vec2 prev_position;
@@ -50,21 +60,20 @@ namespace Tmpl8
 		vec2 GetIntersection(StandardForm& line1, StandardForm& line2);
 		bool GetIsIntersectionInBounds(vec2& intersection, Collidable*& collision_object);
 
-		constexpr int GetNextMode();
+		int GetNextMode();
 		bool GetIsSafeGlowNeeded();
 
 		bool GetIsRicochetCollision(EdgeCrossed& collision_edge_crossed);
 
 		void ResolveSmoothCollision(Intersection& intersection_info);
-		void ResolveSmoothCornerCollision(vec2& ricochet_direction) {};
 		void ResolveRoughCollision();
-		void ResolveRoughCornerCollision();
 		void SetRicochetSpeed(Intersection& intersection_info);
 
 		vec2 GetCollisionBuffer(EdgeCrossed collision_edge_crossed);
 		int GetPenetrationDepth(Collidable*& collision_object, EdgeCrossed collision_edge_crossed);
 
-		int collision_count{ 0 };		
+		int collision_count{ 0 };
+		State m_state{ State::ALIVE };
 	};
 };
 

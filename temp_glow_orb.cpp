@@ -10,8 +10,8 @@ namespace Tmpl8
 	TempGlowOrb::TempGlowOrb(vec2 position, float player_strength, Surface* source_layer) :
 		GlowOrb{ position, player_strength, CollidableType::TEMP_GLOW, source_layer }
 	{
-		radius_max = 50.0f;
-		delay_max = 0.15f;
+		radius_max = 200.0f;
+		//delay_max = 0.15f;
 		delay = delay_max;
 	}
 
@@ -24,7 +24,7 @@ namespace Tmpl8
 		}
 		else
 		{
-			radius += radius_delta;
+			radius += radius_delta * deltaTime;
 			opacity = (radius / radius_max) * 255 * m_player_strength;
 		}
 	}
@@ -43,14 +43,14 @@ namespace Tmpl8
 
 	void TempGlowOrb::UpdateWaningPhase(float deltaTime)
 	{
-		opacity -= opacity_delta;
-		opacity_delta += opacity_delta_delta;
+		opacity -= opacity_delta * deltaTime;
+		opacity_delta += opacity_delta_delta * deltaTime;
 	}
 
 
 	void TempGlowOrb::UpdateEveryPhase(float deltaTime)
 	{
-		opacity = Clamp(opacity, 0.0f, 255.0f);
+		opacity = Clamp(opacity, 0.0f, 230.0f);
 		radius = Clamp(radius, 0.0f, radius_max);
 	}
 };

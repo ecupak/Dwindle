@@ -1,6 +1,7 @@
 #pragma once
 
-#include "player.h"
+//#include "player.h"
+#include "collidable.h"
 #include "template.h"
 #include "camera_socket.h"
 
@@ -9,17 +10,14 @@ namespace Tmpl8
 	class Camera : public Collidable
 	{
 	public:
-		Camera(Player& subject);
+		Camera(Collidable& subject);
 		void Update(float deltaTime);
 		void Draw(Surface* screen);
 		void ResolveCollision(Collidable*& collision) override;
 		Socket<CameraMessage>& GetPlayerCameraSocket();
 		void SetPosition(vec2 position);
 		void ProcessCollisions() {};
-
-		void SetBackgroundLayer(Surface* surface);
-		void SetObstacleLayer(Surface* surface);
-		void SetMapLayer(Surface* surface);
+		void SetLevelBounds(vec2& level_bounds);
 
 	private:
 		void UpdateBounds();
@@ -28,12 +26,10 @@ namespace Tmpl8
 
 		std::vector<Collidable*> m_collisions;
 
-		Surface* m_background_layer{ nullptr };
-		Surface* m_obstacle_layer{ nullptr };
-		Surface* m_map_layer{ nullptr };
+		vec2 m_level_size{ 0.0f, 0.0f };
 
 		Socket<CameraMessage> m_camera_socket;
-		Player& m_subject;
+		Collidable& m_subject;
 		bool m_has_moved{ false };
 		vec2 m_offset{ 0.0f, 0.0f };
 		int offset_x{ 540 }; // 1/2 screen width;

@@ -20,7 +20,7 @@ namespace Tmpl8
 		screen{ surface },		
 		player{ surface, leftKey, rightKey, upKey, downKey },
 		camera{ player },
-		viewport{ camera },
+		viewport{ camera, player.GetStartingLife() },
 		collision_manager{ player, camera }
 	{	}
 
@@ -51,6 +51,7 @@ namespace Tmpl8
 		player.SetPosition(level.GetPlayerStartPosition());
 		player.RegisterGlowSocket(level.GetPlayerGlowSocket());
 		player.RegisterCameraSocket(camera.GetPlayerCameraSocket());
+		player.RegisterLifeSocket(viewport.GetLifeHUD().GetPlayerLifeSocket());
 	}
 
 	
@@ -62,10 +63,7 @@ namespace Tmpl8
 
 	void Game::PrepareCamera()
 	{
-		camera.SetPosition(player.center);
-		camera.SetBackgroundLayer(level.GetBackgroundLayer());
-		camera.SetObstacleLayer(level.GetObstacleLayer());
-		camera.SetMapLayer(level.GetMapLayer());
+		camera.SetLevelBounds(level.GetBounds());
 	}
 
 	// -----------------------------------------------------------
@@ -99,7 +97,7 @@ namespace Tmpl8
 			Follow player if moved too far from center.
 			- Objects only drawn to screen if they collide with the viewport.
 		*/
-		camera.Update(deltaTime);
+		viewport.Update(deltaTime);
 		collision_manager.UpdateCollisions(CollidableGroup::CAMERA);
 
 		/*
@@ -108,13 +106,17 @@ namespace Tmpl8
 			3. Draw rest of game overlay (HUD, pause menu, etc).
 		*/
 		screen->Clear(0x00000000);
-		camera.Draw(screen);
 
-		for (int i{ 0 }; i < player.safe_glows_created; ++i)
-		{
-			screen->Line(20 * i, 20, 20 * i, 40, 0xFFFFFF00);
-		}
-		
+		/*
+			when dead
+			- start dead bouncing (keep going in direction. rebound off walls.)
+			- darken glow orbs to 0 opacity (automatically deleted by glow manager).
+			- remove collision detection after glow orbs go away.
+			- resume regular bouncing (restore health).
+			- place ball back at start.
+			- resume collisions.
+		*/		
+		viewport.Draw(screen);
 	}
 
 

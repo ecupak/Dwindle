@@ -35,7 +35,8 @@ namespace Tmpl8
 		half_height{ m_sprite.GetHeight() / 2 },
 		half_width{ m_sprite.GetWidth() / 2 },
 		half_size{ half_height },
-		m_leftKey{ leftKey }, m_rightKey{ rightKey }, m_upKey{ upKey }, m_downKey{ downKey }
+		m_leftKey{ leftKey }, m_rightKey{ rightKey }, m_upKey{ upKey }, m_downKey{ downKey },
+		m_player_echo{ m_sprite }
 	{
 		// Create array of points that will go around circle.
 		for (int i{ 0 }; i < POINTS; i++)
@@ -76,41 +77,76 @@ namespace Tmpl8
 			updateAir();
 			break;
 		}
+
+		if (m_horizontal_gameover && m_vertical_gameover)
+		{
+			mode = Mode::REST;
+		}
+
+		//if (mode != Mode::REST)
+		{
+			UpdatePosition();
+		}
 	}
 
 
 	void Player::Draw(Surface* viewable_layer, int c_left, int c_top, int in_left, int in_top, int in_right, int in_bottom)
 	{
-		for (DetectorPoint& point : points)
+		/*for (DetectorPoint& point : points)
 		{
 			viewable_layer->Box(point.left - c_left, point.top - c_top, point.right - c_left, point.bottom - c_top, 0xFFFFFFFF);
-		}
+		}*/
 
+		m_sprite.SetFrame(m_frame_id);
 		m_sprite.Draw(viewable_layer, position.x - c_left, position.y - c_top);
+		m_player_echo.Draw(viewable_layer, c_left, c_top);
+	}
+
+
+	bool Player::IsAlive()
+	{
+		return (state == State::ALIVE);
+	}
+
+
+	int Player::GetStartingLife()
+	{
+		return m_player_strength;
 	}
 
 
 	void Player::SetPosition(vec2& start_position)
 	{
 		position = start_position;
+
 		SetCenterAndBounds();
 
 		for (DetectorPoint& point : points)
 		{
 			point.SetPosition(center, half_size - 4);
 		}
+
 	}
 
 
 	void Player::UpdatePosition()
-	{
+	{		
 		prev_position = position;
+		m_player_echo.Update(position, m_frame_id);
 
 		float half_t2{ 0.5f * m_delta_time * m_delta_time };
 
 		// If player isn't pressing left/right and we have no velocity, don't move.
-		distance.x = (direction.x == 0.0f && velocity.x == 0.0f) ? 0.0f : GetDistanceToMove(0, half_t2);
-		distance.y = GetDistanceToMove(1, half_t2);
+		if (m_allow_horizontal_movement)
+		{
+			distance.x = (direction.x == 0.0f && velocity.x == 0.0f) ? 0.0f : GetDistanceToMove(VectorIndex::X, half_t2);
+		}
+		else
+		{
+			distance.x = 0.0f;
+		}
+
+		distance.y = GetDistanceToMove(VectorIndex::Y, half_t2);
 
 		position.x += distance.x;
 		position.y += distance.y;
@@ -124,8 +160,19 @@ namespace Tmpl8
 	}
 
 
-	float Player::GetDistanceToMove(int vec2_index, float pre_calculated_half_t2)
+	float Player::GetDistanceToMove(VectorIndex vector_index, float pre_calculated_half_t2)
 	{
+		int vec2_index{ 0 };
+		switch (vector_index)
+		{
+		case VectorIndex::X:
+			vec2_index = 0;
+			break;
+		case VectorIndex::Y:
+			vec2_index = 1;
+			break;
+		}
+
 		// distance = velocity * time + 1/2 * acceleration * time^2.
 		return ((velocity[vec2_index] * m_delta_time) + (velocity[vec2_index] * pre_calculated_half_t2))
 			// mutliplied so acceleration and velocity can stay as manageable numbers.
@@ -133,12 +180,12 @@ namespace Tmpl8
 	}
 
 
-	float Player::GetDistanceToBounceApex()
+	/*float Player::GetDistanceToBounceApex()
 	{
-		float time_to_apex{ ground_bounce_power / acceleration.y };
-		float distance_of_apex{ (ground_bounce_power * time_to_apex) + (0.5f * acceleration.y * time_to_apex * time_to_apex) };
+		float time_to_apex{ m_ground_bounce_power / acceleration.y };
+		float distance_of_apex{ (m_ground_bounce_power * time_to_apex) + (0.5f * acceleration.y * time_to_apex * time_to_apex) };
 		return distance_of_apex * magnitude_coefficient.y;
-	}
+	}*/
 
 
 	void Player::SetCenterAndBounds()	
@@ -177,6 +224,12 @@ namespace Tmpl8
 	}
 
 
+	void Player::RegisterLifeSocket(Socket<LifeMessage>& life_socket)
+	{
+		m_life_socket = &life_socket;
+	}
+	
+
 	void Player::ResolveCollision(Collidable*& collision)
 	{
 		collisions.push_back(collision);
@@ -190,7 +243,7 @@ namespace Tmpl8
 		int post_id{ NONE };
 		vec2 delta_position{ 0.0f, 0.0f };
 		vec2 ricochet_velocity{ 0.0f, 0.0f };
-
+		
 		// Get change in position after collision, and the new mode.
 		for (DetectorPoint& point : points)		
 		{			
@@ -199,7 +252,7 @@ namespace Tmpl8
 				/*
 					Update delta position (shifting out of collision object).
 					Only keep the largest changes to x and y.
-				*/				
+				*/
 
 				vec2 point_delta_position{ point.GetDeltaPosition() };				
 				delta_position.x = GetAbsoluteMax(point_delta_position.x, delta_position.x);
@@ -223,14 +276,9 @@ namespace Tmpl8
 				}
 			}
 		}
-		
 
-		// Apply the change in position to all points and player.
-		// Increase the delta x and y by 1 in the given direction if not 0.
-		/*delta_position.x += GetSign(delta_position.x);
-		delta_position.y += GetSign(delta_position.y);*/
-
-		if (delta_position.x != 0.0f || delta_position.y != 0.0f) // If at least 1 axis is not 0, there was a collision that needs to be handled.
+		// If at least 1 axis is not 0, there was a collision that needs to be handled.
+		if (delta_position.x != 0.0f || delta_position.y != 0.0f)
 		{
 			position += delta_position;
 			SetCenterAndBounds();
@@ -240,47 +288,104 @@ namespace Tmpl8
 				point.ClearCollisions();
 			}
 
-
-			// Update mode. If no mode, check if ricochet and apply new velocity.
+			/*
+				Determine if a safe glow orb is needed. If it is, subtract health.
+				Update opacity. Determine if player is dead.
+			*/
 			bool is_safe_glow_needed{ false };
+			if (state == State::ALIVE && new_mode & ~NONE)
+			{
+				if (new_mode & GROUND)
+				{			
+					is_safe_glow_needed = GetIsSafeGlowNeeded(BOTTOM);
+				}
+				else if (new_mode & WALL)
+				{				
+					is_safe_glow_needed = GetIsSafeGlowNeeded(post_id);
+				}
+				else
+				{				
+					is_safe_glow_needed = GetIsSafeGlowNeeded(TOP);
+				}
+			}			
+
+			// If safe glow orb needed, decrease strength. Strength is used as hp tracker and for opacity of glow orbs.
+			// Also decrease if dead, so glow orbs during death bounces get darker.
+			if (is_safe_glow_needed)
+			{
+				--m_player_strength;
+			}
+			else if (state == State::DEAD)
+			{
+				--m_player_strength;
+				m_ground_bounce_power = Max(0.0f, m_ground_bounce_power - 1.0f);
+			}
+
+			// If we have just died, update a few variables.
+			if (state == State::ALIVE && m_player_strength < 0)
+			{
+				// Safe glow orbs should not spawn if player is dead.
+				// They cannot spawn in the future if player is dead.
+				is_safe_glow_needed = false;
+
+				// Update self and points. Their ricochet velocities will be decreased.
+				state = State::DEAD;
+				for (DetectorPoint& point : points)
+				{
+					point.UpdateState(state);
+				}
+
+				// All safe glow orbs should fade out.
+				// m_glow_socket->SendMessage(GlowMessage{ GlowAction::PLAYER_DEATH });
+			}			
+
+			// Get opacity to use on glow orbs/life tracker.
+			/*
+				LET PLAYER SET BUFFER AMOUNT AT START OF GAME (like a choose a comfortable dimness setting).
+			*/
+			// Strength should not drop below buffer, otherwise opacity will have negative value.
+			m_player_strength = Max(m_player_strength, -(m_player_buffer));
+			float calculated_opacity{ Min((1.0f * m_player_strength + m_player_buffer) / m_player_max_strength, 1.0f) };
+
+			// Update life bar if alive and a safe glow orb is being created (loss of life).
+			if (state == State::ALIVE && is_safe_glow_needed)
+			{				
+				m_life_socket->SendMessage(LifeMessage{ m_player_strength, 1.0f * (m_player_strength + m_player_buffer) / m_player_max_strength });
+			}
+
+			// Update glow socket. Even when dead, make full and temp glow orbs.
+			if (new_mode & ~NONE)
+			{
+				m_glow_socket->SendMessage(GlowMessage{ GlowAction::MAKE_ORB, center, calculated_opacity, CollidableType::FULL_GLOW, is_safe_glow_needed });
+			}
+			else if (is_ricochet_set)
+			{
+				m_glow_socket->SendMessage(GlowMessage{ GlowAction::MAKE_ORB, center, calculated_opacity, CollidableType::TEMP_GLOW });
+			}
+
+			// Set next mode for player.
 			if (new_mode & ~NONE)
 			{
 				if (new_mode & GROUND)
 				{
 					handleGroundCollision();
-					is_safe_glow_needed = GetIsSafeGlowNeeded(BOTTOM);
 				}
 				else if (new_mode & WALL)
 				{
 					handleWallCollision(post_id);
-					is_safe_glow_needed = GetIsSafeGlowNeeded(post_id);
 				}
 				else
 				{
 					handleCeilingCollision();
-					is_safe_glow_needed = GetIsSafeGlowNeeded(TOP);
 				}
 			}
+			// Ricochet if a corner was hit. Ricochet even during death bounces.
 			else if (is_ricochet_set)
 			{
 				velocity = ricochet_velocity;
 			}
-
-			if (is_safe_glow_needed)
-			{
-				--m_player_strength;
-			}
-
-			// Update glow socket.
-			if (new_mode & ~NONE)
-			{				
-				m_glow_socket->SendMessage(GlowMessage{ center, m_player_strength/m_player_max_strength, CollidableType::FULL_GLOW, is_safe_glow_needed });
-			}
-			else if (is_ricochet_set)
-			{
-				m_glow_socket->SendMessage(GlowMessage{ center, m_player_strength / m_player_max_strength, CollidableType::TEMP_GLOW });
-			}
 		}
+		// If no collisions happened, remove collisions (overlaps with no line intersects) stored in points.
 		else
 		{
 			for (DetectorPoint & point : points)
@@ -296,7 +401,7 @@ namespace Tmpl8
 	*/
 	template <typename T>
 	int Player::GetSign(T val) {
-		return (T(0) < val) - (val < T(0));
+		return (T(0) < val) - (val < T(0)); // returns one of: -1, 0, 1
 	}
 
 	template <typename T>
@@ -322,7 +427,6 @@ namespace Tmpl8
 
 		updateVerticalMovement();
 		updateHorizontalMovement();
-		UpdatePosition();
 	}
 
 
@@ -343,8 +447,8 @@ namespace Tmpl8
 	{
 		/* Update horizontal position, unless direction locked from weak wall bounce. */
 
-		direction.x = -(m_leftKey.isActive) + m_rightKey.isActive;
-		if (direction.x != 0)
+		direction.x = -(m_leftKey.isActive) + m_rightKey.isActive;		
+		if (state == State::ALIVE && direction.x != 0.0f)
 		{
 			if (mode == Mode::AIR)
 			{
@@ -353,19 +457,24 @@ namespace Tmpl8
 			}
 		}
 		else
-		{
-			if (velocity.x != 0.0f)
+		{			
+			if (state == State::ALIVE)
 			{
-				if (fabsf(velocity.x) < 0.3f) //dead_zone.x;
+				velocity.x += GetSign(velocity.x) * -1 * acceleration.x * m_delta_time;
+				velocity.x = Clamp(velocity.x, -max_velocity.x, max_velocity.x);
+			}
+			else
+			{
+				if (m_vertical_gameover && fabsf(velocity.x) < m_horizontal_dead_zone)
 				{
 					velocity.x = 0.0f;
+					m_horizontal_gameover = true;
 				}
-				else if (mode == Mode::AIR)
+				else
 				{
-					velocity.x += GetSign(velocity.x) * -1 * acceleration.x * m_delta_time;
-					velocity.x = Clamp(velocity.x, -max_velocity.x, max_velocity.x);
+					velocity.x += GetSign(velocity.x) * -1 * m_acceleration_x_dead_dampening * acceleration.x * m_delta_time;
 				}
-			}
+			}			
 		}
 	}
 
@@ -375,16 +484,12 @@ namespace Tmpl8
 		/* Cheat the y position so the ball can appear to be above the ground.
 			Determine if ball will be squashed or come to a complete rest. */
 
-		// Set next mode.
-		if (deadZone > fabsf(velocity.y))
-		{
-			stopBouncing();
-		}
-		else
+		
 		{
 			prepareForGroundMode();
 		}
 
+		// Update camera focus.
 		m_camera_socket->SendMessage(CameraMessage{ center, Location::GROUND });
 
 		// Set next mode.
@@ -392,14 +497,7 @@ namespace Tmpl8
 	}
 
 
-	void Player::stopBouncing()
-	{
-		/* Lose all vertical velocity and set to normal image. REST mode is a dead end. */
-
-		velocity.y = 0.0f;
-		m_sprite.SetFrame(0);
-		mode = Mode::REST;
-	}
+	
 
 
 	void Player::prepareForGroundMode()
@@ -408,12 +506,21 @@ namespace Tmpl8
 			squashed anyway. Calculate the squash and stretch frame counts. Slower
 			speeds result in less frames of each. GROUND mode squashes the ball. */
 
-		setSquashFrameCount();
-		setStretchFrameCount();
+		velocity.y = 0.0f;
 
-		setFrameNormal2Squash();
+		if (state == State::ALIVE)
+		{
+			m_allow_horizontal_movement = false;
 
-		// Update positions. Brings them above ground after collision.
+			setSquashFrameCount();
+			setStretchFrameCount();
+			setFrameNormal2Squash();
+		}
+
+		/*
+			Update positions and them above ground after collision.
+			Mode::GROUND does not update positions while in delay.
+		*/
 		for (DetectorPoint& point : points)
 		{
 			point.UpdatePreviousPosition();
@@ -433,8 +540,7 @@ namespace Tmpl8
 		squashValue *= squashDampeningCoefficient;
 		squashValue = ceil(squashValue) - 1;
 
-		printf("squash sec: %f\n", squashValue);
-		m_squash_frame_seconds = 0.5f; //static_cast<int>(squashValue);
+		m_squash_frame_seconds = 0.24f; //static_cast<int>(squashValue);		
 	}
 
 
@@ -452,22 +558,29 @@ namespace Tmpl8
 		/* Based on wall, prepare for WALL mode. Frame int is based on 3 images per
 			orientation and style of ball. */
 
-		bool isOnLeftWall = (post_id == LEFT);
+		// Cling to wall if alive.
+		if (state == State::ALIVE)
+		{
+			velocity = vec2{ 0.0f,0.0f };
 
-		if (isOnLeftWall)
-			prepareForWallMode(Trigger::RIGHT);
+			bool isOnLeftWall = (post_id == LEFT);
+
+			if (isOnLeftWall)
+				prepareForWallMode(Trigger::RIGHT);
+			else
+				prepareForWallMode(Trigger::LEFT);
+
+			// Update camera focus.
+			m_camera_socket->SendMessage(CameraMessage{ center, Location::WALL });
+
+			// Set next mode.
+			mode = Mode::WALL;
+		}
+		// Bounce off wall if dead.
 		else
-			prepareForWallMode(Trigger::LEFT);
-
-		m_leftKey.isActive = false;
-		m_rightKey.isActive = false;
-		m_upKey.isActive = false;
-		m_downKey.isActive = false;
-
-		m_camera_socket->SendMessage(CameraMessage{ center, Location::WALL });
-
-		// Set next mode.
-		mode = Mode::WALL;
+		{
+			velocity.x *= -1;
+		}
 	}
 
 
@@ -476,10 +589,13 @@ namespace Tmpl8
 		/* Reposition ball just off of wall and lose all velocity. Register trigger and
 			set trigger duration. Update the sprite. WALL mode sticks ball on wall. */
 
-		velocity.x = 0.0f;
+		m_leftKey.isActive = false;
+		m_rightKey.isActive = false;
+		m_upKey.isActive = false;
+		m_downKey.isActive = false;
 
 		wallBounceTrigger = trigger;
-		triggerFrameCount = 1.0f;
+		//triggerFrameCount = 1.0f;
 		
 		// Need to figure out how to rotate sprite for side squash. Matrix rotation preferred.
 		// But can also create static sprite frames for each wall and ceiling.
@@ -494,6 +610,7 @@ namespace Tmpl8
 
 		prepareForCeilingMode();
 
+		// Update camera focus.
 		m_camera_socket->SendMessage(CameraMessage{ center, Location::OTHER });
 
 		// Set next mode.
@@ -507,12 +624,17 @@ namespace Tmpl8
 			squashed anyway. Calculate the squash and stretch frame counts. Slower
 			speeds result in less frames of each. GROUND mode squashes the ball. */
 
-		velocity.y = 0.0f;
+		if (state == State::ALIVE)
+		{
+			velocity.y = 0.0f;
 
-		setSquashFrameCount();
-		setStretchFrameCount();
-
-		setFrameNormal2Squash();
+			// Need to figure out how to rotate sprite for side squash. Matrix rotation preferred.
+			// But can also create static sprite frames for each wall and ceiling.
+			
+			/*setSquashFrameCount();
+			setStretchFrameCount();
+			setFrameNormal2Squash();*/
+		}
 	}
 
 
@@ -534,14 +656,33 @@ namespace Tmpl8
 
 		if (m_squash_frame_seconds <= 0)
 		{
-			bounceOffGround();
-			setFrameSquash2Stretch();
+			// If bouncing with not enough force, come to a stop.
+			if (state == State::DEAD && m_ground_bounce_power <= m_ground_bounce_power_dead_zone)
+			{
+				stopBouncing();
+			}
+			// Otherwise bounce off ground (even while dead).
+			else
+			{
+				bounceOffGround();
+				setFrameSquash2Stretch();
 
-			max_velocity.x = maxSpeedNormalX;
+				m_allow_horizontal_movement = true;
+				max_velocity.x = maxSpeedNormalX;
 
-			// Set next mode.
-			mode = Mode::AIR;
+				// Set next mode.
+				mode = Mode::AIR;
+			}
 		}
+	}
+
+	void Player::stopBouncing()
+	{
+		/* Lose all velocity and set to normal image. REST mode is a dead end. */
+		velocity.y = 0.0f;
+		m_frame_id = 0;
+
+		m_vertical_gameover = true;
 	}
 
 
@@ -553,7 +694,7 @@ namespace Tmpl8
 			higher than it started. */
 
 		// Reverse velocity (bounce!).
-		velocity.y = -(ground_bounce_power);
+		velocity.y = -(m_ground_bounce_power);
 	}
 
 
@@ -626,7 +767,7 @@ namespace Tmpl8
 			break;
 		}
 
-		velocity.y = -1 * ground_bounce_power * multiplier;
+		velocity.y = -1 * m_ground_bounce_power * multiplier;
 	}
 
 
@@ -690,7 +831,7 @@ namespace Tmpl8
 
 		if (stretchFrameCount <= 0)
 		{
-			m_sprite.SetFrame(0);
+			m_frame_id = 0;
 		}
 	}
 
@@ -699,19 +840,25 @@ namespace Tmpl8
 	{
 		/* If velocity was fast enough to generate a frame of squash, change image. */
 
-		if (m_squash_frame_seconds > 0.0f)
+		if (state == State::ALIVE)
 		{
-			m_sprite.SetFrame(1);
+			if (m_squash_frame_seconds > 0.0f)
+			{
+				m_frame_id = 1;
+			}
 		}
 	}
 
 
 	void Player::setFrameSquash2Stretch()
 	{
-		// Set mode to stretch.
-		if (stretchFrameCount > 0.0f)
+		if (state == State::ALIVE)
 		{
-			m_sprite.SetFrame(2);
+			// Set mode to stretch.
+			if (stretchFrameCount > 0.0f)
+			{
+				m_frame_id = 2;
+			}
 		}
 	}
 };

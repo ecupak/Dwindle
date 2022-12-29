@@ -154,12 +154,19 @@ namespace Tmpl8
 	}
 
 
+	void DetectorPoint::UpdateState(State new_state)
+	{
+		m_state = new_state;
+	}
+
+
 	bool debug_mode{ false };
 
 	bool DetectorPoint::CheckForCollisions()
 	{
 		delta_position.x = 0.0f;
 		delta_position.y = 0.0f;
+		is_part_of_collision = false;
 		new_mode = NONE;
 
 		if (m_obstacles.size() == 0)
@@ -232,21 +239,18 @@ namespace Tmpl8
 			if (obstacle->bottom >= top && obstacle->bottom <= bottom)
 			{
 				obstacle_found = true;
-				// Bottom edge of obstacle was crossed.
 				CheckForIntersection(intersections, line1, obstacle, EdgeCrossed::BOTTOM);
 			}
 
 			if (obstacle->left >= left && obstacle->left <= right)
 			{
 				obstacle_found = true;
-				// Left edge of obstacle was crossed.
 				CheckForIntersection(intersections, line1, obstacle, EdgeCrossed::LEFT);
 			}
 
 			if (obstacle->right >= left && obstacle->right <= right)
 			{
 				obstacle_found = true;
-				// Right edge of obstacle was crossed.
 				CheckForIntersection(intersections, line1, obstacle, EdgeCrossed::RIGHT);
 			}
 
@@ -313,12 +317,10 @@ namespace Tmpl8
 				break;
 			}
 
-			return true;
+			is_part_of_collision = true;
 		}
-		else
-		{
-			return false;
-		}
+
+		return is_part_of_collision;
 	}
 
 
@@ -434,7 +436,41 @@ namespace Tmpl8
 	}
 
 
-	constexpr int DetectorPoint::GetNextMode()
+	bool DetectorPoint::GetIsRicochetCollision(EdgeCrossed& collision_edge_crossed)
+	{
+		/*
+			The cardinal points only ricochet if they don't make a collision opposing
+			their primary direction. If the right point hits the left edge of an object,
+			that is a regular collision. If the right point hits the top edge of an object,
+			that results in a ricochet.
+
+			Normal collision	Ricochet collision
+
+				+-----			O
+			O > |				V
+				|				+--
+				|				|
+
+			The angled points will always ricochet if they create the closest collision.
+		*/
+
+		switch (post_id)
+		{
+		case RIGHT:
+			return (collision_edge_crossed != EdgeCrossed::LEFT);
+		case TOP:
+			return (collision_edge_crossed != EdgeCrossed::BOTTOM);
+		case LEFT:
+			return (collision_edge_crossed != EdgeCrossed::RIGHT);
+		case BOTTOM:
+			return (collision_edge_crossed != EdgeCrossed::TOP);
+		default:
+			return true;
+		}
+	}
+
+
+	int DetectorPoint::GetNextMode()
 	{
 		/*
 			Hits on the cardinal points will put the player in a new mode.
@@ -474,47 +510,10 @@ namespace Tmpl8
 	}
 
 
-	bool DetectorPoint::GetIsRicochetCollision(EdgeCrossed& collision_edge_crossed)
-	{
-		/*
-			The cardinal points only ricochet if they don't make a collision opposing
-			their primary direction. If the right point hits the left edge of an object,
-			that is a regular collision. If the right point hits the top edge of an object,
-			that results in a ricochet.
-
-			Normal collision	Ricochet collision
-
-				+-----			 O	
-			O > |				 V
-				|				+---
-				|				|
-			
-			The angled points will always ricochet if they create the closest collision.
-		*/
-
-
-		switch (post_id)
-		{
-		case RIGHT:
-			return (collision_edge_crossed != EdgeCrossed::LEFT);		
-		case TOP:
-			return (collision_edge_crossed != EdgeCrossed::BOTTOM);
-		case LEFT:
-			return (collision_edge_crossed != EdgeCrossed::RIGHT);
-		case BOTTOM:
-			return (collision_edge_crossed != EdgeCrossed::TOP);
-		default:
-			return true;
-		}
-	}
+	
 
 
 	void DetectorPoint::ResolveRoughCollision()
-	{
-	}
-
-
-	void DetectorPoint::ResolveRoughCornerCollision()
 	{
 	}
 
@@ -530,20 +529,20 @@ namespace Tmpl8
 		switch (intersection_info.m_collision_edge_crossed)
 		{
 		case EdgeCrossed::LEFT:
-			velocity.x = fabsf(velocity.x * 0.5f);
-			velocity.y *= 0.75f;
+			//velocity.x = fabsf(velocity.x * 0.5f);
+			velocity.y = m_state == State::ALIVE ? 3.0f : 1.0f;
 			break;
 		case EdgeCrossed::RIGHT:
-			velocity.x = fabsf(velocity.x * 0.5f);
-			velocity.y *= 0.75f;
+			//velocity.x = fabsf(velocity.x * 0.5f);
+			velocity.y = m_state == State::ALIVE ? 3.0f : 1.0f;
 			break;
 		case EdgeCrossed::TOP:
-			velocity.x = (fabsf(velocity.x) + 1.5f);
-			velocity.y = -2.0f;
+			velocity.x = (fabsf(velocity.x) + 15.0f);
+			velocity.y = m_state == State::ALIVE ? -2.0f : -1.0f;
 			break;
 		case EdgeCrossed::BOTTOM:
-			velocity.x = (fabsf(velocity.x) + 1.5f);
-			velocity.y = 1.0f;
+			velocity.x = (fabsf(velocity.x) + 15.0f);
+			velocity.y = m_state == State::ALIVE ? 2.0f : 1.0f;
 			break;
 		}
 

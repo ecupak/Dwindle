@@ -1,0 +1,13 @@
+0
+Use WASD or the arrow keys to move
+Press UP to jump off with more vertical power
+Press away form the wall to jump off with more horizontal power
+Press DOWN to drop down
+1
+Hello, dear
+Follow the light and everything will be ok
+I wish I could hold your hand...
+2
+Level 2 text
+3
+Level 3 text

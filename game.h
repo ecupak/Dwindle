@@ -1,10 +1,12 @@
 #pragma once
 
 #include "template.h"
+#include "surface.h"
 
 #include "key_state.h"
 #include "player.h"
 #include "level.h"
+#include "text_repo.h"
 #include "glow_manager.h"
 #include "collision_manager.h"
 #include "viewport.h"
@@ -33,6 +35,7 @@ namespace Tmpl8
 		void ProcessMessages();
 
 		void RegisterSockets();
+		void PrepareTextRepo();
 		void PrepareLevel();
 		void PrepareGlowManager();
 		void PreparePlayer();
@@ -52,6 +55,7 @@ namespace Tmpl8
 		CollisionManager collision_manager;
 		GlowManager glow_manager;
 		Level level_manager;
+		TextRepo text_repo;
 				
 		keyState leftKey;
 		keyState rightKey;

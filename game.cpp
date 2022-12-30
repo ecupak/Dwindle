@@ -2,8 +2,6 @@
 #include <vector>
 
 #include "game.h"
-#include "surface.h"
-#include "level.h"
 
 
 namespace Tmpl8
@@ -31,12 +29,14 @@ namespace Tmpl8
 	{
 		RegisterSockets();
 		
+		PrepareTextRepo();
 		PrepareLevel();
 		PrepareGlowManager();
 		PreparePlayer();
 		PrepareCollisionManager();
 		PrepareCamera();
 	}
+
 
 	void Game::RegisterSockets()
 	{
@@ -47,16 +47,11 @@ namespace Tmpl8
 		m_viewport_socket = viewport.GetViewportSocket();
 		m_life_socket = viewport.GetLifeHUDSocket();
 	}
+	
 
-	void Game::PreparePlayer()
+	void Game::PrepareTextRepo()
 	{
-		player.RegisterGameSocket(&m_game_hub);
-		player.RegisterGlowSocket(m_glow_socket);
-		player.RegisterCameraSocket(m_camera_socket);
-		player.RegisterLifeSocket(m_life_socket);
-
-		player.RestoreDefaults();
-		player.SetPosition(level_manager.GetPlayerStartPosition());
+		text_repo.LoadText("assets/text_layer_info");
 	}
 
 
@@ -79,7 +74,19 @@ namespace Tmpl8
 		glow_manager.SetObstacleLayer(level_manager.GetObstacleLayer());
 	}
 
-	
+
+	void Game::PreparePlayer()
+	{
+		player.RegisterGameSocket(&m_game_hub);
+		player.RegisterGlowSocket(m_glow_socket);
+		player.RegisterCameraSocket(m_camera_socket);
+		player.RegisterLifeSocket(m_life_socket);
+
+		player.RestoreDefaults();
+		player.SetPosition(level_manager.GetPlayerStartPosition());
+	}
+
+
 	void Game::PrepareCollisionManager()
 	{
 		collision_manager.SetNewLevel(level_manager);

@@ -640,8 +640,8 @@ typedef struct SDL_HapticRamp
     Uint16 interval;        /**< How soon it can be triggered again after button. */
 
     /* Ramp */
-    Sint16 start;           /**< Beginning strength level. */
-    Sint16 end;             /**< Ending strength level. */
+    Sint16 start;           /**< Beginning strength level_manager. */
+    Sint16 end;             /**< Ending strength level_manager. */
 
     /* Envelope */
     Uint16 attack_length;   /**< Duration of the attack. */
@@ -758,7 +758,7 @@ typedef struct SDL_HapticCustom
     Strength
     ^
     |
-    |    effect level -->  _________________
+    |    effect level_manager -->  _________________
     |                     /                 \
     |                    /                   \
     |                   /                     \
@@ -775,7 +775,7 @@ typedef struct SDL_HapticCustom
     \endverbatim
  *
  *  Note either the attack_level or the fade_level may be above the actual
- *  effect level.
+ *  effect level_manager.
  *
  *  \sa SDL_HapticConstant
  *  \sa SDL_HapticPeriodic

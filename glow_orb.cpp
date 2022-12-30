@@ -6,9 +6,9 @@
 
 namespace Tmpl8
 {
-	GlowOrb::GlowOrb(vec2 position, float player_stength, CollidableType object_type, Surface* source_layer) :
+	GlowOrb::GlowOrb(vec2 position, float player_strength, CollidableType object_type, Surface* source_layer) :
 		m_source_layer{ source_layer },
-		m_player_strength{ player_stength }
+		m_player_strength{ player_strength }
 	{	
 		center = position;
 		m_object_type = object_type;
@@ -20,6 +20,12 @@ namespace Tmpl8
 		UpdateByPhase(deltaTime);
 		UpdateBounds();
 		is_expired = (opacity <= 0.0f);
+	}
+
+
+	void GlowOrb::SetPhase(Phase new_phase)
+	{
+		phase = new_phase;
 	}
 
 
@@ -54,7 +60,7 @@ namespace Tmpl8
 		right = static_cast<int>(floor(center.x + radius));
 	}
 
-
+	
 	void GlowOrb::Draw(Surface* viewable_layer, int c_left, int c_top, int in_left, int in_top, int in_right, int in_bottom)
 	{
 		/*
@@ -86,6 +92,9 @@ namespace Tmpl8
 		{
 			for (int x{ 0 }; x <= (d_right - d_left); x++)
 			{
+				if (y - d_top == 16)
+					int x = 3;
+
 				// Only adjust pixels that fall within a circle based on center and radius.
 				int dist_x{ x + d_left - static_cast<int>(floor(center.x)) };
 				int dist_y{ y - static_cast<int>(floor(center.y)) };
@@ -93,7 +102,7 @@ namespace Tmpl8
 				if (dist <= radius_squared)
 				{
 					// The opacity decreases (becomes more transparent) as we move from the center.
-					float intensity{ 1.0f - (1.0f * dist / radius_squared * 2.0f) };
+					float intensity{ 1.0f - ((1.0f * dist / radius_squared) * 2.0f) };
 
 					DrawStep(x, d_pix, s_pix, new_opacity, intensity);
 				}

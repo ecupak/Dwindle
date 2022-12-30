@@ -27,10 +27,12 @@ namespace Tmpl8
 
 		void Update(vec2& current_position, int next_frame_id);
 		void Draw(Surface* visible_layer, int camera_left, int camera_top);
+		void ApplyDelta(vec2& delta_offset);
 
 	protected:
 		virtual void UpdateEcho(Echo& echo) { }
 		virtual void DrawEcho(Surface* visible_layer, int camera_left, int camera_top) { }
+		virtual void ApplyDeltaEcho(vec2& delta_position) { }
 
 		Sprite& m_sprite;
 		float m_opacity{ 0.0f };

@@ -20,15 +20,17 @@ namespace Tmpl8
 	}
 
 		
-	Socket<CameraMessage>& Camera::GetPlayerCameraSocket()
+	Socket<CameraMessage>* Camera::GetCameraSocket()
 	{
-		return m_camera_socket;
+		return &m_camera_hub;
 	}
+
 
 	void Camera::SetLevelBounds(vec2& level_bounds)
 	{
 		m_level_size = level_bounds;
 	}
+
 
 	void Camera::ResolveCollision(Collidable*& collision)
 	{
@@ -67,16 +69,16 @@ namespace Tmpl8
 	void Camera::Update(float deltaTime)
 	{
 		// Find new focus.
-		if (m_camera_socket.HasNewMessage())
+		if (m_camera_hub.HasNewMessage())
 		{
-			std::vector<CameraMessage>& messages = m_camera_socket.ReadMessages();
+			std::vector<CameraMessage>& messages = m_camera_hub.ReadMessages();
 
 			m_focus.y = messages.back().m_new_center.y;
 
 			m_subject_prev_location = m_subject_location;
 			m_subject_location = messages.back().m_new_location;
 			
-			m_camera_socket.ClearMessages();
+			m_camera_hub.ClearMessages();
 
 
 			// Follow y position exactly (when following) unless it is initial cling to wall from ground.

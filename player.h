@@ -3,6 +3,7 @@
 #include "collidable.h"
 #include "detector_point.h"
 #include "key_state.h"
+#include "game_socket.h"
 #include "glow_socket.h"
 #include "camera_socket.h"
 #include "life_socket.h"
@@ -37,6 +38,7 @@ namespace Tmpl8 {
 		WALL,
 		CEILING,
 		REST,
+		FREE_FALL,
 		NONE,
 	};
 	
@@ -45,12 +47,18 @@ namespace Tmpl8 {
 	public:
 		// Methods.
 		// Structor.
-		Player(Surface* screen, keyState& leftKey, keyState& rightKey, keyState& upKey, keyState& downKey);
+		Player(keyState& leftKey, keyState& rightKey, keyState& upKey, keyState& downKey);
 		
-		void Update(float deltaTime);
-		void Draw(Surface* viewable_layer, int c_left, int c_top, int in_left, int in_top, int in_right, int in_bottom) override;
 		void SetPosition(vec2& start_position);
-		
+		void Update(float deltaTime);
+		void Draw(Surface* viewable_layer, int c_left, int c_top, int in_left, int in_top, int in_right, int in_bottom) override;		
+				
+		//void SetMode(Mode new_mode);
+		//bool IsAtRest() { return mode == Mode::REST; }
+
+		void RestoreDefaults();
+		void TransitionToPosition(vec2& new_position);
+
 		std::vector<DetectorPoint>& GetCollisionPoints();
 		virtual void ResolveCollision(Collidable*& collision);
 		void ProcessCollisions();
@@ -59,12 +67,18 @@ namespace Tmpl8 {
 		std::vector<DetectorPoint> points;
 		void UpdatePosition();
 
-		void RegisterGlowSocket(Socket<GlowMessage>& glow_socket);
-		void RegisterCameraSocket(Socket<CameraMessage>& camera_socket);
-		void RegisterLifeSocket(Socket<LifeMessage>& life_socket);
+		void RegisterGameSocket(Socket<GameMessage>* game_socket);
+		void RegisterGlowSocket(Socket<GlowMessage>* glow_socket);
+		void RegisterCameraSocket(Socket<CameraMessage>* camera_socket);
+		void RegisterLifeSocket(Socket<LifeMessage>* life_socket);
 
 		int GetStartingLife();
 		bool IsAlive();
+		bool IsDead() { return state == State::DEAD; }
+		bool IsSuspended() { return m_is_player_suspended; }
+
+		bool m_is_player_suspended{ false };
+
 
 		int safe_glows_created{ 0 };
 
@@ -98,6 +112,9 @@ namespace Tmpl8 {
 		void setEjectionSpeedY(BounceStrength& wall_bounce_y_power);
 		void setEjectionSpeedX(BounceStrength& wall_bounce_x_power);
 
+		void updateFreeFall();
+
+
 		// Sprite updates.
 		void updateFrameStretch2Normal();
 		void setFrameNormal2Squash();
@@ -117,17 +134,22 @@ namespace Tmpl8 {
 		
 		FirstEcho m_player_echo;
 
+		Socket<GameMessage>* m_game_socket{ nullptr };
 		Socket<GlowMessage>* m_glow_socket{ nullptr };
 		Socket<CameraMessage>* m_camera_socket{ nullptr };
 		Socket<LifeMessage>* m_life_socket{ nullptr };
 
-		// Screen reference.
-		Surface* m_screen;
-				
-		int m_player_max_strength{ 45 };
-		int m_player_strength{ 5 };
-		int m_player_buffer{ 10 };
 
+		/*
+			Strength = life and opacity of light flash.
+			Buffer is the minimum brightness set by user.
+			- Is only decreased during death (no affect on user experience).
+		*/
+		int m_player_max_strength{ 20 };
+		int m_player_min_brightness_buffer{ 10 };
+		int m_player_strength{ m_player_max_strength };
+		float m_player_brightness_buffer{ 1.0f * m_player_min_brightness_buffer };
+		
 		// Player sprite.
 		Sprite m_sprite;
 		int half_height;
@@ -144,6 +166,8 @@ namespace Tmpl8 {
 		keyState& m_downKey;
 
 		float m_delta_time{ 0.0f };
+		float m_dead_timer{ 0.0f };
+		int m_free_fall_frame_count{ 0 };
 
 		bool m_allow_horizontal_movement{ true };
 		float m_horizontal_dead_zone{ 0.3f };
@@ -186,11 +210,10 @@ namespace Tmpl8 {
 		int stretchFrameCount{ 0 };
 		float triggerFrameCount{ 0 };
 
-		bool m_vertical_gameover{ false };
-		bool m_horizontal_gameover{ false };
+		bool m_is_vertical_at_rest{ false };
+		bool m_is_horizontal_at_rest{ false };
+		bool m_is_1_way_rest_gate_open{ true };
+
+		bool m_is_echo_update_enabled{ true };
 	};
-
-
-
-
 }

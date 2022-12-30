@@ -237,7 +237,6 @@
     <ClCompile Include="glow_orb.cpp" />
     <ClCompile Include="level.cpp" />
     <ClCompile Include="life_hud.cpp" />
-    <ClCompile Include="life_socket.cpp" />
     <ClCompile Include="obstacle.cpp" />
     <ClCompile Include="player.cpp" />
     <ClCompile Include="player_echo.cpp" />
@@ -258,6 +257,7 @@
     <ClInclude Include="detector_point.h" />
     <ClInclude Include="first_echo.h" />
     <ClInclude Include="game.h" />
+    <ClInclude Include="game_socket.h" />
     <ClInclude Include="glow_manager.h" />
     <ClInclude Include="glow_orb.h" />
     <ClInclude Include="glow_socket.h" />
@@ -279,6 +279,7 @@
     <ClInclude Include="full_glow_orb.h" />
     <ClInclude Include="temp_glow_orb.h" />
     <ClInclude Include="viewport.h" />
+    <ClInclude Include="viewport_socket.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="_readme.txt" />

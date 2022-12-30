@@ -15,6 +15,8 @@ namespace Tmpl8
 
 		void DrawEcho(Surface* visible_layer, int camera_left, int camera_top) override;
 
+		void ApplyDeltaEcho(vec2& delta_position) override;
+
 	private:
 		SecondEcho m_player_echo;
 	};

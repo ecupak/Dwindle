@@ -56,10 +56,10 @@ extern "C" {
 /**
  *  \brief The predefined log categories
  *
- *  By default the application category is enabled at the INFO level,
- *  the assert category is enabled at the WARN level, test is enabled
- *  at the VERBOSE level and all other categories are enabled at the
- *  CRITICAL level.
+ *  By default the application category is enabled at the INFO level_manager,
+ *  the assert category is enabled at the WARN level_manager, test is enabled
+ *  at the VERBOSE level_manager and all other categories are enabled at the
+ *  CRITICAL level_manager.
  */
 enum
 {

@@ -3,19 +3,20 @@
 
 namespace Tmpl8
 {
-	constexpr int LETTER_HEIGHT{ 6 };
+	constexpr int LETTER_HEIGHT{ 6 };	
 	constexpr int LETTER_WIDTH{ 6 };
-
-	LifeHUD::LifeHUD(int initial_value) :
+	constexpr unsigned int DANGER_ZONE{ 3 };
+	constexpr unsigned int NORMAL{ 0xFFFFFFFF };
+	constexpr unsigned int CRITICAL{ 0xFFFF0000 };
+	constexpr unsigned int BLACK{ 0xFF000000 };
+	
+	
+	LifeHUD::LifeHUD() :
 		m_value_layer{ GetSurfaceWidth(), GetSurfaceHeight() },
 		m_value_sprite{ &m_value_layer, 1, false },
 		m_heart_sprite{ new Surface("assets/life.png"), 1, true }
 	{
-		m_value_layer.Clear(0xFF000000);
-		m_value_layer.Print("00", 0, 0, 0xFFFFFFFF);
-
 		InitializeDrawingValues();
-		UpdateValueLayer(initial_value, 1.0f);
 	}
 
 
@@ -76,38 +77,41 @@ namespace Tmpl8
 	}
 
 
-	Socket<LifeMessage>& LifeHUD::GetPlayerLifeSocket()
+	Socket<LifeMessage>* LifeHUD::GetLifeHUDSocket()
 	{
-		return m_life_socket;
+		return &m_life_hub;
 	}
 
 
 	void LifeHUD::Update(float deltaTime)
 	{
-		if (m_life_socket.HasNewMessage())
+		if (m_life_hub.HasNewMessage())
 		{			
-			std::vector<LifeMessage>& messages = m_life_socket.ReadMessages();
+			std::vector<LifeMessage> messages = m_life_hub.ReadMessages();
+			m_life_hub.ClearMessages();
 
+			// We only need the most recent message.
+			// But not really any way we can get more than 1 at a time.
 			UpdateValueLayer(
 				messages.back().m_new_value,
 				messages.back().m_player_strength
 			);
 
-			m_life_socket.ClearMessages();
+			m_draw_color = (messages.back().m_new_value > DANGER_ZONE) ? NORMAL : CRITICAL;
 		}
 
 		if (m_flash_opacity > m_opacity)
 		{
 			m_flash_opacity = Max(m_flash_opacity - (deltaTime * 0.3f), m_opacity);
 		}
-
 	}
 
 
 	void LifeHUD::UpdateValueLayer(int new_value, float new_opacity)
 	{
+		// Should not be passed a negative value. Ignore it.
 		if (new_value < 0) return;
-
+		
 		m_value_as_char = ConvertInt2CharPointer(new_value);
 		m_opacity = new_opacity;
 		m_flash_opacity = Min(m_opacity + 0.3f, 1.0f);
@@ -131,10 +135,10 @@ namespace Tmpl8
 	void LifeHUD::Draw(Surface* visible_layer)
 	{
 		m_value_layer.Clear(0xFF000000);
-		m_value_layer.Print(m_value_as_char, 0, 0, 0xFFFFFFFF, true, m_flash_opacity);
+		m_value_layer.Print(m_value_as_char, 0, 0, m_draw_color, true, m_flash_opacity);
 
-		visible_layer->Bar(m_box_start.x, m_box_start.y, m_box_end.x, m_box_end.y, 0xFF000000);
-		visible_layer->Box(m_box_start.x, m_box_start.y, m_box_end.x, m_box_end.y, 0xFFFFFFFF, true, m_flash_opacity);
+		visible_layer->Bar(m_box_start.x, m_box_start.y, m_box_end.x, m_box_end.y, BLACK);
+		visible_layer->Box(m_box_start.x, m_box_start.y, m_box_end.x, m_box_end.y, m_draw_color, true, m_flash_opacity);
 
 		m_heart_sprite.Draw(visible_layer, m_heart_start.x, m_heart_start.y, true, m_flash_opacity);
 

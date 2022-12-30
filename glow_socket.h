@@ -4,12 +4,15 @@
 #include "template.h"
 #include "collidable.h"
 
+
 namespace Tmpl8
 {
 	enum class GlowAction
-	{
+	{	
+		LEVEL_RESET,
+		MAP_LAYER,
+		OBSTACLE_LAYER,
 		MAKE_ORB,
-		PLAYER_DEATH,
 	};
 
 
@@ -18,6 +21,12 @@ namespace Tmpl8
 	public:
 		GlowMessage(GlowAction action) :
 			m_action{ action }
+		{	}
+
+
+		GlowMessage(GlowAction action, Surface* layer) :
+			m_action{ action },
+			m_layer{ layer }
 		{	}
 
 
@@ -31,6 +40,7 @@ namespace Tmpl8
 
 
 		GlowAction m_action;
+		Surface* m_layer{ nullptr };
 		vec2 m_orb_position{ 0.0f, 0.0f };
 		float m_player_strength{ 0.0f };
 		CollidableType m_glow_orb_type{ CollidableType::UNKNOWN };

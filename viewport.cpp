@@ -5,8 +5,8 @@
 
 namespace Tmpl8
 {
-	Viewport::Viewport(Camera& camera, int player_starting_life) :
-		m_life_hud{ LifeHUD(player_starting_life) },
+	Viewport::Viewport(Surface* visible_layer, Camera& camera) :
+		m_visible_layer{ visible_layer },
 		m_camera{ camera }
 	{	}
 
@@ -17,9 +17,15 @@ namespace Tmpl8
 	}
 
 
-	LifeHUD& Viewport::GetLifeHUD()
+	Socket<ViewportMessage>* Viewport::GetViewportSocket()
 	{
-		return m_life_hud;
+		return &m_viewport_hub;
+	}
+
+
+	Socket<LifeMessage>* Viewport::GetLifeHUDSocket()
+	{
+		return m_life_hud.GetLifeHUDSocket();
 	}
 
 
@@ -30,9 +36,39 @@ namespace Tmpl8
 	}
 
 
-	void Viewport::Draw(Surface* visible_layer)
+	void Viewport::CheckSocketForNewViewportMessage()
 	{
-		m_camera.Draw(visible_layer);
-		m_life_hud.Draw(visible_layer);
+		if (m_viewport_hub.HasNewMessage())
+		{
+			ProcessMessages();
+		}
+	}
+
+
+	void Viewport::ProcessMessages()
+	{
+		std::vector<ViewportMessage> messages = m_viewport_hub.ReadMessages();
+		m_viewport_hub.ClearMessages();
+
+		for (ViewportMessage& message : messages)
+		{
+			switch (message.m_action)
+			{
+			case ViewportAction::MAP_SURFACE:
+				//m_map_layer = &(message.m_layer);
+				break;
+			case ViewportAction::OBSTACLE_SURFACE:
+				//m_obstacle_layer = &(message.m_layer);
+				break;
+			}
+		}
+	}
+
+
+	void Viewport::Draw()
+	{		
+		m_visible_layer->Clear(0x00000000);
+		m_camera.Draw(m_visible_layer);
+		m_life_hud.Draw(m_visible_layer);
 	}
 };

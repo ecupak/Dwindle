@@ -14,7 +14,7 @@ namespace Tmpl8
 		void Update(float deltaTime);
 		void Draw(Surface* screen);
 		void ResolveCollision(Collidable*& collision) override;
-		Socket<CameraMessage>& GetPlayerCameraSocket();
+		Socket<CameraMessage>* GetCameraSocket();
 		void SetPosition(vec2 position);
 		void ProcessCollisions() {};
 		void SetLevelBounds(vec2& level_bounds);
@@ -28,7 +28,7 @@ namespace Tmpl8
 
 		vec2 m_level_size{ 0.0f, 0.0f };
 
-		Socket<CameraMessage> m_camera_socket;
+		Socket<CameraMessage> m_camera_hub;
 		Collidable& m_subject;
 		bool m_has_moved{ false };
 		vec2 m_offset{ 0.0f, 0.0f };

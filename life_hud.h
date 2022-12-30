@@ -12,8 +12,8 @@ namespace Tmpl8
 	class LifeHUD
 	{
 	public:
-		LifeHUD(int initial_value = 0);
-		Socket<LifeMessage>& GetPlayerLifeSocket();
+		LifeHUD();
+		Socket<LifeMessage>* GetLifeHUDSocket();
 
 		void Update(float deltaTime);
 		void Draw(Surface* visible_layer);
@@ -26,7 +26,7 @@ namespace Tmpl8
 		void UpdateValueLayer(int new_value, float new_opacity);
 		char*  ConvertInt2CharPointer(int new_value);
 
-		Socket<LifeMessage> m_life_socket;
+		Socket<LifeMessage> m_life_hub;
 
 		Surface m_value_layer;
 		Sprite m_value_sprite;
@@ -58,6 +58,8 @@ namespace Tmpl8
 		vec2 m_heart_start{ 0.0f, 0.0f };
 		vec2 m_value_start{ 0.0f, 0.0f };
 		vec2 m_box_end{ 0.0f, 0.0f };
+
+		unsigned int m_draw_color{ 0xFFFFFFFF };
 	};
 };
 

@@ -9,7 +9,7 @@ namespace Tmpl8
 		radius_max = 30.0f;
 		radius = radius_max;
 		phase = Phase::FULL;
-		opacity = 100.0f;
+		opacity = 255.0f;
 	}
 
 
@@ -30,15 +30,15 @@ namespace Tmpl8
 	void SafeGlowOrb::DrawStep(int x_pos, Pixel*& destination_pix, Pixel*& source_pix, int new_opacity, float intensity)
 	{
 		/*
-			If source pixel has a blue channel value greater than 10, draw a glow at that position.
-			Reason is that the solid "black" of the obstacle has an equal alpha to the outline of the obstacle, so that can't be used.
-			Additionally, the "blacK" will be made transparent by the template if left as 0xFF000000. So it has a value of 0xFF000001.
+			If source pixel has a blue channel value greater than 1, draw a glow at that position.
+			Can't compare alpha values (outline color and fill color of obstacle are both 0xFF......).
+			Can't look for a zero RGB value (the "blacK" will be made transparent by the template, so it has a value of 0xFF000001).
 			Thus, any pixel on the obstacle that has a blue channel value greater than 1 is the outline of the obstacle.
 		*/
-
+				
 		if ((source_pix[x_pos] & BlueMask) > 1)
 		{
-			destination_pix[x_pos] = MixAlpha(source_pix[x_pos], new_opacity, 0x0000FF00, true);
+			destination_pix[x_pos] = MixAlpha(glow_color, new_opacity, 0xFF000000, true);
 		}
 	}
 };

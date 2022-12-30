@@ -3,14 +3,14 @@
 #include <vector>
 
 #include "surface.h"
-#include "key_state.h"
+#include "blueprints.h"
+
 #include "collidable.h"
 #include "obstacle.h"
-#include "player.h"
 
-#include "glow_manager.h"
+#include "glow_socket.h"
 #include "collision_socket.h"
-#include "blueprints.h"
+#include "viewport_socket.h"
 
 
 namespace Tmpl8
@@ -25,29 +25,23 @@ namespace Tmpl8
 	{
 	public:
 		Level();		
+
 		void CreateLevel(int level_id);
-
 		void CreateLayers();
-
 		vec2& GetPlayerStartPosition();
-
 		vec2 GetBounds();
 
 		// Player collidables are interactable things. The obstacles.
 		// The light pickups.
 		std::vector<Collidable*>& GetPlayerCollidables();
 
+		void RegisterCollisionSocket(Socket<CollisionMessage>* collision_socket);
+		void RegisterViewportSocket(Socket<ViewportMessage>* viewport_socket);
 
-		Socket<GlowMessage>& GetPlayerGlowSocket();
-		void RegisterCollisionSocket(Socket<CollisionMessage>& collision_socket);
-		void RegisterCollisionSocketToGlowManager(Socket<CollisionMessage>& collision_socket);
+		void Draw(Surface* screen);
 
-		void Update(float deltaTime);
-
-
-		Surface* Level::GetBackgroundLayer();
-		Surface* Level::GetObstacleLayer();
-		Surface* Level::GetMapLayer();
+		Surface& GetMapLayer() { return m_map_layer; }
+		Surface& GetObstacleLayer() { return m_obstacle_layer; }
 
 	private:
 		// METHODS
@@ -66,8 +60,6 @@ namespace Tmpl8
 		int GetBitwiseOverlap(int autotile_id);
 
 		// ATTRIBUTES
-		//Surface m_blueprints{ "assets/level-t.png" };
-		//Surface m_background{ "assets/noise_robson_1280.png" }; 
 		Surface m_tilemap_smooth{"assets/tilemap_smooth_64x.png"};
 		Surface m_tilemap_rough{ "assets/tilemap_rough.png" };
 		char* bg{ "assets/noise_robson_1280.png" }; // credit: https://robson.plus/white-noise-image-generator/	
@@ -79,9 +71,9 @@ namespace Tmpl8
 		int m_level_id{ 0 };
 		vec2 m_player_start_position{ 0.0f, 0.0f };
 
-		GlowManager m_glow_manager;
-
 		Socket<CollisionMessage>* m_collision_socket{ nullptr };
+		// Socket<ViewportMessage>* m_viewport_socket{ nullptr };
+		// Socket<GlowMessage>* m_glow_socket{ nullptr };
 
 		Surface m_background_layer;
 		Surface m_obstacle_layer;

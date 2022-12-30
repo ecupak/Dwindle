@@ -180,7 +180,7 @@ extern DECLSPEC SDL_assert_state SDLCALL SDL_ReportAssertion(SDL_assert_data *,
 #   error Unknown assertion level.
 #endif
 
-/* this assertion is never disabled at any level. */
+/* this assertion is never disabled at any level_manager. */
 #define SDL_assert_always(condition) SDL_enabled_assert(condition)
 
 

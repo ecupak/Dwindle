@@ -9,7 +9,7 @@ namespace Tmpl8
 	CollisionManager::CollisionManager(Player& player, Camera& camera) :
 		m_player{ player },
 		m_camera{ camera },
-		m_level{ nullptr }	// Set via method after level has been created and initialized.
+		m_level{ nullptr }	// Set via method after level_manager has been created and initialized.
 	{	};
 
 
@@ -18,28 +18,24 @@ namespace Tmpl8
 
 	void CollisionManager::SetNewLevel(Level& current_level)
 	{
-		/* Update reference to the level and recreate collidables. */
+		/* Update reference to the level_manager and recreate collidables. */
 
 		m_level = &current_level;
 		CreateCollidables(CollidableGroup::CAMERA);
 		CreateCollidables(CollidableGroup::PLAYER);
 	}
 
-
-	Socket<CollisionMessage>& CollisionManager::GetLevelCollisionSocket()
+		
+	Socket<CollisionMessage>* CollisionManager::GetCollisionSocket()
 	{
-		return m_level_connection;
-	}
-
-	
-	Socket<CollisionMessage>& CollisionManager::GetGlowCollisionSocket()
-	{
-		return m_glow_connection;
+		return &m_collision_hub;
 	}
 
 
 	void CollisionManager::UpdateCollisions(CollidableGroup c_group)
 	{
+		if (c_group == CollidableGroup::PLAYER && !m_is_player_collisions_enabled) return;
+
 		UpdateCollidables(c_group);
 		CheckForCollisions(c_group);
 		ProcessCollisions(c_group);
@@ -65,15 +61,7 @@ namespace Tmpl8
 
 	void CollisionManager::CreateCollidables(CollidableGroup c_group)
 	{
-		switch (c_group)
-		{
-		case CollidableGroup::CAMERA:
-			UpdateCameraCollidables();
-			break;
-		case CollidableGroup::PLAYER:
-			UpdatePlayerCollidables();
-			break;
-		}
+		UpdateCollidables(c_group);
 	}
 
 
@@ -84,7 +72,7 @@ namespace Tmpl8
 		case CollidableGroup::CAMERA:
 			UpdateCameraCollidables();
 			break;
-		default:
+		case CollidableGroup::PLAYER:
 			UpdatePlayerCollidables();
 			break;
 		}		
@@ -94,53 +82,87 @@ namespace Tmpl8
 	void CollisionManager::UpdateCameraCollidables()
 	{
 		/*
-			Called after new level has been registered or during collision loop.
+			Called after new level_manager has been registered or during collision loop.
 			If there is a new glow orb in the list, update list.
 			Add unique item (viewport) that cares about the glow orbs.
 		*/
 		
-		UpdateGlowOrbList();
+		// Messages are sent after level_manager update. Only need to check
+		// socket on Camera collidable update, which happens after level_manager update.
+
+		CheckSocketForNewCollisionMessages();
 
 		if (m_is_glow_orb_list_updated)
 		{
 			GetCollidablesFromLevel(CollidableGroup::CAMERA);
 			AddUniqueElementToCollidables(CollidableGroup::CAMERA);
+			m_is_glow_orb_list_updated = false;
 		}
 	}
 
 
-	void CollisionManager::UpdateGlowOrbList()
+	void CollisionManager::CheckSocketForNewCollisionMessages()
 	{
-		m_is_glow_orb_list_updated = false;
-
-		if (m_glow_connection.HasNewMessage())
+		if (m_collision_hub.HasNewMessage())
 		{
-			std::vector<CollisionMessage>& messages = m_glow_connection.ReadMessages();
-
-			// If we somehow missed getting an update, get the latest update.
-			m_glow_orb_collidables = messages.back().m_collidables;
-			m_glow_connection.ClearMessages();
-			m_is_glow_orb_list_updated = true;
+			ProcessMessages();
 		}
 	}
 
+
+	void CollisionManager::ProcessMessages()
+	{
+		std::vector<CollisionMessage> messages = m_collision_hub.ReadMessages();
+		m_collision_hub.ClearMessages();
+
+		for (CollisionMessage& message : messages)
+		{
+			switch (message.m_action)
+			{
+			case CollisionAction::UPDATE_ORB_LIST:
+				UpdateGlowOrbList(message);
+				break;
+			case CollisionAction::DISABLE_PLAYER_COLLISIONS:
+				EnablePlayerCollisions(false);
+				break;
+			}
+		}
+	}
+
+
+	void CollisionManager::UpdateGlowOrbList(CollisionMessage& collision_message)
+	{
+		m_glow_orb_collidables = collision_message.m_collidables;
+		m_is_glow_orb_list_updated = true;
+	}
+
+
+	void CollisionManager::EnablePlayerCollisions(bool is_enabled)
+	{
+		m_is_player_collisions_enabled = is_enabled;
+	}
+	
 
 	void CollisionManager::UpdatePlayerCollidables()
 	{
 		/*
-			Called after new level has been registered.
+			Called after new level_manager has been registered.
 			Adds obstacles to list.
 			Add unique item (player) that cares about obstacles.
 		*/
 
-		GetCollidablesFromLevel(CollidableGroup::PLAYER);
-		AddUniqueElementToCollidables(CollidableGroup::PLAYER);
+		if (m_is_level_update_needed)
+		{
+			GetCollidablesFromLevel(CollidableGroup::PLAYER);
+			AddUniqueElementToCollidables(CollidableGroup::PLAYER);
+			m_is_level_update_needed = false;
+		}
 	}
 
 
 	void CollisionManager::GetCollidablesFromLevel(CollidableGroup c_group)
 	{
-		/* Get collidables from level. Will stay synced. */
+		/* Get collidables from level_manager. Will stay synced. */
 
 		switch (c_group)
 		{

@@ -21,10 +21,11 @@ namespace Tmpl8
 	public:
 		// METHODS.		
 		GlowOrb(vec2 position, float player_strength, CollidableType object_type, Surface* source_layer);
+		
 		void Update(float deltaTime);
 		bool IsExpired() { return is_expired; }
 		void Draw(Surface* viewable_layer, int c_left, int c_top, int in_left, int in_top, int in_right, int in_bottom) override;
-		virtual void SetPhase(Phase new_phase) {}
+		virtual void SetPhase(Phase new_phase);
 
 	protected:		
 		virtual void UpdateFullPhase(float deltaTime) {}
@@ -44,6 +45,7 @@ namespace Tmpl8
 		/* Orb growth. */
 		float radius_max{ 140.0f };
 		float radius_delta{ 1000.0f };
+
 		float opacity_delta{ 0.0f };
 		float opacity_delta_delta{ 200.0f };
 

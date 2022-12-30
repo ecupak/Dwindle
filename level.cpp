@@ -30,15 +30,14 @@ namespace Tmpl8
 	Level::Level() :
 		m_background_layer{ bg },
 		m_obstacle_layer{ BLUEPRINT_SIZE * TILE_SIZE, BLUEPRINT_SIZE * TILE_SIZE },
-		m_map_layer{ BLUEPRINT_SIZE * TILE_SIZE, BLUEPRINT_SIZE * TILE_SIZE },
-		m_glow_manager{ m_obstacle_layer, m_map_layer }
+		m_map_layer{ BLUEPRINT_SIZE * TILE_SIZE, BLUEPRINT_SIZE * TILE_SIZE }
 	{
 		m_current_level_blueprint.height = BLUEPRINT_SIZE;
 		m_current_level_blueprint.width = BLUEPRINT_SIZE;
 	}
 
 
-	// Make level components and images.
+	// Make level_manager components and images.
 	void Level::CreateLevel(int level_id)		
 	{
 		m_level_id = level_id;
@@ -49,6 +48,12 @@ namespace Tmpl8
 	}
 
 
+	void Level::Draw(Surface* screen)
+	{
+		m_map_layer.CopyTo(screen, 0, 0);
+	}
+
+
 	void Level::CreateLayers()
 	{
 		// Darken the background.
@@ -56,18 +61,17 @@ namespace Tmpl8
 
 		// Copy bg to the map layer.
 		m_background_layer.CopyTo(&m_map_layer, 0, 0);
-
+		
 		// Prepare obstacle layer by clearing to black with 0 alpha.
 		m_obstacle_layer.Clear(0x00000000);
 
-		// Draw level components on obstacle and map layer.
+		// Draw level_manager components on obstacle and map layer.
 		for (Obstacle& obstacle : m_obstacles)
 		{
 			obstacle.Draw(&m_obstacle_layer);
 			obstacle.Draw(&m_map_layer);
 			obstacle.ApplyBitwiseOverlap();
 		}
-
 	}
 
 
@@ -77,21 +81,9 @@ namespace Tmpl8
 	}
 
 
-	void Level::Update(float deltaTime)
-	{
-		m_glow_manager.Update(deltaTime);
-	}
-
-
 	std::vector<Collidable*>& Level::GetPlayerCollidables()
 	{
 		return m_player_collidables;
-	}
-
-
-	Socket<GlowMessage>& Level::GetPlayerGlowSocket()
-	{
-		return m_glow_manager.GetPlayerGlowSocket();
 	}
 
 
@@ -101,18 +93,18 @@ namespace Tmpl8
 	}
 		
 
-	void Level::RegisterCollisionSocket(Socket<CollisionMessage>& collision_socket)
+	void Level::RegisterCollisionSocket(Socket<CollisionMessage>* collision_socket)
 	{
-		m_collision_socket = &collision_socket;
+		m_collision_socket = collision_socket;
 	}
 
 	
-	void Level::RegisterCollisionSocketToGlowManager(Socket<CollisionMessage>& collision_socket)
+	void Level::RegisterViewportSocket(Socket<ViewportMessage>* viewport_socket)
 	{
-		m_glow_manager.RegisterCollisionSocket(collision_socket);
+		// m_viewport_socket = viewport_socket;
 	}
 
-	
+
 	void Level::CreateComponents()
 	{
 		if (m_blueprints.LoadBlueprint(m_level_id))

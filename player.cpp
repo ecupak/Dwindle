@@ -29,8 +29,7 @@ namespace Tmpl8
 
 
 	// Constructor.
-	Player::Player(Surface* screen, keyState& leftKey, keyState& rightKey, keyState& upKey, keyState& downKey) :
-		m_screen{ screen },
+	Player::Player(keyState& leftKey, keyState& rightKey, keyState& upKey, keyState& downKey) :
 		m_sprite{ Sprite{new Surface("assets/ball.png"), 3, true} }, // player.png is 40px by 40px.
 		half_height{ m_sprite.GetHeight() / 2 },
 		half_width{ m_sprite.GetWidth() / 2 },
@@ -56,6 +55,19 @@ namespace Tmpl8
 
 		/* Update position and draw sprite. */
 
+		// If dead, determine when free fall happens.
+		if (state == State::DEAD && mode != Mode::FREE_FALL)
+		{
+			//m_dead_timer += deltaTime;
+
+			// If at a full rest, or it has been 4 seconds since death.
+			if ((m_is_horizontal_at_rest && m_is_vertical_at_rest) || m_dead_timer >= 4.0f)
+			{
+				m_game_socket->SendMessage(GameMessage{ GameAction::PLAYER_IN_FREE_FALL });
+				mode = Mode::FREE_FALL;
+			}
+		}
+
 		switch (mode)
 		{
 		case Mode::AIR:
@@ -72,21 +84,16 @@ namespace Tmpl8
 			break;
 		case Mode::REST:
 			break;
+		case Mode::FREE_FALL:
+			updateFreeFall();
+			break;
 		case Mode::NONE:
 		default:
 			updateAir();
 			break;
 		}
 
-		if (m_horizontal_gameover && m_vertical_gameover)
-		{
-			mode = Mode::REST;
-		}
-
-		//if (mode != Mode::REST)
-		{
-			UpdatePosition();
-		}
+		UpdatePosition();
 	}
 
 
@@ -103,21 +110,63 @@ namespace Tmpl8
 	}
 
 
-	bool Player::IsAlive()
-	{
-		return (state == State::ALIVE);
-	}
-
-
 	int Player::GetStartingLife()
 	{
 		return m_player_strength;
 	}
 
 
-	void Player::SetPosition(vec2& start_position)
+	// Prepare for start of level (current or new).
+	void Player::RestoreDefaults()
 	{
-		position = start_position;
+		// Restore defaults.
+		m_dead_timer = 0.0f;
+		m_free_fall_frame_count = 0;
+
+		m_is_vertical_at_rest = false;
+		m_is_horizontal_at_rest = false;
+		m_is_echo_update_enabled = true;
+
+		m_player_strength = m_player_max_strength;
+		m_ground_bounce_power = m_max_ground_bounce_power;
+		
+		// Set life display to max strength/life.
+		m_life_socket->SendMessage(LifeMessage{ m_player_strength, 1.0f });
+
+		// Undo death.
+		mode = Mode::AIR;
+		state = State::ALIVE;
+		for (DetectorPoint& point : points)
+		{
+			point.UpdateState(state);
+		}
+	}
+
+
+	// Place at start of level (current or new). Coming out of falling transition.
+	void Player::TransitionToPosition(vec2& new_position)
+	{
+		// Determine amount moved and apply to echoes.
+		vec2 reset_delta{
+				new_position.x - position.x,
+				new_position.y - position.y
+		};
+		m_player_echo.ApplyDelta(reset_delta);
+
+		// Keep same falling speed to maintain illusion that
+		// player did not move during transition. If speed
+		// is slower, echoes will "catch up" to player as they
+		// fall to ground, instead of tracing the same path.
+		velocity.y = max_velocity.y;
+
+		// Set new position and bounds for player and detector points.
+		SetPosition(new_position);
+	}
+
+
+	void Player::SetPosition(vec2& new_position)
+	{
+		position = new_position;
 
 		SetCenterAndBounds();
 
@@ -132,7 +181,11 @@ namespace Tmpl8
 	void Player::UpdatePosition()
 	{		
 		prev_position = position;
-		m_player_echo.Update(position, m_frame_id);
+
+		if (m_is_echo_update_enabled)
+		{
+			m_player_echo.Update(position, m_frame_id);
+		}		
 
 		float half_t2{ 0.5f * m_delta_time * m_delta_time };
 
@@ -150,7 +203,7 @@ namespace Tmpl8
 
 		position.x += distance.x;
 		position.y += distance.y;
-
+ 
 		SetCenterAndBounds();
 
 		for (DetectorPoint& point : points)
@@ -180,14 +233,6 @@ namespace Tmpl8
 	}
 
 
-	/*float Player::GetDistanceToBounceApex()
-	{
-		float time_to_apex{ m_ground_bounce_power / acceleration.y };
-		float distance_of_apex{ (m_ground_bounce_power * time_to_apex) + (0.5f * acceleration.y * time_to_apex * time_to_apex) };
-		return distance_of_apex * magnitude_coefficient.y;
-	}*/
-
-
 	void Player::SetCenterAndBounds()	
 	{
 		center = vec2(position.x + half_width, position.y + half_height);
@@ -212,21 +257,26 @@ namespace Tmpl8
 	}
 
 	
-	void Player::RegisterGlowSocket(Socket<GlowMessage>& glow_socket)
+	void Player::RegisterGameSocket(Socket<GameMessage>* game_socket)
 	{
-		m_glow_socket = &glow_socket;
+		m_game_socket = game_socket;
+	}
+
+	void Player::RegisterGlowSocket(Socket<GlowMessage>* glow_socket)
+	{
+		m_glow_socket = glow_socket;
 	}
 
 
-	void Player::RegisterCameraSocket(Socket<CameraMessage>& camera_socket)
+	void Player::RegisterCameraSocket(Socket<CameraMessage>* camera_socket)
 	{
-		m_camera_socket = &camera_socket;
+		m_camera_socket = camera_socket;
 	}
 
 
-	void Player::RegisterLifeSocket(Socket<LifeMessage>& life_socket)
+	void Player::RegisterLifeSocket(Socket<LifeMessage>* life_socket)
 	{
-		m_life_socket = &life_socket;
+		m_life_socket = life_socket;
 	}
 	
 
@@ -253,7 +303,6 @@ namespace Tmpl8
 					Update delta position (shifting out of collision object).
 					Only keep the largest changes to x and y.
 				*/
-
 				vec2 point_delta_position{ point.GetDeltaPosition() };				
 				delta_position.x = GetAbsoluteMax(point_delta_position.x, delta_position.x);
 				delta_position.y = GetAbsoluteMax(point_delta_position.y, delta_position.y);
@@ -268,7 +317,11 @@ namespace Tmpl8
 					post_id = point.post_id;
 				}
 
-				// If a ricochet collision, store the first instance.
+				// Store the first instance of a ricochet collision - ignore the rest.
+				// If there are multiple detected ricochets, there is little gain from
+				// trying to determine which is the more correct one to use, which is 
+				// a difficult process. There is no situation in which something bad will
+				// happen by taking the first one and ignoring the rest.
 				if (point.isRicochetCollision && !is_ricochet_set)
 				{
 					ricochet_velocity = point.GetNewVelocity();
@@ -280,6 +333,7 @@ namespace Tmpl8
 		// If at least 1 axis is not 0, there was a collision that needs to be handled.
 		if (delta_position.x != 0.0f || delta_position.y != 0.0f)
 		{
+			// Apply the delta change in position (pushed out of obstacle).
 			position += delta_position;
 			SetCenterAndBounds();
 			for (DetectorPoint& point : points)
@@ -288,105 +342,110 @@ namespace Tmpl8
 				point.ClearCollisions();
 			}
 
-			/*
-				Determine if a safe glow orb is needed. If it is, subtract health.
-				Update opacity. Determine if player is dead.
-			*/
+			// Determine if safe glow orb will spawn.
+			// - Spawns if 'full contact' made with surface.
+			// - Spawns if safe glow orb does not already exist at location.
+			// - Reduces life/opacity strength by 1 point.
 			bool is_safe_glow_needed{ false };
-			if (state == State::ALIVE && new_mode & ~NONE)
+			if (state == State::ALIVE)
 			{
-				if (new_mode & GROUND)
-				{			
-					is_safe_glow_needed = GetIsSafeGlowNeeded(BOTTOM);
+				// Determine if safe glow orb is needed.
+				if (new_mode & ~NONE)
+				{
+					if (new_mode & GROUND)
+					{
+						is_safe_glow_needed = GetIsSafeGlowNeeded(BOTTOM);
+					}
+					else if (new_mode & WALL)
+					{
+						is_safe_glow_needed = GetIsSafeGlowNeeded(post_id);
+					}
+					else
+					{
+						is_safe_glow_needed = GetIsSafeGlowNeeded(TOP); // Ceiling hits should not make safe glow orbs.
+					}
 				}
-				else if (new_mode & WALL)
-				{				
-					is_safe_glow_needed = GetIsSafeGlowNeeded(post_id);
+				 
+				// If safe glow orb needed, decrease life/opacity strength.
+				if (is_safe_glow_needed)
+				{
+					if (--m_player_strength >= 0)
+					{
+						// Note that for the life display, it always respects the minimum brightness (m_player_min_brightness_buffer) set by user.					
+						m_life_socket->SendMessage(LifeMessage{ m_player_strength, 1.0f * Max(m_player_strength, m_player_min_brightness_buffer) / m_player_max_strength });
+					}
 				}
-				else
-				{				
-					is_safe_glow_needed = GetIsSafeGlowNeeded(TOP);
-				}
-			}			
 
-			// If safe glow orb needed, decrease strength. Strength is used as hp tracker and for opacity of glow orbs.
-			// Also decrease if dead, so glow orbs during death bounces get darker.
-			if (is_safe_glow_needed)
-			{
-				--m_player_strength;
+				// If player is now dead, update state.
+				if (m_player_strength < 0)
+				{
+					state = State::DEAD;
+
+					// Ricochet velocitis will decrease while in dead bounce.
+					for (DetectorPoint& point : points)
+					{
+						point.UpdateState(state);
+					}
+
+					// Do not place a safe glow orb at location.
+					is_safe_glow_needed = false;
+
+					// Tell game that player is dead.
+					m_game_socket->SendMessage(GameMessage{ GameAction::PLAYER_DEATH });
+				}
 			}
-			else if (state == State::DEAD)
+			// During death bounces, decrease brightness buffer so glow orbs approach 0 opacity.
+			else // if (state == State::DEAD)
 			{
-				--m_player_strength;
+				m_player_brightness_buffer -= m_player_min_brightness_buffer * 0.35f;
 				m_ground_bounce_power = Max(0.0f, m_ground_bounce_power - 1.0f);
 			}
 
-			// If we have just died, update a few variables.
-			if (state == State::ALIVE && m_player_strength < 0)
+			// While free-falling, player is in transition between level (new or reset). 
+			// - Do not create glow orbs.
+			// - Do not change modes (will be reset to AIR by game).
+			if (mode != Mode::FREE_FALL)
 			{
-				// Safe glow orbs should not spawn if player is dead.
-				// They cannot spawn in the future if player is dead.
-				is_safe_glow_needed = false;
+				/*
+					Create glow orbs and set player's mode based on collision.
+				*/
+				float calculated_opacity{ Max(1.0f * m_player_strength, m_player_brightness_buffer) / m_player_max_strength };
 
-				// Update self and points. Their ricochet velocities will be decreased.
-				state = State::DEAD;
-				for (DetectorPoint& point : points)
+				// Update glow socket.
+				if (new_mode & ~NONE)
 				{
-					point.UpdateState(state);
+					m_glow_socket->SendMessage(GlowMessage{ GlowAction::MAKE_ORB, center, calculated_opacity, CollidableType::FULL_GLOW, is_safe_glow_needed });
+				}
+				else if (is_ricochet_set)
+				{
+					m_glow_socket->SendMessage(GlowMessage{ GlowAction::MAKE_ORB, center, calculated_opacity, CollidableType::TEMP_GLOW });
 				}
 
-				// All safe glow orbs should fade out.
-				// m_glow_socket->SendMessage(GlowMessage{ GlowAction::PLAYER_DEATH });
-			}			
-
-			// Get opacity to use on glow orbs/life tracker.
-			/*
-				LET PLAYER SET BUFFER AMOUNT AT START OF GAME (like a choose a comfortable dimness setting).
-			*/
-			// Strength should not drop below buffer, otherwise opacity will have negative value.
-			m_player_strength = Max(m_player_strength, -(m_player_buffer));
-			float calculated_opacity{ Min((1.0f * m_player_strength + m_player_buffer) / m_player_max_strength, 1.0f) };
-
-			// Update life bar if alive and a safe glow orb is being created (loss of life).
-			if (state == State::ALIVE && is_safe_glow_needed)
-			{				
-				m_life_socket->SendMessage(LifeMessage{ m_player_strength, 1.0f * (m_player_strength + m_player_buffer) / m_player_max_strength });
-			}
-
-			// Update glow socket. Even when dead, make full and temp glow orbs.
-			if (new_mode & ~NONE)
-			{
-				m_glow_socket->SendMessage(GlowMessage{ GlowAction::MAKE_ORB, center, calculated_opacity, CollidableType::FULL_GLOW, is_safe_glow_needed });
-			}
-			else if (is_ricochet_set)
-			{
-				m_glow_socket->SendMessage(GlowMessage{ GlowAction::MAKE_ORB, center, calculated_opacity, CollidableType::TEMP_GLOW });
-			}
-
-			// Set next mode for player.
-			if (new_mode & ~NONE)
-			{
-				if (new_mode & GROUND)
+				// Set next mode for player.
+				if (new_mode & ~NONE)
 				{
-					handleGroundCollision();
+					if (new_mode & GROUND)
+					{
+						handleGroundCollision();
+					}
+					else if (new_mode & WALL)
+					{
+						handleWallCollision(post_id);
+					}
+					else
+					{
+						handleCeilingCollision();
+					}
 				}
-				else if (new_mode & WALL)
+				// Ricochet if a corner was hit. Ricochet even during death bounces.
+				else if (is_ricochet_set)
 				{
-					handleWallCollision(post_id);
+					velocity = ricochet_velocity;
 				}
-				else
-				{
-					handleCeilingCollision();
-				}
-			}
-			// Ricochet if a corner was hit. Ricochet even during death bounces.
-			else if (is_ricochet_set)
-			{
-				velocity = ricochet_velocity;
 			}
 		}
 		// If no collisions happened, remove collisions (overlaps with no line intersects) stored in points.
-		else
+		else // if (delta_position.x == 0.0f && delta_position.y == 0.0f)
 		{
 			for (DetectorPoint & point : points)
 			{
@@ -394,7 +453,6 @@ namespace Tmpl8
 			}
 		}
 	}
-
 
 	/*
 		Credit to user79785: https://stackoverflow.com/questions/1903954/is-there-a-standard-sign-function-signum-sgn-in-c-c
@@ -440,6 +498,7 @@ namespace Tmpl8
 
 		// V.final = V.initial + (acceleration * time);
 		velocity.y += acceleration.y * m_delta_time;
+		velocity.y = Min(velocity.y, max_velocity.y); // we only care about velocity.y getting too positive.
 	}
 
 
@@ -447,34 +506,60 @@ namespace Tmpl8
 	{
 		/* Update horizontal position, unless direction locked from weak wall bounce. */
 
-		direction.x = -(m_leftKey.isActive) + m_rightKey.isActive;		
-		if (state == State::ALIVE && direction.x != 0.0f)
+		// Only take input while player is alive.
+		if (state == State::ALIVE)
 		{
+			direction.x = -(m_leftKey.isActive) + m_rightKey.isActive;
+		}
+		else
+		{
+			direction.x = 0.0f;
+		}
+
+		// If there is input, move.
+		if (direction.x != 0.0f)
+		{			
+			// Only move if in the air (don't move while clinging to walls or squashed on ground).
 			if (mode == Mode::AIR)
 			{
 				velocity.x += direction.x * acceleration.x * m_delta_time;
 				velocity.x = Clamp(velocity.x, -max_velocity.x, max_velocity.x);
 			}
 		}
-		else
-		{			
+		else // if (direction.x == 0.0f)
+		{
+			// Set direction to be the opposite of current velocity.x (we are reducing velocity).
+			direction.x = GetSign(velocity.x) * -1;
+
 			if (state == State::ALIVE)
 			{
-				velocity.x += GetSign(velocity.x) * -1 * acceleration.x * m_delta_time;
-				velocity.x = Clamp(velocity.x, -max_velocity.x, max_velocity.x);
-			}
-			else
-			{
-				if (m_vertical_gameover && fabsf(velocity.x) < m_horizontal_dead_zone)
+				velocity.x += direction.x * acceleration.x * m_delta_time;
+
+				if (fabsf(velocity.x) < m_horizontal_dead_zone)
 				{
 					velocity.x = 0.0f;
-					m_horizontal_gameover = true;
 				}
-				else
+			}
+			else // if (state == State::DEAD)
+			{
+				// Slower loss of acceleration. Makes it more fun to watch.
+				velocity.x += direction.x * m_acceleration_x_dead_dampening * acceleration.x * m_delta_time;
+
+				// Dead bouncing doens't lose velocity.x until velocity.y has stopped (no bounce, only roll).
+				if (m_is_vertical_at_rest && fabsf(velocity.x) < m_horizontal_dead_zone)
 				{
-					velocity.x += GetSign(velocity.x) * -1 * m_acceleration_x_dead_dampening * acceleration.x * m_delta_time;
+					velocity.x = 0.0f;
+					m_is_horizontal_at_rest = true;
 				}
-			}			
+			}
+
+			/*
+			if (m_is_vertical_at_rest && fabsf(velocity.x) < m_horizontal_dead_zone)
+			{
+				velocity.x = 0.0f;
+				m_is_horizontal_at_rest = true;
+			}
+			*/
 		}
 	}
 
@@ -682,7 +767,7 @@ namespace Tmpl8
 		velocity.y = 0.0f;
 		m_frame_id = 0;
 
-		m_vertical_gameover = true;
+		m_is_vertical_at_rest = true;
 	}
 
 
@@ -813,6 +898,25 @@ namespace Tmpl8
 
 			// Set next mode.
 			mode = Mode::AIR;
+		}
+	}
+
+
+	void Player::updateFreeFall()
+	{
+		if (velocity.y == max_velocity.y)
+		{
+			++m_free_fall_frame_count;
+			if (m_free_fall_frame_count >= 30)
+			{
+				velocity.y = 0.0f;
+				m_is_echo_update_enabled = false;
+				m_game_socket->SendMessage(GameMessage{ GameAction::PLAYER_SUSPENDED });
+			}
+		}
+		else if (m_free_fall_frame_count < 30)
+		{
+			updateVerticalMovement();
 		}
 	}
 

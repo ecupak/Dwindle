@@ -56,12 +56,15 @@
     <ClCompile Include="life_hud.cpp">
       <Filter>Viewport Files\Life HUD</Filter>
     </ClCompile>
-    <ClCompile Include="life_socket.cpp" />
     <ClCompile Include="player_echo.cpp">
       <Filter>Base Classes\Player Echo</Filter>
     </ClCompile>
-    <ClCompile Include="first_echo.cpp" />
-    <ClCompile Include="second_echo.cpp" />
+    <ClCompile Include="first_echo.cpp">
+      <Filter>Player Files\Echoes</Filter>
+    </ClCompile>
+    <ClCompile Include="second_echo.cpp">
+      <Filter>Player Files\Echoes</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="game.h" />
@@ -129,18 +132,28 @@
     <ClInclude Include="glow_socket.h">
       <Filter>Glow Files</Filter>
     </ClInclude>
-    <ClInclude Include="camera_socket.h">
-      <Filter>Viewport Files</Filter>
-    </ClInclude>
     <ClInclude Include="life_hud.h">
       <Filter>Viewport Files\Life HUD</Filter>
     </ClInclude>
-    <ClInclude Include="life_socket.h" />
     <ClInclude Include="player_echo.h">
       <Filter>Base Classes\Player Echo</Filter>
     </ClInclude>
-    <ClInclude Include="first_echo.h" />
-    <ClInclude Include="second_echo.h" />
+    <ClInclude Include="life_socket.h">
+      <Filter>Viewport Files\Life HUD</Filter>
+    </ClInclude>
+    <ClInclude Include="first_echo.h">
+      <Filter>Player Files\Echoes</Filter>
+    </ClInclude>
+    <ClInclude Include="second_echo.h">
+      <Filter>Player Files\Echoes</Filter>
+    </ClInclude>
+    <ClInclude Include="game_socket.h" />
+    <ClInclude Include="viewport_socket.h">
+      <Filter>Viewport Files\Viewport</Filter>
+    </ClInclude>
+    <ClInclude Include="camera_socket.h">
+      <Filter>Viewport Files\Camera</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="template code">
@@ -211,6 +224,9 @@
     </Filter>
     <Filter Include="Base Classes\Player Echo">
       <UniqueIdentifier>{1a1eb5f4-813d-4d12-885a-9e7996d2bbb1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Player Files\Echoes">
+      <UniqueIdentifier>{3970886c-25b1-44a1-b18a-8c0faf353d3d}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

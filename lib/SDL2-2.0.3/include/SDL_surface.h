@@ -455,7 +455,7 @@ extern DECLSPEC int SDLCALL SDL_UpperBlit
      SDL_Surface * dst, SDL_Rect * dstrect);
 
 /**
- *  This is a semi-private blit function and it performs low-level surface
+ *  This is a semi-private blit function and it performs low-level_manager surface
  *  blitting only.
  */
 extern DECLSPEC int SDLCALL SDL_LowerBlit
@@ -484,7 +484,7 @@ extern DECLSPEC int SDLCALL SDL_UpperBlitScaled
     SDL_Surface * dst, SDL_Rect * dstrect);
 
 /**
- *  This is a semi-private blit function and it performs low-level surface
+ *  This is a semi-private blit function and it performs low-level_manager surface
  *  scaled blitting only.
  */
 extern DECLSPEC int SDLCALL SDL_LowerBlitScaled

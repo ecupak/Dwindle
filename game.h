@@ -1,12 +1,16 @@
 #pragma once
 
-#include "key_state.h"
 #include "template.h"
-#include "level.h"
+
+#include "key_state.h"
 #include "player.h"
-#include "viewport.h"
+#include "level.h"
+#include "glow_manager.h"
 #include "collision_manager.h"
+#include "viewport.h"
 #include "camera.h"
+
+#include "game_socket.h"
 
 namespace Tmpl8
 {
@@ -24,11 +28,20 @@ namespace Tmpl8
 		void KeyUp(int key);
 		void KeyDown(int key);
 
-	private:		
+	private:
+		void CheckSocketForNewMessages();
+		void ProcessMessages();
+
+		void RegisterSockets();
 		void PrepareLevel();
+		void PrepareGlowManager();
 		void PreparePlayer();
 		void PrepareCollisionManager();		
 		void PrepareCamera();
+
+		void FadeToBlack();
+		void DisablePlayerCollisions();
+		void ResetPlayerPosition();
 
 		// ATTRIBUTES
 		// Core classes.
@@ -37,17 +50,24 @@ namespace Tmpl8
 		Camera camera;		
 		Viewport viewport;
 		CollisionManager collision_manager;
-		Level level;
+		GlowManager glow_manager;
+		Level level_manager;
 				
 		keyState leftKey;
 		keyState rightKey;
 		keyState upKey;
 		keyState downKey;
 
+		Socket<GameMessage> m_game_hub;
+		Socket<GlowMessage>* m_glow_socket;
+		Socket<CollisionMessage>* m_collision_socket;
+		Socket<CameraMessage>* m_camera_socket;
+		Socket<ViewportMessage>* m_viewport_socket;
+		Socket<LifeMessage>* m_life_socket;
 
 		int level_id{ 1 };
+		int m_free_fall_frames{ 0 };
 
-		bool startloop{ false };
-		int loop_switch{ -1 };
+		int m_level_reset_step{ 0 };
 	};
 };

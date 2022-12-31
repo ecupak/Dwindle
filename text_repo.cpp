@@ -9,6 +9,12 @@ namespace Tmpl8
 	TextRepo::TextRepo() {};
 
 
+	std::string& TextRepo::GetText(int book_id, int entry_id)
+	{
+		return m_library[book_id][entry_id];
+	}
+
+
 	void TextRepo::LoadText(const std::string& file_location)
 	{
 		// Try to load file with text.

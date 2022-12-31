@@ -12,11 +12,14 @@ namespace Tmpl8
 		SMOOTH,		
 		ROUGH,		
 		UNREACHABLE,
+		MESSAGE,
 		QUICK_GLOW,
 		FULL_GLOW,
 		TEMP_GLOW,
 		SAFE_GLOW,
+		PLAYER_GLOW,
 		UNKNOWN,
+		NONE,
 	};
 
 	class Collidable

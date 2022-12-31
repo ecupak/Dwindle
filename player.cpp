@@ -41,7 +41,7 @@ namespace Tmpl8
 		for (int i{ 0 }; i < POINTS; i++)
 		{
 			points.push_back(DetectorPoint{ i });
-		}
+		}				
 	}
 
 
@@ -58,10 +58,10 @@ namespace Tmpl8
 		// If dead, determine when free fall happens.
 		if (state == State::DEAD && mode != Mode::FREE_FALL)
 		{
-			//m_dead_timer += deltaTime;
+			m_dead_timer += deltaTime;
 
 			// If at a full rest, or it has been 4 seconds since death.
-			if ((m_is_horizontal_at_rest && m_is_vertical_at_rest) || m_dead_timer >= 4.0f)
+			if ((m_is_horizontal_at_rest && m_is_vertical_at_rest) || m_dead_timer >= 5.0f)
 			{
 				m_game_socket->SendMessage(GameMessage{ GameAction::PLAYER_IN_FREE_FALL });
 				mode = Mode::FREE_FALL;
@@ -104,9 +104,16 @@ namespace Tmpl8
 			viewable_layer->Box(point.left - c_left, point.top - c_top, point.right - c_left, point.bottom - c_top, 0xFFFFFFFF);
 		}*/
 
+		// Draw text revelaed by glow orb first.
+		//m_player_glow_orb->Draw(viewable_layer, c_left, c_top, in_left, in_top, in_right, in_bottom);
+
+		// Draw over that with echoes.
+		m_player_echo.Draw(viewable_layer, c_left, c_top);
+
+		// Finally draw player on top of all.
 		m_sprite.SetFrame(m_frame_id);
 		m_sprite.Draw(viewable_layer, position.x - c_left, position.y - c_top);
-		m_player_echo.Draw(viewable_layer, c_left, c_top);
+		
 	}
 
 
@@ -175,6 +182,7 @@ namespace Tmpl8
 			point.SetPosition(center, half_size - 4);
 		}
 
+		//m_glow_socket->SendMessage(GlowMessage{ GlowAction::MOVE_PLAYER_ORB_POSITION, center });
 	}
 
 
@@ -210,6 +218,8 @@ namespace Tmpl8
 		{
 			point.UpdatePosition(velocity, distance);
 		}
+
+		//m_glow_socket->SendMessage(GlowMessage{ GlowAction::MOVE_PLAYER_ORB_POSITION, center });
 	}
 
 
@@ -261,6 +271,7 @@ namespace Tmpl8
 	{
 		m_game_socket = game_socket;
 	}
+
 
 	void Player::RegisterGlowSocket(Socket<GlowMessage>* glow_socket)
 	{
@@ -341,6 +352,7 @@ namespace Tmpl8
 				point.ApplyDeltaPosition(delta_position);
 				point.ClearCollisions();
 			}
+			m_glow_socket->SendMessage(GlowMessage{ GlowAction::MOVE_PLAYER_ORB_POSITION, center });
 
 			// Determine if safe glow orb will spawn.
 			// - Spawns if 'full contact' made with surface.
@@ -454,6 +466,7 @@ namespace Tmpl8
 		}
 	}
 
+
 	/*
 		Credit to user79785: https://stackoverflow.com/questions/1903954/is-there-a-standard-sign-function-signum-sgn-in-c-c
 	*/
@@ -461,6 +474,7 @@ namespace Tmpl8
 	int Player::GetSign(T val) {
 		return (T(0) < val) - (val < T(0)); // returns one of: -1, 0, 1
 	}
+
 
 	template <typename T>
 	T Player::GetAbsoluteMax(T val1, T val2) {
@@ -542,8 +556,9 @@ namespace Tmpl8
 			}
 			else // if (state == State::DEAD)
 			{
-				// Slower loss of acceleration. Makes it more fun to watch.
-				velocity.x += direction.x * m_acceleration_x_dead_dampening * acceleration.x * m_delta_time;
+				// Slower loss of velocity. Makes it more fun to watch.
+				// But if still moving after 3 seconds post-death, pump the brakes.
+				velocity.x += direction.x * acceleration.x * m_delta_time * (m_dead_timer < 3.0f ? m_acceleration_x_dead_dampening : 1);
 
 				// Dead bouncing doens't lose velocity.x until velocity.y has stopped (no bounce, only roll).
 				if (m_is_vertical_at_rest && fabsf(velocity.x) < m_horizontal_dead_zone)

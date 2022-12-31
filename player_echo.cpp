@@ -43,14 +43,16 @@ namespace Tmpl8
 
 	void PlayerEcho::Draw(Surface* visible_layer, int camera_left, int camera_top)
 	{
+		// Draw most delayed echo first (will be drawn over by faster echoes and main player).
+		DrawEcho(visible_layer, camera_left, camera_top);
+
+		// Draw current echo.
 		m_sprite.SetFrame(echos[m_head].m_frame_id);
 
 		m_sprite.Draw(visible_layer, 
 			echos[m_head].m_position.x - camera_left, 
 			echos[m_head].m_position.y - camera_top, 
 			true, m_opacity);
-
-		DrawEcho(visible_layer, camera_left, camera_top);
 	}
 }
 

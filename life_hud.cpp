@@ -3,7 +3,7 @@
 
 namespace Tmpl8
 {
-	constexpr int LETTER_HEIGHT{ 6 };	
+	constexpr int LETTER_HEIGHT{ 5 };	
 	constexpr int LETTER_WIDTH{ 6 };
 	constexpr unsigned int DANGER_ZONE{ 3 };
 	constexpr unsigned int NORMAL{ 0xFFFFFFFF };
@@ -49,14 +49,14 @@ namespace Tmpl8
 
 	void LifeHUD::InitializeDrawingValues()
 	{
-		m_calculated_scaled_height = m_scaling_factor * (LETTER_HEIGHT - 1);
+		//m_calculated_scaled_height = m_scaling_factor * (LETTER_HEIGHT - 1);
 		m_drawn_scaled_height = m_scaling_factor * LETTER_HEIGHT;
 		m_scaled_width = m_scaling_factor * GetWordLength(m_value);
 
-		m_height = Max(m_heart_sprite.GetHeight(), m_calculated_scaled_height);
+		m_height = Max(m_heart_sprite.GetHeight(), m_drawn_scaled_height);
 		
 		m_heart_padding = floor((m_height - m_heart_sprite.GetHeight()) / 2.0f);
-		m_value_padding = floor((m_height - m_calculated_scaled_height) / 2.0f);
+		m_value_padding = floor((m_height - m_drawn_scaled_height) / 2.0f);
 
 		m_box_start = vec2{ 20.0f, 20.0f };
 		

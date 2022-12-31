@@ -10,6 +10,7 @@ namespace Tmpl8
 	public:
 		TextRepo();
 
+		std::string& GetText(int level_id, int entry_id);
 		void LoadText(const std::string& file_location);
 
 	private:

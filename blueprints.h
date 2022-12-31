@@ -3,6 +3,8 @@
 #include <string>
 #include <array>
 
+#include "blueprint_code.h"
+
 
 namespace Tmpl8
 {
@@ -11,10 +13,11 @@ namespace Tmpl8
 	public:
 		Blueprints() {};
 		bool LoadBlueprint(int level_id);
-		unsigned int ReadBlueprint();
-		int GetAutotileId(int center_x, int center_y);
+		BlueprintCode GetNextBlueprintCode();
+		int GetAutotileId(int center_x, int center_y, int blueprint_size);
 
 	private:
+		bool IsHexadecimal(char tile_id);
 		bool GetIsWallAdjacent(char adjacent_value);
 
 		bool is_iterator_set{ false };
@@ -23,38 +26,6 @@ namespace Tmpl8
 
 		std::array<std::string, 3> blueprints
 		{
-			"XXXXXXXXXXXXXXXXXXXX"
-			"XOOOOOOOOOOOOOOOOOOX"
-			"XOOOOOOOOOOOOOOOOOOX"
-			"XOOOOOOOOOOOOOOOOOOX"
-			"XOOOOOOOOOOOOOOOOOOX"
-			"XOOOOOOOOOOOOOOOOOOX"
-			"XOOOOOOOOOOOOOOOOOOX"
-			"XOOOOOOOOOOOOOOOOOOX"
-			"XOOOOOOOOOOOOOOOOOOX"
-			"XOOOOOOOOOOOOOOOOOOX"
-			"XOOOOOOOOOOOOOOOOOOX"
-			"XOOOOOOOOOOOOOOOOOOX"
-			"XOOOOOOOOOPOOOOOOOOX"
-			"XOOOOOOOOOOOOOOOOOOX"
-			"XOOOOOOOXXXOOXXXOOOX"
-			"XOOOOOOOXXOOOOXXOOOX"
-			"XOOOOOOOXOOOOOOXOOOX"
-			"XOOOOOOOOOOXXOOOOOOX"
-			"XOOOOOOOOOXXXXOOOOOX"
-			"XXXXXXXXXXXXXXXXXXXX",
-			
-			"XXXXXXXXXX"
-			"XOOOOOOOOX"
-			"XOOOOOOOOX"
-			"XXXXXXXOOX"
-			"XXOXXXXOOX"
-			"XOPOOOOOOX"
-			"XOOOOOOOOX"
-			"XXXXXXXOOX"
-			"XXXXXXXOOX"
-			"XXXXXXXXXX",
-
 			"XXXXXXXXXXXXXXXXXXXX"
 			"XOOOOOOOOOOOOOOOOOOO"
 			"XOOOOOOOOOOOOOOOOOOO"
@@ -72,9 +43,11 @@ namespace Tmpl8
 			"OOOOXOOOOOOOOOOOXOOX"
 			"OOOOXOOOOOOOOOOOXOOX"
 			"XXOOXXXXOXXOXXXOXOOX"
-			"XOOOOOOOOOOOOOOOOOOX"
-			"XOPOOOOOOOOOOOOOOOOX"
+			"XOOOOOOO1OO2OOO3OOOX"
+			"XO!OOOOOOOOOOOOOOOOX"
 			"XXXXXXXXXXXXXXXXXXXX",
+
+			"2", "3"
 		};
 
 	};

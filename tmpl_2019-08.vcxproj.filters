@@ -1,7 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="game.cpp" />
     <ClCompile Include="surface.cpp">
       <Filter>template code</Filter>
     </ClCompile>
@@ -65,9 +64,23 @@
     <ClCompile Include="second_echo.cpp">
       <Filter>Player Files\Echoes</Filter>
     </ClCompile>
+    <ClCompile Include="game.cpp">
+      <Filter>Game Files\Game</Filter>
+    </ClCompile>
+    <ClCompile Include="text_repo.cpp">
+      <Filter>Game Files\Text Repo</Filter>
+    </ClCompile>
+    <ClCompile Include="player_glow_orb.cpp">
+      <Filter>Glow Files\Player Glow Orb</Filter>
+    </ClCompile>
+    <ClCompile Include="text_sprite_maker.cpp">
+      <Filter>Static Files\Text Sprite Maker</Filter>
+    </ClCompile>
+    <ClCompile Include="message_box.cpp">
+      <Filter>Level Files\Message Box</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="game.h" />
     <ClInclude Include="surface.h">
       <Filter>template code</Filter>
     </ClInclude>
@@ -147,12 +160,32 @@
     <ClInclude Include="second_echo.h">
       <Filter>Player Files\Echoes</Filter>
     </ClInclude>
-    <ClInclude Include="game_socket.h" />
     <ClInclude Include="viewport_socket.h">
       <Filter>Viewport Files\Viewport</Filter>
     </ClInclude>
     <ClInclude Include="camera_socket.h">
       <Filter>Viewport Files\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="game.h">
+      <Filter>Game Files\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="text_repo.h">
+      <Filter>Game Files\Text Repo</Filter>
+    </ClInclude>
+    <ClInclude Include="game_socket.h">
+      <Filter>Game Files\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="player_glow_orb.h">
+      <Filter>Glow Files\Player Glow Orb</Filter>
+    </ClInclude>
+    <ClInclude Include="blueprint_code.h">
+      <Filter>Level Files\Blueprints</Filter>
+    </ClInclude>
+    <ClInclude Include="text_sprite_maker.h">
+      <Filter>Static Files\Text Sprite Maker</Filter>
+    </ClInclude>
+    <ClInclude Include="message_box.h">
+      <Filter>Level Files\Message Box</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -227,6 +260,27 @@
     </Filter>
     <Filter Include="Player Files\Echoes">
       <UniqueIdentifier>{3970886c-25b1-44a1-b18a-8c0faf353d3d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Glow Files\Player Glow Orb">
+      <UniqueIdentifier>{331f1456-74a0-4ea0-89d1-2a6a12624930}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game Files">
+      <UniqueIdentifier>{1b2eb349-45be-445a-9445-fa7a2aba5556}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game Files\Game">
+      <UniqueIdentifier>{6b8d9248-8f1a-4679-a1b0-c74cb87e30de}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game Files\Text Repo">
+      <UniqueIdentifier>{a3c8287a-dbec-43a6-84fc-3b2bc79ac8b4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Static Files">
+      <UniqueIdentifier>{80ab8aa2-170e-4422-aa5d-7ea22ee359ee}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Static Files\Text Sprite Maker">
+      <UniqueIdentifier>{a631c166-14a8-4640-8ab8-615b1e3bde05}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Level Files\Message Box">
+      <UniqueIdentifier>{89ff01a1-4fcd-4a45-88f2-7831269b9e9b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

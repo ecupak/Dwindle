@@ -4,6 +4,7 @@
 #include "surface.h"
 #include "level.h"
 
+
 namespace Tmpl8
 {
 	// Constants.
@@ -12,6 +13,7 @@ namespace Tmpl8
 	constexpr unsigned int ROUGH_HEX{ 0xFFFF0000 };
 	constexpr unsigned int UNREACHABLE_HEX{ 0xFFFFFF00 };
 	constexpr unsigned int OPEN_HEX{ 0xFFFFFFFF };
+	constexpr unsigned int MESSAGE_HEX{ 0xFFFFFF00 };
 	constexpr unsigned int EOF_HEX{ 0x00000194 };
 	constexpr unsigned int TILE_SIZE{ 64 };
 	constexpr unsigned int BLUEPRINT_SIZE{ 20 };
@@ -30,18 +32,21 @@ namespace Tmpl8
 	Level::Level() :
 		m_background_layer{ bg },
 		m_obstacle_layer{ BLUEPRINT_SIZE * TILE_SIZE, BLUEPRINT_SIZE * TILE_SIZE },
-		m_map_layer{ BLUEPRINT_SIZE * TILE_SIZE, BLUEPRINT_SIZE * TILE_SIZE }
+		m_map_layer{ BLUEPRINT_SIZE * TILE_SIZE, BLUEPRINT_SIZE * TILE_SIZE },
+		m_text_layer{ BLUEPRINT_SIZE * TILE_SIZE, BLUEPRINT_SIZE * TILE_SIZE }
 	{
-		m_current_level_blueprint.height = BLUEPRINT_SIZE;
-		m_current_level_blueprint.width = BLUEPRINT_SIZE;
+		//m_current_level_blueprint.height = BLUEPRINT_SIZE;
+		//m_current_level_blueprint.width = BLUEPRINT_SIZE;
 	}
 
 
 	// Make level_manager components and images.
-	void Level::CreateLevel(int level_id)		
+	void Level::CreateLevel(int level_id, TextRepo& text_repo)
 	{
 		m_level_id = level_id;
-		m_current_level_blueprint.x = (m_level_id - 1) * BLUEPRINT_SIZE;
+		m_text_repo = &text_repo;
+
+		//m_current_level_blueprint.x = (m_level_id - 1) * BLUEPRINT_SIZE;
 		CreateComponents();
 		CreateCollidablesList();
 		CreateLayers();
@@ -57,20 +62,58 @@ namespace Tmpl8
 	void Level::CreateLayers()
 	{
 		// Darken the background.
+		DarkenBackgroundLayer();		
+
+		// Copy bg to the map layer and draw obstacles on top.
+		// Used as source for full and temp glow orbs.
+		PrepareMapLayer();
+				
+		// Clear to 0-alpha black and draw obstacles on top.
+		// Used as source for safe glow orbs.		
+		PrepareObstacleLayer();	
+
+		// Clear to 0-alpha black and draw text boxes on top.
+		// Used as source for player glow orb.
+		PrepareTextLayer();
+	}
+
+	void Level::DarkenBackgroundLayer()
+	{
 		m_background_layer.Bar(0, 0, m_background_layer.GetWidth(), m_background_layer.GetHeight(), 0xFF000000, true, 0.5f);
+	}
 
-		// Copy bg to the map layer.
+
+	void Level::PrepareMapLayer()
+	{
 		m_background_layer.CopyTo(&m_map_layer, 0, 0);
-		
-		// Prepare obstacle layer by clearing to black with 0 alpha.
-		m_obstacle_layer.Clear(0x00000000);
+		for (Obstacle& obstacle : m_obstacles)
+		{
+			obstacle.Draw(&m_map_layer);
+		}
+		for (MessageBox& message_box : m_message_boxes)
+		{
+			message_box.Draw(&m_map_layer, 2);
+		}
+	}
 
-		// Draw level_manager components on obstacle and map layer.
+
+	void Level::PrepareObstacleLayer()
+	{
+		m_obstacle_layer.Clear(0x00000000);
 		for (Obstacle& obstacle : m_obstacles)
 		{
 			obstacle.Draw(&m_obstacle_layer);
-			obstacle.Draw(&m_map_layer);
 			obstacle.ApplyBitwiseOverlap();
+		}
+	}
+
+
+	void Level::PrepareTextLayer()
+	{
+		m_text_layer.Clear(0x00000000);
+		for (MessageBox& message_box : m_message_boxes)
+		{
+			message_box.Draw(&m_text_layer, 2);
 		}
 	}
 
@@ -120,26 +163,29 @@ namespace Tmpl8
 		{
 			for (int x{ 0 }; x < BLUEPRINT_SIZE; ++x)
 			{
-				unsigned int blueprint_code{ m_blueprints.ReadBlueprint() };
+				BlueprintCode blueprint_code{ m_blueprints.GetNextBlueprintCode() };
 				CreateComponentAtPosition(blueprint_code, x, y);
 			}
 		}
 	}
 
 
-	void Level::CreateComponentAtPosition(unsigned int blueprint_code, int x, int y)
+	void Level::CreateComponentAtPosition(BlueprintCode& blueprint_code, int x, int y)
 	{
-		switch (blueprint_code)
+		switch (blueprint_code.m_tile_id)
 		{
-		case SMOOTH_HEX:
-		case UNREACHABLE_HEX:
-			CreateObstacle(x, y, blueprint_code);
+		case OBSTACLE_TILE:
+		case UNREACHABLE_TILE:
+			CreateObstacle(x, y, blueprint_code.m_tile_id);
 			break;
-		case OPEN_HEX:
+		case NO_TILE:
 			// Don't put anything here.
 			break;
-		case STARTING_HEX:
+		case START_TILE:
 			SetPlayerStartPosition(x, y);
+			break;
+		case MESSAGE_TILE:
+			CreateMessageBox(x, y, blueprint_code.m_tile_detail);
 			break;
 		case EOF_HEX:
 			// Shouldn't happen in prod, but raise a stink for now.
@@ -174,17 +220,17 @@ namespace Tmpl8
 	}
 
 
-	void Level::CreateObstacle(int x, int y, Pixel hex_type)
+	void Level::CreateObstacle(int x, int y, int tile_id)
 	{
 		// Use autotile_id (value based on surrounding walls)
 		// to determine collidable type (corner, unreachable, or normal)
 		// and frame index of tile_map.
 		int autotile_id{ GetAutotileId(x, y) };
-		CollidableType type{ GetCollidableType(autotile_id, hex_type) };		
+		CollidableType type{ GetCollidableType(autotile_id, tile_id) };
 		int frame_id{ GetFrameId(autotile_id) };
 		int bitwise_overlap{ GetBitwiseOverlap(autotile_id) };
 
-		Surface* tilemap{ hex_type == SMOOTH_HEX ? &m_tilemap_smooth : &m_tilemap_rough };
+		Surface* tilemap{ tile_id == OBSTACLE_TILE ? &m_tilemap_smooth : &m_tilemap_rough };
 		Obstacle obstacle{ x, y, TILE_SIZE, type, tilemap, AUTOTILE_MAP_FRAME_COUNT, frame_id, bitwise_overlap };
 				
 		m_obstacles.push_back(obstacle);
@@ -193,7 +239,7 @@ namespace Tmpl8
 
 	int Level::GetAutotileId(int center_x, int center_y)
 	{
-		int autotile_id = m_blueprints.GetAutotileId(center_x, center_y);
+		int autotile_id = m_blueprints.GetAutotileId(center_x, center_y, BLUEPRINT_SIZE);
 		CleanupAutotileId(autotile_id);
 		return autotile_id;
 	}
@@ -216,7 +262,7 @@ namespace Tmpl8
 			autotile_id &= ~(BOTTOM_LEFT | BOTTOM_RIGHT);
 	}
 
-	CollidableType Level::GetCollidableType(int autotile_id, Pixel hex_type)
+	CollidableType Level::GetCollidableType(int autotile_id, int tile_id)
 	{
 		switch (autotile_id)
 		{
@@ -224,32 +270,8 @@ namespace Tmpl8
 		// It will only show an image, but not be part of collision detection.
 		case 255:	
 			return CollidableType::UNREACHABLE;
-		
-		// These are all "outie" corner pieces.
-		// If the player hits one, they will ricochet off at an angle.
-		case 208:
-		case 104: 
-		case 80:
-		case 72:
-		case 22:
-		case 11:
-		case 2:
-		case 16:
-		case 8:
-		case 0:
-		case 18:
-		case 10:
-			if (hex_type == SMOOTH_HEX) //testing
-				return CollidableType::SMOOTH;
-				//return CollidableType::SMOOTH_CORNER;
-			else
-				return CollidableType::ROUGH;
-				//return CollidableType::ROUGH_CORNER;		
-		
-		// The rest are regular wall pieces.
-		// The player will bounce against them normally.
 		default:
-			if (hex_type == SMOOTH_HEX)
+			if (tile_id == OBSTACLE_TILE)
 				return CollidableType::SMOOTH;
 			else
 				return CollidableType::ROUGH;
@@ -332,5 +354,13 @@ namespace Tmpl8
 			bitwise_overlap |= 0x1000;
 
 		return bitwise_overlap;
+	}
+
+	void Level::CreateMessageBox(int x, int y, int message_id)
+	{
+		std::string content{ m_text_repo->GetText(m_level_id - 1, message_id) };
+		std::unique_ptr<Sprite> text_sprite{ TextSpriteMaker::GetTextSprite(content, 0xFFFFFFFF) };
+
+		m_message_boxes.emplace_back(std::move(text_sprite), vec2{ x * 1.0f, y * 1.0f }, TILE_SIZE);
 	}
 };

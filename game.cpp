@@ -51,7 +51,7 @@ namespace Tmpl8
 
 	void Game::PrepareTextRepo()
 	{
-		text_repo.LoadText("assets/text_layer_info");
+		text_repo.LoadText("assets/text_layer_info.txt");
 	}
 
 
@@ -59,9 +59,8 @@ namespace Tmpl8
 	{
 		// level_manager.RegisterCollisionSocket(m_collision_socket);
 		// level_manager.RegisterViewportSocket(m_viewport_socket);
-
-		level_id = 3;
-		level_manager.CreateLevel(level_id); // starts at 1.		
+		level_id = 1;
+		level_manager.CreateLevel(level_id, text_repo); // starts at 1.
 	}
 
 
@@ -72,11 +71,14 @@ namespace Tmpl8
 		
 		glow_manager.SetMapLayer(level_manager.GetMapLayer());
 		glow_manager.SetObstacleLayer(level_manager.GetObstacleLayer());
+		glow_manager.SetTextLayer(level_manager.GetTextLayer());
 	}
 
 
 	void Game::PreparePlayer()
 	{
+		player.SetPlayerGlowOrb(glow_manager.GetPlayerGlowOrb());
+
 		player.RegisterGameSocket(&m_game_hub);
 		player.RegisterGlowSocket(m_glow_socket);
 		player.RegisterCameraSocket(m_camera_socket);

@@ -10,26 +10,26 @@ namespace Tmpl8
 	enum class GlowAction
 	{	
 		LEVEL_RESET,
-		MAP_LAYER,
-		OBSTACLE_LAYER,
 		MAKE_ORB,
+		MOVE_PLAYER_ORB_POSITION,
 	};
 
 
 	struct GlowMessage
 	{
 	public:
+		// level reset
 		GlowMessage(GlowAction action) :
 			m_action{ action }
 		{	}
 
-
-		GlowMessage(GlowAction action, Surface* layer) :
+		// move player orb
+		GlowMessage(GlowAction action, vec2& orb_position) :
 			m_action{ action },
-			m_layer{ layer }
+			m_orb_position{ orb_position }
 		{	}
 
-
+		// make orb
 		GlowMessage(GlowAction action, vec2& orb_position, float player_strength, CollidableType glow_orb_type, bool is_safe_glow_needed = false) :
 			m_action{ action },
 			m_orb_position{ orb_position },
@@ -40,7 +40,6 @@ namespace Tmpl8
 
 
 		GlowAction m_action;
-		Surface* m_layer{ nullptr };
 		vec2 m_orb_position{ 0.0f, 0.0f };
 		float m_player_strength{ 0.0f };
 		CollidableType m_glow_orb_type{ CollidableType::UNKNOWN };

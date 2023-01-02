@@ -5,24 +5,14 @@
 
 namespace Tmpl8
 {
-	// Constants.
-	constexpr unsigned int SMOOTH_HEX{ 0xFF000000 };
-	constexpr unsigned int STARTING_HEX{ 0xFF0000FF };
-	constexpr unsigned int ROUGH_HEX{ 0xFFFF0000 };
-	constexpr unsigned int UNREACHABLE_HEX{ 0xFFFFFF00 };
-	constexpr unsigned int OPEN_HEX{ 0xFFFFFFFF };
-	constexpr unsigned int EOF_HEX{ 0x00000194 };
-	constexpr unsigned int BLUEPRINT_SIZE{ 20 };
-
-
-	bool Blueprints::LoadBlueprint(int level_id)
+	bool Blueprints::LoadBlueprintData(int level_id)
 	{
 		is_iterator_set = false;
 
 		try
 		{
-			m_loaded_blueprint = blueprints.at(level_id - 1);
-			blueprint_it = m_loaded_blueprint.begin();
+			m_loaded_blueprint_data = blueprint_data.at(level_id);
+			blueprint_it = m_loaded_blueprint_data.m_blueprint.begin();
 			is_iterator_set = true;
 		}
 		catch (std::out_of_range)
@@ -30,41 +20,58 @@ namespace Tmpl8
 			is_iterator_set = false;
 		}
 		
-		return is_iterator_set;
+		return (is_iterator_set && m_loaded_blueprint_data.m_blueprint.size() > 0);
 	}
 
 
-	unsigned int Blueprints::ReadBlueprint()
+	int Blueprints::GetBlueprintWidth()
 	{
-		if (!is_iterator_set || m_loaded_blueprint.size() == 0) return 0;
-		
-		// If read full blueprint, return EOF.
-		if (blueprint_it == m_loaded_blueprint.end())
+		return m_loaded_blueprint_data.m_width;
+	}
+
+
+	int Blueprints::GetBlueprintHeight()
+	{
+		return m_loaded_blueprint_data.m_height;
+	}
+
+
+	BlueprintCode Blueprints::GetNextBlueprintCode()
+	{
+		BlueprintCode blueprint_code;
+
+		if (!is_iterator_set)
 		{
-			is_iterator_set = false;
-			return EOF_HEX;
+			blueprint_code.m_tile_id = UNKNOWN_MARK;
+			return blueprint_code;
 		}
 
-		// Otherwise get next code.
-		unsigned int blueprint_code;
+		// If read full blueprint, return EOF.
+		if (blueprint_it == m_loaded_blueprint_data.m_blueprint.end())
+		{
+			is_iterator_set = false;
+			blueprint_code.m_tile_id = EOF_MARK;
+			return blueprint_code;
+		}
+
+		// Otherwise get next code.		
 		switch (*blueprint_it)
 		{
-		case 'X':
-			blueprint_code = SMOOTH_HEX;
+		case OBSTACLE_TILE:
+		case NO_TILE:
+		case SAFE_TILE:
+		case UNREACHABLE_TILE:
+		case START_TILE:
+		case PICKUP_TILE:
+		case EXIT1_TILE:
+		case EXIT2_TILE:
+		case FINISH_TILE:
+			blueprint_code.m_tile_id = *blueprint_it;
 			break;
-		case 'O':
-			blueprint_code = OPEN_HEX;
+		default:			
+			blueprint_code.m_tile_id = UNKNOWN_MARK;
 			break;
-		case 'W':
-			blueprint_code = UNREACHABLE_HEX;
-			break;
-		case 'P':
-			blueprint_code = STARTING_HEX;
-			break;
-		default:
-			blueprint_code = 0;
-			break;
-		}
+		}		
 			
 		// Advance iter.
 		++blueprint_it;
@@ -86,7 +93,7 @@ namespace Tmpl8
 			is added to the autotile id if the tile is a wall.
 		*/
 
-		if (m_loaded_blueprint.size() == 0) return 0;
+		if (m_loaded_blueprint_data.m_blueprint.size() == 0) return 0;
 
 		int autotile_id{ 0 }, tile_value{ 1 };
 
@@ -96,9 +103,9 @@ namespace Tmpl8
 			{
 				if (y != center_y || x != center_x) // Skip checking self.
 				{
-					bool out_of_bounds = (y < 0 || y >= BLUEPRINT_SIZE || x < 0 || x >= BLUEPRINT_SIZE);
+					bool out_of_bounds = (y < 0 || y >= m_loaded_blueprint_data.m_height || x < 0 || x >= m_loaded_blueprint_data.m_width);
 
-					if (out_of_bounds || GetIsWallAdjacent(m_loaded_blueprint[x + (y * BLUEPRINT_SIZE)]))
+					if (out_of_bounds || GetIsWallAdjacent(m_loaded_blueprint_data.m_blueprint[x + (y * m_loaded_blueprint_data.m_width)]))
 						autotile_id |= tile_value;
 
 					tile_value <<= 1;
@@ -113,8 +120,9 @@ namespace Tmpl8
 	{
 		switch (adjacent_value)
 		{
-		case 'X':
-		case 'W':
+		case OBSTACLE_TILE:
+		case SAFE_TILE:
+		case UNREACHABLE_TILE:
 			return true;
 		default:
 			return false;

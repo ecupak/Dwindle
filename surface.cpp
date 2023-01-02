@@ -10,8 +10,7 @@
 namespace Tmpl8 {
 
 void NotifyUser( char* s );
-char Surface::s_Font[51][5][6];	
-bool Surface::fontInitialized = false;
+char Surface::s_Font[51][5][6];
 
 // -----------------------------------------------------------
 // True-color surface class implementation
@@ -47,6 +46,19 @@ Surface::Surface( char* a_File )
 	else fclose( f );
 	LoadImage( a_File );
 }
+
+
+Surface& Surface::operator=(Surface& copy)
+{
+	m_Width = copy.m_Width;
+	m_Height = copy.m_Height;
+	m_Pitch = copy.m_Pitch;
+
+	m_Buffer = static_cast<Pixel*>(MALLOC64((unsigned int)m_Width * (unsigned int)m_Height * sizeof(Pixel)));
+
+	return *this;
+}
+
 
 void Surface::LoadImage( char* a_File )
 {
@@ -103,12 +115,17 @@ void Surface::Print( char* a_String, int x1, int y1, Pixel color, bool is_alpha,
 		InitCharset();
 		fontInitialized = true;
 	}
+
 	Pixel* t = m_Buffer + x1 + y1 * m_Pitch;
+
 	for ( int i = 0; i < (int)(strlen( a_String )); i++, t += 6 )
 	{	
 		long pos = 0;
-		if ((a_String[i] >= 'A') && (a_String[i] <= 'Z')) pos = s_Transl[(unsigned short)(a_String[i] - ('A' - 'a'))];
-													 else pos = s_Transl[(unsigned short)a_String[i]];
+		if ((a_String[i] >= 'A') && (a_String[i] <= 'Z'))
+			pos = s_Transl[(unsigned short)(a_String[i] - ('A' - 'a'))];
+		else
+			pos = s_Transl[(unsigned short)a_String[i]];
+
 		Pixel* a = t;
 		char* c = (char*)s_Font[pos];
 		for ( int v = 0; v < 5; v++, c++, a += m_Pitch ) 
@@ -123,7 +140,7 @@ void Surface::Print( char* a_String, int x1, int y1, Pixel color, bool is_alpha,
 					{
 						*(a + h) = color;
 					}
-					*(a + h + m_Pitch) = 0;
+					//*(a + h + m_Pitch) = 0;
 				}
 	}
 }
@@ -163,7 +180,7 @@ int LineOutCode(float x, float y, float xMin, float xMax, float yMin, float yMax
 void Surface::Line( float x1, float y1, float x2, float y2, Pixel c, bool hasOpacity, float opacity)
 {
 	// clip (Cohen-Sutherland, https://en.wikipedia.org/wiki/Cohen%E2%80%93Sutherland_algorithm)
-	const float xmin = 0, ymin = 0, xmax = ScreenWidth - 1, ymax = ScreenHeight - 1;
+	const float xmin = 0, ymin = 0, xmax = m_Width - 1, ymax = m_Height - 1;
 	int c0 = LineOutCode( x1, y1, xmin, xmax, ymin, ymax ), c1 = LineOutCode( x2, y2, xmin, xmax, ymin, ymax);
 	bool accept = false;
 	while (1) 

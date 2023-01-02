@@ -5,6 +5,8 @@
 
 namespace Tmpl8
 {
+	
+
 	// Constants.
 	/* Post positions around edge of sprite. */
 	constexpr int RIGHT{ 0 };
@@ -87,13 +89,30 @@ namespace Tmpl8
 
 	void DetectorPoint::ResolveCollision(Collidable*& collision)
 	{
-		if (collision->m_object_type == CollidableType::SMOOTH)
+		// We hit a physical object - bounce or cling.
+		if (collision->m_object_type == CollidableType::SMOOTH
+			|| collision->m_object_type == CollidableType::PERM_GLOW
+			|| (collision->m_object_type == CollidableType::FINISH_LINE && m_state == State::DEAD && m_is_at_finish_line == false))
 		{
 			m_obstacles.push_back(collision);
-		}
-		else if (collision->m_object_type == CollidableType::SAFE_GLOW)
+			m_interaction_type = InteractionType::SURFACE;
+		}		
+		// We hit a safe zone - don't lose life if hitting a surface.
+		else if (collision->m_object_type == CollidableType::SAFE_GLOW
+			|| collision->m_object_type == CollidableType::PERM_GLOW)
 		{
 			m_glow_orbs.push_back(collision);
+			m_interaction_type = InteractionType::SAFETY;
+		}
+		// We hit a pickup - gain life.
+		else if (collision->m_object_type == CollidableType::PICKUP)
+		{
+			m_interaction_type = InteractionType::PICKUP;
+		}
+		// We crossed the level exit - trigger transition steps.
+		else if (m_state == State::ALIVE && collision->m_object_type == CollidableType::FINISH_LINE)
+		{
+			m_interaction_type = InteractionType::LEVEL_END;
 		}
 	}
 
@@ -156,11 +175,9 @@ namespace Tmpl8
 
 	void DetectorPoint::UpdateState(State new_state)
 	{
-		m_state = new_state;
+		m_state = new_state;		
 	}
 
-
-	bool debug_mode{ false };
 
 	bool DetectorPoint::CheckForCollisions()
 	{
@@ -172,9 +189,6 @@ namespace Tmpl8
 		if (m_obstacles.size() == 0)
 			return false;
 		
-		debug_mode = false;
-
-
 		// Precalculate the rounding down and conversion to int.
 		int i_pre_pos_x{ (int)floor(prev_position.x) },
 			i_pre_pos_y{ (int)floor(prev_position.y) },
@@ -310,17 +324,20 @@ namespace Tmpl8
 			switch (closest_intersection.m_type_of_collision_object)
 			{
 			case CollidableType::SMOOTH:
-			case CollidableType::ROUGH:	// for testing.
+			case CollidableType::PERM_GLOW:
+			case CollidableType::FINISH_LINE:
 				ResolveSmoothCollision(closest_intersection);
 				break;
 			default:
 				break;
 			}
 
-			is_part_of_collision = true;
+			return true;
 		}
-
-		return is_part_of_collision;
+		else // Even though collision boxes overlapped, the path of the point did not cross another object.
+		{
+			return false;
+		}
 	}
 
 
@@ -497,6 +514,9 @@ namespace Tmpl8
 		// If none of the safe glow orbs are overlapping the point, a new safe glow orb is needed.
 		for (Collidable*& safe_orb : m_glow_orbs)
 		{
+			// Permanent glow blocks act as a safe glow orb.
+			if (safe_orb->m_object_type == CollidableType::PERM_GLOW) return false;
+
 			float dist_x{ position.x - safe_orb->center.x };
 			float dist_y{ position.y - safe_orb->center.y };
 			float dist = (dist_x * dist_x) + (dist_y * dist_y);
@@ -509,15 +529,7 @@ namespace Tmpl8
 		return true;
 	}
 
-
 	
-
-
-	void DetectorPoint::ResolveRoughCollision()
-	{
-	}
-
-
 	void DetectorPoint::SetRicochetSpeed(Intersection& intersection_info)
 	{
 		/*
@@ -529,11 +541,9 @@ namespace Tmpl8
 		switch (intersection_info.m_collision_edge_crossed)
 		{
 		case EdgeCrossed::LEFT:
-			//velocity.x = fabsf(velocity.x * 0.5f);
 			velocity.y = m_state == State::ALIVE ? 3.0f : 1.0f;
 			break;
 		case EdgeCrossed::RIGHT:
-			//velocity.x = fabsf(velocity.x * 0.5f);
 			velocity.y = m_state == State::ALIVE ? 3.0f : 1.0f;
 			break;
 		case EdgeCrossed::TOP:

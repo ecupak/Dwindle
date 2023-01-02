@@ -30,7 +30,7 @@ namespace Tmpl8
 		m_collision_socket = collision_socket;
 	}
 
-
+	
 	void GlowManager::Update(float deltaTime)
 	{
 		// Check if a new orb should be created.
@@ -45,7 +45,7 @@ namespace Tmpl8
 			m_collision_socket->SendMessage(CollisionMessage{ CollisionAction::UPDATE_ORB_LIST, m_collidables });
 		}
 
-		if (m_is_resetting_level && m_orbs.size() == 0)
+		if (m_is_resetting_level && m_orbs.size() == 0) // Player glow orb is not included.
 		{
 			m_game_socket->SendMessage(GameMessage{ GameAction::ORBS_REMOVED });
 			m_is_resetting_level = false;
@@ -131,6 +131,9 @@ namespace Tmpl8
 			m_orbs.push_back(std::make_shared<TempGlowOrb>(message.m_orb_position, message.m_player_strength, m_map_layer));
 			break;
 		case CollidableType::SAFE_GLOW:
+			m_orbs.push_back(std::make_shared<SafeGlowOrb>(message.m_orb_position, message.m_player_strength, m_obstacle_layer));
+			break;
+		case CollidableType::PICKUP_GLOW:
 			m_orbs.push_back(std::make_shared<SafeGlowOrb>(message.m_orb_position, message.m_player_strength, m_obstacle_layer));
 			break;
 		}

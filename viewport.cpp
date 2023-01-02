@@ -65,7 +65,7 @@ namespace Tmpl8
 	}
 
 
-	void Viewport::Draw()
+	void Viewport::Draw(float detlaTime)
 	{		
 		m_visible_layer->Clear(0x00000000);
 		m_camera.Draw(m_visible_layer);

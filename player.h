@@ -1,13 +1,18 @@
 #pragma once
 
+#include <memory>
+
+#include "key_state.h"
 #include "collidable.h"
 #include "detector_point.h"
-#include "key_state.h"
+
 #include "game_socket.h"
 #include "glow_socket.h"
 #include "camera_socket.h"
 #include "life_socket.h"
+
 #include "first_echo.h"
+
 
 namespace Tmpl8 {
 
@@ -73,14 +78,9 @@ namespace Tmpl8 {
 		void RegisterLifeSocket(Socket<LifeMessage>* life_socket);
 
 		int GetStartingLife();
-		bool IsAlive();
-		bool IsDead() { return state == State::DEAD; }
-		bool IsSuspended() { return m_is_player_suspended; }
-
-		bool m_is_player_suspended{ false };
-
-
-		int safe_glows_created{ 0 };
+		
+		void SetIsTutorialMode(bool is_tutorial_mode) { m_is_tutorial_mode = is_tutorial_mode; }
+			
 
 	private:
 		/* METHODS */
@@ -133,6 +133,7 @@ namespace Tmpl8 {
 		int m_frame_id{ 0 };
 		
 		FirstEcho m_player_echo;
+		//std::shared_ptr<PlayerGlowOrb> m_player_glow_orb;
 
 		Socket<GameMessage>* m_game_socket{ nullptr };
 		Socket<GlowMessage>* m_glow_socket{ nullptr };
@@ -145,8 +146,8 @@ namespace Tmpl8 {
 			Buffer is the minimum brightness set by user.
 			- Is only decreased during death (no affect on user experience).
 		*/
-		int m_player_max_strength{ 20 };
-		int m_player_min_brightness_buffer{ 10 };
+		int m_player_max_strength{ 5 };
+		int m_player_min_brightness_buffer{ 5 };
 		int m_player_strength{ m_player_max_strength };
 		float m_player_brightness_buffer{ 1.0f * m_player_min_brightness_buffer };
 		
@@ -160,6 +161,8 @@ namespace Tmpl8 {
 		Mode mode{ Mode::AIR };
 		State state{ State::ALIVE };
 
+		bool m_is_tutorial_mode{ false };
+
 		keyState& m_leftKey;
 		keyState& m_rightKey;
 		keyState& m_upKey;
@@ -167,6 +170,7 @@ namespace Tmpl8 {
 
 		float m_delta_time{ 0.0f };
 		float m_dead_timer{ 0.0f };
+		float m_dead_time_limit{ 3.0f };
 		int m_free_fall_frame_count{ 0 };
 
 		bool m_allow_horizontal_movement{ true };
@@ -215,5 +219,6 @@ namespace Tmpl8 {
 		bool m_is_1_way_rest_gate_open{ true };
 
 		bool m_is_echo_update_enabled{ true };
+		bool m_is_at_finish_line{ false };		
 	};
 }

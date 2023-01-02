@@ -237,7 +237,11 @@
     <ClCompile Include="glow_orb.cpp" />
     <ClCompile Include="level.cpp" />
     <ClCompile Include="life_hud.cpp" />
+    <ClCompile Include="light_pickup.cpp" />
+    <ClCompile Include="message_box.cpp" />
     <ClCompile Include="obstacle.cpp" />
+    <ClCompile Include="permanent_glow_orb.cpp" />
+    <ClCompile Include="pickup_glow_orb.cpp" />
     <ClCompile Include="player.cpp" />
     <ClCompile Include="player_echo.cpp" />
     <ClCompile Include="safe_glow_orb.cpp" />
@@ -246,10 +250,13 @@
     <ClCompile Include="template.cpp" />
     <ClCompile Include="full_glow_orb.cpp" />
     <ClCompile Include="temp_glow_orb.cpp" />
+    <ClCompile Include="text_sprite_maker.cpp" />
+    <ClCompile Include="text_repo.cpp" />
     <ClCompile Include="viewport.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="blueprints.h" />
+    <ClInclude Include="blueprint_code.h" />
     <ClInclude Include="camera.h" />
     <ClInclude Include="collidable.h" />
     <ClInclude Include="collision_manager.h" />
@@ -265,6 +272,10 @@
     <ClInclude Include="intersection.h" />
     <ClInclude Include="life_hud.h" />
     <ClInclude Include="life_socket.h" />
+    <ClInclude Include="light_pickup.h" />
+    <ClInclude Include="message_box.h" />
+    <ClInclude Include="permanent_glow_orb.h" />
+    <ClInclude Include="pickup_glow_orb.h" />
     <ClInclude Include="player_echo.h" />
     <ClInclude Include="safe_glow_orb.h" />
     <ClInclude Include="second_echo.h" />
@@ -278,6 +289,8 @@
     <ClInclude Include="template.h" />
     <ClInclude Include="full_glow_orb.h" />
     <ClInclude Include="temp_glow_orb.h" />
+    <ClInclude Include="text_sprite_maker.h" />
+    <ClInclude Include="text_repo.h" />
     <ClInclude Include="viewport.h" />
     <ClInclude Include="viewport_socket.h" />
   </ItemGroup>

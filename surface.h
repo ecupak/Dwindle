@@ -71,6 +71,7 @@ public:
 	Surface( int a_Width, int a_Height, Pixel* a_Buffer, int a_Pitch );
 	Surface( int a_Width, int a_Height );
 	Surface( char* a_File );
+	Surface& operator=(Surface& copy);
 	~Surface();
 	// member data access
 	Pixel* GetBuffer() { return m_Buffer; }
@@ -102,9 +103,9 @@ private:
 	int m_Width{0}, m_Height{0};
 	int m_Pitch{0};
 	int m_Flags{0};
+	bool fontInitialized{ false };
 	// Static attributes for the buildin font
-	static char s_Font[51][5][6];
-	static bool fontInitialized;
+	static char s_Font[51][5][6];	
 	int s_Transl[256]{};		
 };
 

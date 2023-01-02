@@ -14,7 +14,7 @@ namespace Tmpl8
 	public:
 		Viewport(Surface* visible_layer, Camera& camera);
 		void Update(float deltaTime);
-		void Draw();
+		void Draw(float detlaTime);
 
 		Camera& GetCamera();
 		Socket<LifeMessage>* GetLifeHUDSocket();

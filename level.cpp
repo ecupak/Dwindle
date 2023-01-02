@@ -4,6 +4,7 @@
 #include "surface.h"
 #include "level.h"
 
+
 namespace Tmpl8
 {
 	// Constants.
@@ -12,10 +13,10 @@ namespace Tmpl8
 	constexpr unsigned int ROUGH_HEX{ 0xFFFF0000 };
 	constexpr unsigned int UNREACHABLE_HEX{ 0xFFFFFF00 };
 	constexpr unsigned int OPEN_HEX{ 0xFFFFFFFF };
+	constexpr unsigned int MESSAGE_HEX{ 0xFFFFFF00 };
 	constexpr unsigned int EOF_HEX{ 0x00000194 };
-	constexpr unsigned int TILE_SIZE{ 64 };
-	constexpr unsigned int BLUEPRINT_SIZE{ 20 };
-	constexpr unsigned int AUTOTILE_MAP_FRAME_COUNT{ 47 };
+	constexpr int TILE_SIZE{ 64 };	
+	constexpr int AUTOTILE_MAP_FRAME_COUNT{ 47 };
 	/* Tile positions and bit values. */
 	constexpr unsigned int TOP_LEFT = 1;
 	constexpr unsigned int TOP = 2;
@@ -27,51 +28,131 @@ namespace Tmpl8
 	constexpr unsigned int BOTTOM_RIGHT = 128;
 	
 	// Constructor.
-	Level::Level() :
-		m_background_layer{ bg },
-		m_obstacle_layer{ BLUEPRINT_SIZE * TILE_SIZE, BLUEPRINT_SIZE * TILE_SIZE },
-		m_map_layer{ BLUEPRINT_SIZE * TILE_SIZE, BLUEPRINT_SIZE * TILE_SIZE }
-	{
-		m_current_level_blueprint.height = BLUEPRINT_SIZE;
-		m_current_level_blueprint.width = BLUEPRINT_SIZE;
-	}
-
+	Level::Level(TextRepo& text_repo) :
+		m_text_repo{ &text_repo },
+		m_background_layer{ bg }, // should change each level.
+		m_obstacle_layer{ 1, 1 },
+		m_map_layer{ 1, 1 },
+		m_revealed_layer{ 1, 1 }
+	{	}
+			
 
 	// Make level_manager components and images.
-	void Level::CreateLevel(int level_id)		
+	void Level::CreateLevel(int level_id)
 	{
+		ResetLevel();
+
 		m_level_id = level_id;
-		m_current_level_blueprint.x = (m_level_id - 1) * BLUEPRINT_SIZE;
+
 		CreateComponents();
 		CreateCollidablesList();
+		CreateMessageBoxes();
 		CreateLayers();
 	}
-
-
-	void Level::Draw(Surface* screen)
+	
+	
+	void Level::ResetLevel()
 	{
-		m_map_layer.CopyTo(screen, 0, 0);
+		m_player_collidables.clear();
+		m_finish_lines.clear();
+		m_obstacles.clear();
+
+		m_message_boxes.clear();
 	}
 
 
 	void Level::CreateLayers()
 	{
-		// Darken the background.
+		// Copy bg to the map layer and draw obstacles on top.
+		// Used as source for full and temp glow orbs.
+		PrepareMapLayer();
+				
+		// Clear to 0-alpha black and draw obstacles on top.
+		// Used as source for safe glow orbs.		
+		PrepareObstacleLayer();	
+
+		// Clear to 0-alpha black and draw text boxes on top.
+		// Used as source for player glow orb.
+		PrepareRevealedLayer();
+	}
+
+
+	void Level::PrepareMapLayer()
+	{
+		// Set background.
+		//Surface background_layer{ bg };
 		m_background_layer.Bar(0, 0, m_background_layer.GetWidth(), m_background_layer.GetHeight(), 0xFF000000, true, 0.5f);
-
-		// Copy bg to the map layer.
 		m_background_layer.CopyTo(&m_map_layer, 0, 0);
-		
-		// Prepare obstacle layer by clearing to black with 0 alpha.
-		m_obstacle_layer.Clear(0x00000000);
 
-		// Draw level_manager components on obstacle and map layer.
+		//m_map_layer.Clear(0xFFFFFFFF);
+
+		// Add obstacles.
 		for (Obstacle& obstacle : m_obstacles)
 		{
-			obstacle.Draw(&m_obstacle_layer);
 			obstacle.Draw(&m_map_layer);
-			obstacle.ApplyBitwiseOverlap();
 		}
+
+		// Add message boxes.
+		for (MessageBox& message_box : m_message_boxes)
+		{
+			if (message_box.m_message_type == MessageType::GUIDE)
+			{
+				message_box.Draw(&m_map_layer, 2);
+			}
+		}
+	}
+
+
+	void Level::PrepareObstacleLayer()
+	{	
+		for (Obstacle& obstacle : m_obstacles)
+		{
+			if (!(obstacle.m_is_revealed))
+			{
+				obstacle.Draw(&m_obstacle_layer);
+				obstacle.ApplyBitwiseOverlap();
+			}
+		}
+	}
+
+
+	void Level::PrepareRevealedLayer()
+	{
+		for (Obstacle& obstacle : m_obstacles)
+		{			
+			if (obstacle.m_is_revealed)
+			{
+				obstacle.Draw(&m_revealed_layer);
+				obstacle.ApplyBitwiseOverlap();
+			}
+		}
+
+		int counter = 0;
+		for (MessageBox& message_box : m_message_boxes)
+		{
+			if (message_box.m_message_type == MessageType::TUTORIAL)
+			{
+				message_box.Draw(&m_revealed_layer, 2.0f);
+				++counter;
+			}
+		}
+	}
+
+	Surface& Level::GetMapLayer() 
+	{ 
+		return m_map_layer;
+	}
+	
+	
+	Surface& Level::GetObstacleLayer() 
+	{ 
+		return m_obstacle_layer;
+	}
+	
+
+	Surface& Level::GetRevealedLayer() 
+	{
+		return m_revealed_layer;
 	}
 
 
@@ -99,47 +180,83 @@ namespace Tmpl8
 	}
 
 	
-	void Level::RegisterViewportSocket(Socket<ViewportMessage>* viewport_socket)
+	void Level::RegisterGlowSocket(Socket<GlowMessage>* glow_socket)
 	{
-		// m_viewport_socket = viewport_socket;
+		m_glow_socket = glow_socket;
 	}
 
 
 	void Level::CreateComponents()
 	{
-		if (m_blueprints.LoadBlueprint(m_level_id))
+		if (m_blueprints.LoadBlueprintData(m_level_id))
 		{
+			m_blueprint_width = m_blueprints.GetBlueprintWidth();
+			m_blueprint_height = m_blueprints.GetBlueprintHeight();
+
+			ResizeSurfaces();
+
 			CreateComponentsFromBlueprint();
 		}
 	}
 
 
+	void Level::ResizeSurfaces()
+	{
+		m_map_layer = Surface{ m_blueprint_width * TILE_SIZE, m_blueprint_height * TILE_SIZE };
+		m_map_layer.Clear(0x00000000);
+
+		m_obstacle_layer = Surface{ m_blueprint_width * TILE_SIZE, m_blueprint_height * TILE_SIZE };
+		m_obstacle_layer.Clear(0x00000000);
+
+		m_revealed_layer = Surface{ m_blueprint_width * TILE_SIZE, m_blueprint_height * TILE_SIZE };
+		m_revealed_layer.Clear(0x00000000);
+	}
+
+
 	void Level::CreateComponentsFromBlueprint()
 	{
-		for (int y{ 0 }; y < BLUEPRINT_SIZE; ++y)
+		for (int y{ 0 }; y < m_blueprint_height; ++y)
 		{
-			for (int x{ 0 }; x < BLUEPRINT_SIZE; ++x)
+			for (int x{ 0 }; x < m_blueprint_width; ++x)
 			{
-				unsigned int blueprint_code{ m_blueprints.ReadBlueprint() };
+				BlueprintCode blueprint_code{ m_blueprints.GetNextBlueprintCode() };
 				CreateComponentAtPosition(blueprint_code, x, y);
 			}
 		}
 	}
 
 
-	void Level::CreateComponentAtPosition(unsigned int blueprint_code, int x, int y)
+	void Level::CreateComponentAtPosition(BlueprintCode& blueprint_code, int x, int y)
 	{
-		switch (blueprint_code)
+		float safe_tile_orb_radius{ static_cast<float>(sqrt((TILE_SIZE * TILE_SIZE) + (TILE_SIZE * TILE_SIZE))) };
+		
+		switch (blueprint_code.m_tile_id)
 		{
-		case SMOOTH_HEX:
-		case UNREACHABLE_HEX:
-			CreateObstacle(x, y, blueprint_code);
+		case OBSTACLE_TILE:		
+		case UNREACHABLE_TILE:
+			CreateObstacle(x, y, blueprint_code.m_tile_id);
 			break;
-		case OPEN_HEX:
+		case SAFE_TILE:
+			//CreatePermanentGlowOrb(x, y, safe_tile_orb_radius);			
+			CreateObstacle(x, y, blueprint_code.m_tile_id);
+			break;
+		case NO_TILE:
 			// Don't put anything here.
 			break;
-		case STARTING_HEX:
-			SetPlayerStartPosition(x, y);
+		case START_TILE:
+			SetPlayerStartPosition(x, y);			
+			break;
+		case PICKUP_TILE:
+			CreatePickup(x, y);
+			break;
+		case EXIT1_TILE:
+			AddExitSign(x, y, "assets/good_exit.png");
+			break;
+		case EXIT2_TILE:
+			AddExitSign(x - 1, y, "assets/bad_exit.png");
+			break;
+		case FINISH_TILE:
+			CreateFinishBlock(x, y);
 			break;
 		case EOF_HEX:
 			// Shouldn't happen in prod, but raise a stink for now.
@@ -163,6 +280,11 @@ namespace Tmpl8
 			if (obstacle.m_object_type != CollidableType::UNREACHABLE)
 				m_player_collidables.push_back(&obstacle);
 		}
+
+		for (Collidable& finish_line : m_finish_lines)
+		{
+			m_player_collidables.push_back(&finish_line);
+		}
 	}
 
 
@@ -174,18 +296,18 @@ namespace Tmpl8
 	}
 
 
-	void Level::CreateObstacle(int x, int y, Pixel hex_type)
+	void Level::CreateObstacle(int x, int y, int tile_id)
 	{
 		// Use autotile_id (value based on surrounding walls)
 		// to determine collidable type (corner, unreachable, or normal)
 		// and frame index of tile_map.
 		int autotile_id{ GetAutotileId(x, y) };
-		CollidableType type{ GetCollidableType(autotile_id, hex_type) };		
+		CollidableType type{ GetCollidableType(autotile_id, tile_id) };
 		int frame_id{ GetFrameId(autotile_id) };
 		int bitwise_overlap{ GetBitwiseOverlap(autotile_id) };
 
-		Surface* tilemap{ hex_type == SMOOTH_HEX ? &m_tilemap_smooth : &m_tilemap_rough };
-		Obstacle obstacle{ x, y, TILE_SIZE, type, tilemap, AUTOTILE_MAP_FRAME_COUNT, frame_id, bitwise_overlap };
+		Surface* tilemap{ &m_tilemap_smooth }; //tile_id == OBSTACLE_TILE ? &m_tilemap_smooth : &m_tilemap_rough
+		Obstacle obstacle{ x, y, TILE_SIZE, type, tilemap, AUTOTILE_MAP_FRAME_COUNT, frame_id, bitwise_overlap, tile_id == SAFE_TILE };
 				
 		m_obstacles.push_back(obstacle);
 	}
@@ -215,44 +337,23 @@ namespace Tmpl8
 		if (~autotile_id & BOTTOM)
 			autotile_id &= ~(BOTTOM_LEFT | BOTTOM_RIGHT);
 	}
+	
 
-	CollidableType Level::GetCollidableType(int autotile_id, Pixel hex_type)
+	CollidableType Level::GetCollidableType(int autotile_id, int tile_id)
 	{
-		switch (autotile_id)
+		if (autotile_id == 255)
 		{
-		// The player cannot collide with this piece.
-		// It will only show an image, but not be part of collision detection.
-		case 255:	
 			return CollidableType::UNREACHABLE;
-		
-		// These are all "outie" corner pieces.
-		// If the player hits one, they will ricochet off at an angle.
-		case 208:
-		case 104: 
-		case 80:
-		case 72:
-		case 22:
-		case 11:
-		case 2:
-		case 16:
-		case 8:
-		case 0:
-		case 18:
-		case 10:
-			if (hex_type == SMOOTH_HEX) //testing
-				return CollidableType::SMOOTH;
-				//return CollidableType::SMOOTH_CORNER;
-			else
-				return CollidableType::ROUGH;
-				//return CollidableType::ROUGH_CORNER;		
-		
-		// The rest are regular wall pieces.
-		// The player will bounce against them normally.
-		default:
-			if (hex_type == SMOOTH_HEX)
-				return CollidableType::SMOOTH;
-			else
-				return CollidableType::ROUGH;
+		}
+		else
+		{
+			switch (tile_id)
+			{
+			case OBSTACLE_TILE:			
+				return CollidableType::SMOOTH;				
+			case SAFE_TILE:
+				return CollidableType::PERM_GLOW;
+			}
 		}
 	}
 	
@@ -332,5 +433,46 @@ namespace Tmpl8
 			bitwise_overlap |= 0x1000;
 
 		return bitwise_overlap;
+	}
+
+
+	void Level::CreatePickup(int x, int y)
+	{
+		/*Pickup pickup{ x, y, TILE_SIZE, CollidabelType::Pickup, m_light_pickup };
+
+		m_obstacles.push_back(obstacle);*/
+	}
+
+
+	void Level::AddExitSign(int x, int y, std::string image_path)
+	{
+		//Sprite sprite{ new Surface(&image_path[0]), 1, true };
+		//sprite.Draw(&m_revealed_layer, x * TILE_SIZE, y * TILE_SIZE);
+
+		Surface surface{ &image_path[0] };
+		surface.CopyTo(&m_revealed_layer, x * TILE_SIZE, y * TILE_SIZE);
+	}
+
+
+	void Level::CreateFinishBlock(int x, int y)
+	{
+		Collidable finish_line{ x, y, TILE_SIZE, CollidableType::FINISH_LINE };
+
+		m_finish_lines.push_back(finish_line);
+	}
+
+
+	void Level::CreateMessageBoxes()
+	{
+		MessageType message_type{ m_level_id == 0 ? MessageType::TUTORIAL : MessageType::GUIDE };
+
+		std::vector<Entry> entries{ m_text_repo->GetEntriesForLevel(m_level_id) };
+		
+		for (Entry& entry : entries)
+		{
+			//std::unique_ptr<Sprite> text_sprite{ m_tsmaker.GetTextSprite(entry.m_span, entry.m_text, 0xFFAAAAAA) };
+			//m_message_boxes.emplace_back(message_type, std::move(text_sprite), entry.m_position, TILE_SIZE);
+			m_message_boxes.emplace_back(message_type, entry, TILE_SIZE, 0xFFAAAAAA);
+		}
 	}
 };

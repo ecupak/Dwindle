@@ -5,6 +5,9 @@
 #include "surface.h"
 #include "blueprints.h"
 
+#include "text_repo.h"
+#include "message_box.h"
+
 #include "collidable.h"
 #include "obstacle.h"
 
@@ -24,7 +27,7 @@ namespace Tmpl8
 	class Level
 	{
 	public:
-		Level();		
+		Level(TextRepo& text_repo);
 
 		void CreateLevel(int level_id);
 		void CreateLayers();
@@ -36,49 +39,69 @@ namespace Tmpl8
 		std::vector<Collidable*>& GetPlayerCollidables();
 
 		void RegisterCollisionSocket(Socket<CollisionMessage>* collision_socket);
-		void RegisterViewportSocket(Socket<ViewportMessage>* viewport_socket);
-
-		void Draw(Surface* screen);
-
-		Surface& GetMapLayer() { return m_map_layer; }
-		Surface& GetObstacleLayer() { return m_obstacle_layer; }
+		void RegisterGlowSocket(Socket<GlowMessage>* glow_socket);
+		//void RegisterViewportSocket(Socket<ViewportMessage>* viewport_socket);
+		
+		Surface& GetMapLayer();
+		Surface& GetObstacleLayer();
+		Surface& GetRevealedLayer();
 
 	private:
 		// METHODS
+		void ResetLevel();
+		void ResizeSurfaces();
 		void CreateComponents();
 		void CreateComponentsFromBlueprint();
-		void CreateComponentAtPosition(unsigned int blueprint_code, int x, int y);
+		void CreateComponentAtPosition(BlueprintCode& blueprint_code, int x, int y);
 		void CreateCollidablesList();
 		void SetPlayerStartPosition(int x, int y);
-		void CreateObstacle(int x, int y, Pixel hex_type);
+		void CreateObstacle(int x, int y, int tile_id);
+		void CreateMessageBoxes();
+		void AddExitSign(int x, int y, std::string image_path);
+		void CreateFinishBlock(int x, int y);
+		void CreatePickup(int x, int y);
+
 		/* Setup autotiles */
 		int GetAutotileId(int x, int y);
 		//bool GetIsWallAdjacent(Pixel adjacent_value);
 		void CleanupAutotileId(int& autotile_id);		
-		CollidableType GetCollidableType(int autotile_id, Pixel hex_type);
+		CollidableType GetCollidableType(int autotile_id, int tile_id);
 		int GetFrameId(int autotile_id);
 		int GetBitwiseOverlap(int autotile_id);
+
+		void PrepareMapLayer();
+		void PrepareObstacleLayer();
+		void PrepareRevealedLayer();
 
 		// ATTRIBUTES
 		Surface m_tilemap_smooth{"assets/tilemap_smooth_64x.png"};
 		Surface m_tilemap_rough{ "assets/tilemap_rough.png" };
 		char* bg{ "assets/noise_robson_1280.png" }; // credit: https://robson.plus/white-noise-image-generator/	
+		Sprite m_light_pickup{ new Surface("assets/light.png"), 1, true };
 
 		std::vector<Obstacle> m_obstacles;
-		std::vector<Collidable*> m_player_collidables;
+		std::vector<Collidable*> m_player_collidables;		
+		std::vector<MessageBox> m_message_boxes;
+		std::vector<Collidable> m_finish_lines;
 
-		level_blueprint m_current_level_blueprint{ 0, 0, 10, 10 };
+		//level_blueprint m_current_level_blueprint{ 0, 0, 10, 10 };
+		
 		int m_level_id{ 0 };
+		int m_blueprint_width{ 0 };
+		int m_blueprint_height{ 0 };
+
 		vec2 m_player_start_position{ 0.0f, 0.0f };
 
 		Socket<CollisionMessage>* m_collision_socket{ nullptr };
 		// Socket<ViewportMessage>* m_viewport_socket{ nullptr };
-		// Socket<GlowMessage>* m_glow_socket{ nullptr };
+		Socket<GlowMessage>* m_glow_socket{ nullptr };
 
 		Surface m_background_layer;
 		Surface m_obstacle_layer;
 		Surface m_map_layer;
+		Surface m_revealed_layer;
 
 		Blueprints m_blueprints;
+		TextRepo* m_text_repo{ nullptr };
 	};
 };

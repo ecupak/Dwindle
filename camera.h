@@ -18,6 +18,9 @@ namespace Tmpl8
 		void SetPosition(vec2 position);
 		void ProcessCollisions() {};
 		void SetLevelBounds(vec2& level_bounds);
+		void SetRevealedLayer(Surface& revealed_layer);
+		void FadeToBlack();
+		void FadeIntoView();
 
 	private:
 		void UpdateBounds();
@@ -27,6 +30,8 @@ namespace Tmpl8
 		std::vector<Collidable*> m_collisions;
 
 		vec2 m_level_size{ 0.0f, 0.0f };
+
+		Surface* m_revealed_layer{ nullptr };
 
 		Socket<CameraMessage> m_camera_hub;
 		Collidable& m_subject;
@@ -44,9 +49,12 @@ namespace Tmpl8
 		Location m_subject_location{ Location::GROUND };
 		Location m_subject_prev_location{ Location::OTHER };
 
-
-
 		template <typename T> int GetSign(T val);
+
+		float m_opacity{ 1.0f };
+		float opacity_delta{ 0.0f };
+		float opacity_delta_delta{ 200.0f };
+		bool m_is_fading_out{ false };
 	};
 };
 

@@ -3,7 +3,7 @@
 
 namespace Tmpl8
 {
-	constexpr int LETTER_HEIGHT{ 6 };	
+	constexpr int LETTER_HEIGHT{ 5 };	
 	constexpr int LETTER_WIDTH{ 6 };
 	constexpr unsigned int DANGER_ZONE{ 3 };
 	constexpr unsigned int NORMAL{ 0xFFFFFFFF };
@@ -12,17 +12,25 @@ namespace Tmpl8
 	
 	
 	LifeHUD::LifeHUD() :
-		m_value_layer{ GetSurfaceWidth(), GetSurfaceHeight() },
+		m_value_layer{ GetSurfaceWidth(m_value.length()), GetSurfaceHeight() },
 		m_value_sprite{ &m_value_layer, 1, false },
-		m_heart_sprite{ new Surface("assets/life.png"), 1, true }
+		m_heart_sprite{ new Surface("assets/life.png"), 1, true },
+		m_tutorial_message_layer{ GetSurfaceWidth(m_tutorial_message.length()), GetSurfaceHeight() },
+		m_tutorial_message_sprite{ &m_tutorial_message_layer, 1, false }
 	{
 		InitializeDrawingValues();
 	}
 
 
-	int LifeHUD::GetSurfaceWidth()
+	int LifeHUD::GetSurfaceWidth(int word_length)
 	{
-		return GetWordLength("00");
+		// Letter length is 5 pixels + 1 separating pixel.
+		int length = word_length * LETTER_WIDTH;
+
+		// Don't need the final separating space.
+		length -= 1;
+
+		return length;
 	}
 
 
@@ -33,46 +41,48 @@ namespace Tmpl8
 	}
 
 
-	int LifeHUD::GetWordLength(std::string word)
-	{
-		int length = word.length();
-
-		// Letter length is 5 pixels + 1 separating pixel.
-		length *= LETTER_WIDTH;
-
-		// Don't need the final separating space.
-		length -= 1;
-
-		return length;
-	}
-
-
 	void LifeHUD::InitializeDrawingValues()
 	{
-		m_calculated_scaled_height = m_scaling_factor * (LETTER_HEIGHT - 1);
-		m_drawn_scaled_height = m_scaling_factor * LETTER_HEIGHT;
-		m_scaled_width = m_scaling_factor * GetWordLength(m_value);
+		// Life box setup.
+		m_value_scaled_height = m_value_scaling_factor * LETTER_HEIGHT;
+		m_value_scaled_width = m_value_scaling_factor * GetSurfaceWidth(m_value.length());
 
-		m_height = Max(m_heart_sprite.GetHeight(), m_calculated_scaled_height);
+		int value_height = Max(m_heart_sprite.GetHeight(), m_value_scaled_height);
 		
-		m_heart_padding = floor((m_height - m_heart_sprite.GetHeight()) / 2.0f);
-		m_value_padding = floor((m_height - m_calculated_scaled_height) / 2.0f);
+		float heart_padding = floor((value_height - m_heart_sprite.GetHeight()) / 2.0f);
+		float value_padding = floor((value_height - m_value_scaled_height) / 2.0f);
 
 		m_box_start = vec2{ 20.0f, 20.0f };
 		
 		m_heart_start = vec2{
 			m_box_start.x + m_horizontal_box_padding,
-			m_box_start.y + m_vertical_box_padding + m_heart_padding
+			m_box_start.y + m_vertical_box_padding + heart_padding
 		};
 		
 		m_value_start = vec2{
 			m_heart_start.x + m_heart_sprite.GetWidth() + m_spacing,
-			m_box_start.y + m_vertical_box_padding + m_value_padding
+			m_box_start.y + m_vertical_box_padding + value_padding
 		};
 		
 		m_box_end = vec2{
-			m_value_start.x + m_scaled_width + m_horizontal_box_padding,
-			m_box_start.y + (m_vertical_box_padding * 2) + m_height
+			m_value_start.x + m_value_scaled_width + m_horizontal_box_padding,
+			m_box_start.y + (m_vertical_box_padding * 2) + value_height
+		};
+
+		// Tutorial message setup.
+		m_tutorial_message_scaled_height = m_tutorial_message_scaling_factor * LETTER_HEIGHT;
+		m_tutorial_message_scaled_width = m_tutorial_message_scaling_factor * GetSurfaceWidth(m_tutorial_message.length());
+		int value_box_length = m_box_end.x - m_box_start.x;
+		int tutorial_message_padding = Max(0, static_cast<int>((value_box_length - m_tutorial_message_scaled_width) / 2.0f));
+
+		m_tutorial_message_start = vec2{
+			m_box_start.x + tutorial_message_padding,
+			m_box_end.y + m_control_spacing
+		};
+
+		m_tutorial_message_end = vec2{
+			m_tutorial_message_start.x + m_horizontal_box_padding + m_tutorial_message_scaled_width,
+			m_tutorial_message_start.y + m_tutorial_message_scaled_height
 		};
 	}
 
@@ -85,6 +95,18 @@ namespace Tmpl8
 
 	void LifeHUD::Update(float deltaTime)
 	{
+		// Update opacity values.
+		if (m_flash_opacity > m_opacity)
+		{
+			m_flash_opacity = Max(m_flash_opacity - (deltaTime * 0.3f), m_opacity);
+		}
+
+		if (m_tutorial_message_opacity > 0.0f)
+		{
+			m_tutorial_message_opacity = Max(m_tutorial_message_opacity - (deltaTime * 0.3f), 0.0f);
+		}
+
+		// Check for any socket messages.
 		if (m_life_hub.HasNewMessage())
 		{			
 			std::vector<LifeMessage> messages = m_life_hub.ReadMessages();
@@ -98,11 +120,11 @@ namespace Tmpl8
 			);
 
 			m_draw_color = (messages.back().m_new_value > DANGER_ZONE) ? NORMAL : CRITICAL;
-		}
 
-		if (m_flash_opacity > m_opacity)
-		{
-			m_flash_opacity = Max(m_flash_opacity - (deltaTime * 0.3f), m_opacity);
+			if (messages.back().m_action == LifeAction::TUTORIAL_SAVE)
+			{
+				m_tutorial_message_opacity = 1.0f;
+			}
 		}
 	}
 
@@ -134,6 +156,7 @@ namespace Tmpl8
 
 	void LifeHUD::Draw(Surface* visible_layer)
 	{
+		// Draw the main box with health/light left.
 		m_value_layer.Clear(0xFF000000);
 		m_value_layer.Print(m_value_as_char, 0, 0, m_draw_color, true, m_flash_opacity);
 
@@ -142,6 +165,14 @@ namespace Tmpl8
 
 		m_heart_sprite.Draw(visible_layer, m_heart_start.x, m_heart_start.y, true, m_flash_opacity);
 
-		m_value_sprite.DrawScaled(m_value_start.x, m_value_start.y, m_scaled_width, m_drawn_scaled_height, visible_layer);
+		m_value_sprite.DrawScaled(m_value_start.x, m_value_start.y, m_value_scaled_width, m_value_scaled_height, visible_layer);
+
+		// Draw the tutorial message underneath if life was just refilled.
+		if (m_tutorial_message_opacity > 0.0f)
+		{
+			m_tutorial_message_layer.Clear(0x00000000);
+			m_tutorial_message_layer.Print(&(m_tutorial_message)[0], 0, 0, m_draw_color, true, m_tutorial_message_opacity);
+			m_tutorial_message_sprite.DrawScaled(m_tutorial_message_start.x, m_tutorial_message_start.y, m_tutorial_message_scaled_width, m_tutorial_message_scaled_height, visible_layer);
+		}
 	}
 }

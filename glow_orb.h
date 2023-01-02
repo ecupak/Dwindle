@@ -2,6 +2,7 @@
 
 #include "surface.h"
 #include "collidable.h"
+
 #include "glow_socket.h"
 
 
@@ -27,12 +28,14 @@ namespace Tmpl8
 		void Draw(Surface* viewable_layer, int c_left, int c_top, int in_left, int in_top, int in_right, int in_bottom) override;
 		virtual void SetPhase(Phase new_phase);
 
-	protected:		
+	protected:
 		virtual void UpdateFullPhase(float deltaTime) {}
 		virtual void UpdateWaxingPhase(float deltaTime) {}
 		virtual void UpdateWaningPhase(float deltaTime) {}
 		virtual void UpdateEveryPhase(float deltaTime) {}
 
+		void UpdateBounds();
+		
 		virtual void DrawStep(int x_pos, Pixel*& destination_pix, Pixel*& source_pix, int new_opacity, float intensity);
 
 		Phase phase{ Phase::WAXING };
@@ -56,7 +59,7 @@ namespace Tmpl8
 	private:
 		// METHODS.
 		void UpdateByPhase(float deltaTime);
-		void UpdateBounds();		
+				
 
 		Surface* m_source_layer;
 	};

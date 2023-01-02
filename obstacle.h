@@ -10,12 +10,14 @@ namespace Tmpl8
 
 	class Obstacle: public Collidable
 	{
-	public:		
-		Obstacle(int x, int y, int tile_size, CollidableType object_type, Surface* autotile_map, int autotile_max_frame_id, int autotile_frame_id, int bitwise_overlap);
+	public:
+		Obstacle(int x, int y, int tile_size, CollidableType object_type, Surface* autotile_map, int autotile_max_frame_id, int autotile_frame_id, int bitwise_overlap, bool is_revealed = false);
 		virtual void ResolveCollision(Collidable*& collision);
 		virtual void ResolveCollision(std::vector<Collidable*> collisions);
 		virtual void Draw(Surface* screen);
 		void Obstacle::ApplyBitwiseOverlap();
+
+		bool m_is_revealed{ false };
 
 	private:
 		Sprite m_sprite;

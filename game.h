@@ -20,7 +20,7 @@ namespace Tmpl8
 	{
 	public:
 		Game::Game(Surface* surface);
-		//void SetTarget( Surface* surface ) { screen = surface; }
+		
 		void Init();
 		void Shutdown();
 		void Tick(float deltaTime);
@@ -31,20 +31,29 @@ namespace Tmpl8
 		void KeyDown(int key);
 
 	private:
-		void CheckSocketForNewMessages();
-		void ProcessMessages();
-
 		void RegisterSockets();
-		void PrepareTextRepo();
+		void InitGlowManager();
+		void InitPlayer();
+		
+		void PrepareForNextLevel();
 		void PrepareLevel();
 		void PrepareGlowManager();
 		void PreparePlayer();
-		void PrepareCollisionManager();		
+		void PrepareCollisionManager();
 		void PrepareCamera();
+
+		void CheckSocketForNewMessages();
+		void ProcessMessages();
+		void CheckLevelResetProgress(GameMessage& messages);
+		void CheckLevelAdvancementProgress(GameMessage& messages);
+		void CheckMessage(GameMessage& messages);
 
 		void FadeToBlack();
 		void DisablePlayerCollisions();
 		void ResetPlayerPosition();
+
+		void ReadyNextLevel();
+
 
 		// ATTRIBUTES
 		// Core classes.
@@ -69,9 +78,11 @@ namespace Tmpl8
 		Socket<ViewportMessage>* m_viewport_socket;
 		Socket<LifeMessage>* m_life_socket;
 
-		int level_id{ 1 };
+		int level_id{ 0 };
 		int m_free_fall_frames{ 0 };
 
-		int m_level_reset_step{ 0 };
+		int m_level_action_tracker{ 0 };
+		bool m_is_in_level_reset{ false };
+		bool m_is_in_level_advancement{ false };
 	};
 };

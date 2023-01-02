@@ -21,6 +21,7 @@ namespace Tmpl8
 		/* Update reference to the level_manager and recreate collidables. */
 
 		m_level = &current_level;
+		m_is_level_update_needed = true;
 		CreateCollidables(CollidableGroup::CAMERA);
 		CreateCollidables(CollidableGroup::PLAYER);
 	}

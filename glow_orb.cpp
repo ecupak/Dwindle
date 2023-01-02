@@ -92,9 +92,6 @@ namespace Tmpl8
 		{
 			for (int x{ 0 }; x <= (d_right - d_left); x++)
 			{
-				if (y - d_top == 16)
-					int x = 3;
-
 				// Only adjust pixels that fall within a circle based on center and radius.
 				int dist_x{ x + d_left - static_cast<int>(floor(center.x)) };
 				int dist_y{ y - static_cast<int>(floor(center.y)) };
@@ -102,7 +99,7 @@ namespace Tmpl8
 				if (dist <= radius_squared)
 				{
 					// The opacity decreases (becomes more transparent) as we move from the center.
-					float intensity{ 1.0f - ((1.0f * dist / radius_squared) * 2.0f) };
+					float intensity{ 1.0f - (1.0f * dist / radius_squared) };
 
 					DrawStep(x, d_pix, s_pix, new_opacity, intensity);
 				}

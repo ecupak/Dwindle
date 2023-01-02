@@ -15,6 +15,14 @@ namespace Tmpl8
 		DEAD,
 	};
 
+	enum class InteractionType
+	{
+		SURFACE,
+		SAFETY,
+		PICKUP,
+		LEVEL_END,
+		NONE,
+	};
 
 	class DetectorPoint : public Collidable
 	{
@@ -51,7 +59,10 @@ namespace Tmpl8
 		vec2 velocity{ 0.0f, 0.0f };
 		int new_mode{ 0 };
 		bool m_is_safe_glow_needed{ false };
+		bool m_is_at_finish_line{ false };
 		bool isRicochetCollision{ false };
+
+		InteractionType m_interaction_type{ InteractionType::NONE };
 
 	private:
 		void CheckForIntersection(std::vector<Intersection>& intersects, StandardForm& line1, Collidable*& collision_object, EdgeCrossed collision_edge_crossed);
@@ -66,7 +77,6 @@ namespace Tmpl8
 		bool GetIsRicochetCollision(EdgeCrossed& collision_edge_crossed);
 
 		void ResolveSmoothCollision(Intersection& intersection_info);
-		void ResolveRoughCollision();
 		void SetRicochetSpeed(Intersection& intersection_info);
 
 		vec2 GetCollisionBuffer(EdgeCrossed collision_edge_crossed);

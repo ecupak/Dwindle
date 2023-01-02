@@ -61,7 +61,7 @@ namespace Tmpl8
 			m_dead_timer += deltaTime;
 
 			// If at a full rest, or it has been 4 seconds since death.
-			if ((m_is_horizontal_at_rest && m_is_vertical_at_rest) || m_dead_timer >= 5.0f)
+			if ((m_is_horizontal_at_rest && m_is_vertical_at_rest) || m_dead_timer >= m_dead_time_limit)
 			{
 				m_game_socket->SendMessage(GameMessage{ GameAction::PLAYER_IN_FREE_FALL });
 				mode = Mode::FREE_FALL;
@@ -138,7 +138,7 @@ namespace Tmpl8
 		m_ground_bounce_power = m_max_ground_bounce_power;
 		
 		// Set life display to max strength/life.
-		m_life_socket->SendMessage(LifeMessage{ m_player_strength, 1.0f });
+		m_life_socket->SendMessage(LifeMessage{ LifeAction::UPDATE, m_player_strength, 1.0f });
 
 		// Undo death.
 		mode = Mode::AIR;
@@ -146,6 +146,7 @@ namespace Tmpl8
 		for (DetectorPoint& point : points)
 		{
 			point.UpdateState(state);
+			point.m_is_at_finish_line = false;
 		}
 	}
 
@@ -307,7 +308,25 @@ namespace Tmpl8
 		
 		// Get change in position after collision, and the new mode.
 		for (DetectorPoint& point : points)		
-		{			
+		{		
+
+			if (state == State::ALIVE && point.m_is_at_finish_line)
+			{
+				state = State::DEAD;
+
+				// Ricochet velocitis will decrease while in dead bounce.
+				for (DetectorPoint& point : points)
+				{
+					point.UpdateState(state);
+					point.m_is_at_finish_line = true;
+				}
+
+				m_is_vertical_at_rest = true;
+
+				// Tell game that level is completed.
+				m_game_socket->SendMessage(GameMessage{ GameAction::LEVEL_COMPLETE });
+			}
+
 			if (point.CheckForCollisions())
 			{
 				/*
@@ -352,7 +371,7 @@ namespace Tmpl8
 				point.ApplyDeltaPosition(delta_position);
 				point.ClearCollisions();
 			}
-			m_glow_socket->SendMessage(GlowMessage{ GlowAction::MOVE_PLAYER_ORB_POSITION, center });
+			//m_glow_socket->SendMessage(GlowMessage{ GlowAction::MOVE_PLAYER_ORB_POSITION, center });
 
 			// Determine if safe glow orb will spawn.
 			// - Spawns if 'full contact' made with surface.
@@ -374,7 +393,7 @@ namespace Tmpl8
 					}
 					else
 					{
-						is_safe_glow_needed = GetIsSafeGlowNeeded(TOP); // Ceiling hits should not make safe glow orbs.
+						is_safe_glow_needed = GetIsSafeGlowNeeded(TOP);
 					}
 				}
 				 
@@ -384,7 +403,13 @@ namespace Tmpl8
 					if (--m_player_strength >= 0)
 					{
 						// Note that for the life display, it always respects the minimum brightness (m_player_min_brightness_buffer) set by user.					
-						m_life_socket->SendMessage(LifeMessage{ m_player_strength, 1.0f * Max(m_player_strength, m_player_min_brightness_buffer) / m_player_max_strength });
+						m_life_socket->SendMessage(LifeMessage{LifeAction::UPDATE, m_player_strength, 1.0f * Max(m_player_strength, m_player_min_brightness_buffer) / m_player_max_strength });
+					}
+
+					if (m_is_tutorial_mode && m_player_strength < 0)
+					{
+						m_player_strength = m_player_max_strength;
+						m_life_socket->SendMessage(LifeMessage{ LifeAction::TUTORIAL_SAVE, m_player_strength, 1.0f * Max(m_player_strength, m_player_min_brightness_buffer) / m_player_max_strength });
 					}
 				}
 
@@ -557,8 +582,8 @@ namespace Tmpl8
 			else // if (state == State::DEAD)
 			{
 				// Slower loss of velocity. Makes it more fun to watch.
-				// But if still moving after 3 seconds post-death, pump the brakes.
-				velocity.x += direction.x * acceleration.x * m_delta_time * (m_dead_timer < 3.0f ? m_acceleration_x_dead_dampening : 1);
+				// But if still moving after a few seconds post-death, pump the brakes.
+				velocity.x += direction.x * acceleration.x * m_delta_time * (m_dead_timer < m_dead_time_limit ? m_acceleration_x_dead_dampening : 1);
 
 				// Dead bouncing doens't lose velocity.x until velocity.y has stopped (no bounce, only roll).
 				if (m_is_vertical_at_rest && fabsf(velocity.x) < m_horizontal_dead_zone)
@@ -711,7 +736,7 @@ namespace Tmpl8
 		prepareForCeilingMode();
 
 		// Update camera focus.
-		m_camera_socket->SendMessage(CameraMessage{ center, Location::OTHER });
+		//m_camera_socket->SendMessage(CameraMessage{ center, Location::OTHER });
 
 		// Set next mode.
 		mode = Mode::CEILING;
@@ -933,6 +958,9 @@ namespace Tmpl8
 		{
 			updateVerticalMovement();
 		}
+
+		// Keep pushing x velocity towards 0.
+		updateHorizontalMovement();
 	}
 
 

@@ -47,6 +47,19 @@ Surface::Surface( char* a_File )
 	LoadImage( a_File );
 }
 
+
+Surface& Surface::operator=(Surface& copy)
+{
+	m_Width = copy.m_Width;
+	m_Height = copy.m_Height;
+	m_Pitch = copy.m_Pitch;
+
+	m_Buffer = static_cast<Pixel*>(MALLOC64((unsigned int)m_Width * (unsigned int)m_Height * sizeof(Pixel)));
+
+	return *this;
+}
+
+
 void Surface::LoadImage( char* a_File )
 {
 	FREE_IMAGE_FORMAT fif = FIF_UNKNOWN;

@@ -237,11 +237,13 @@
     <ClCompile Include="glow_orb.cpp" />
     <ClCompile Include="level.cpp" />
     <ClCompile Include="life_hud.cpp" />
+    <ClCompile Include="light_pickup.cpp" />
     <ClCompile Include="message_box.cpp" />
     <ClCompile Include="obstacle.cpp" />
+    <ClCompile Include="permanent_glow_orb.cpp" />
+    <ClCompile Include="pickup_glow_orb.cpp" />
     <ClCompile Include="player.cpp" />
     <ClCompile Include="player_echo.cpp" />
-    <ClCompile Include="player_glow_orb.cpp" />
     <ClCompile Include="safe_glow_orb.cpp" />
     <ClCompile Include="second_echo.cpp" />
     <ClCompile Include="surface.cpp" />
@@ -270,9 +272,11 @@
     <ClInclude Include="intersection.h" />
     <ClInclude Include="life_hud.h" />
     <ClInclude Include="life_socket.h" />
+    <ClInclude Include="light_pickup.h" />
     <ClInclude Include="message_box.h" />
+    <ClInclude Include="permanent_glow_orb.h" />
+    <ClInclude Include="pickup_glow_orb.h" />
     <ClInclude Include="player_echo.h" />
-    <ClInclude Include="player_glow_orb.h" />
     <ClInclude Include="safe_glow_orb.h" />
     <ClInclude Include="second_echo.h" />
     <ClInclude Include="socket.h" />

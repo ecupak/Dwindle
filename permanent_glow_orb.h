@@ -6,17 +6,18 @@
 namespace Tmpl8
 {
 	// Class definition.
-	class PlayerGlowOrb : public GlowOrb
+	class PermanentGlowOrb : public GlowOrb
 	{
 	public:
 		// METHODS.		
-		PlayerGlowOrb(vec2 position, float player_strength, Surface* source_layer);
-		void SetPosition(vec2 position);
+		PermanentGlowOrb(vec2 position, float player_strength, float given_radius, Surface* source_layer);
 
 	private:
 		// METHODS.
 		void DrawStep(int x_pos, Pixel*& destination_pix, Pixel*& source_pix, int new_opacity, float intensity) override;
 		void UpdateWaningPhase(float deltaTime) override;
 		void UpdateEveryPhase(float deltaTime) override;
+
+		unsigned int glow_color{ 0xFFFFFFFF };
 	};
 };

@@ -1,11 +1,17 @@
 #include "obstacle.h"
+
 #include <string>
+
 
 namespace Tmpl8
 {
-	Obstacle::Obstacle(int x, int y, int tile_size, CollidableType object_type, Surface* autotile_map, int autotile_max_frame_id, int autotile_frame_id, int bitwise_overlap) :
+	//TODO:  Move a lot of thinking from the level file to within Obstacle.
+
+	Obstacle::Obstacle(int x, int y, int tile_size, CollidableType object_type, Surface* autotile_map, int autotile_max_frame_id, int autotile_frame_id, int bitwise_overlap, bool is_revealed) :
 		m_sprite{ autotile_map, autotile_max_frame_id, false },
-		m_autotile_id{ autotile_frame_id }
+		m_autotile_id{ autotile_frame_id },
+		m_is_revealed{ is_revealed }
+
 	{
 		m_sprite.SetFrame(m_autotile_id);
 
@@ -49,8 +55,8 @@ namespace Tmpl8
 	}
 
 
-	void Obstacle::Draw(Surface* screen)
+	void Obstacle::Draw(Surface* layer)
 	{
-		m_sprite.Draw(screen, left, top);		
+		m_sprite.Draw(layer, left, top);		
 	}
 };

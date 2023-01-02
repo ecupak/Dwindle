@@ -16,6 +16,7 @@ namespace Tmpl8
 	// -----------------------------------------------------------
 	Game::Game(Surface* surface) :
 		screen{ surface },		
+		level_manager{ text_repo },
 		player{ leftKey, rightKey, upKey, downKey },
 		camera{ player },
 		viewport{ surface, camera },
@@ -28,75 +29,83 @@ namespace Tmpl8
 	void Game::Init()
 	{
 		RegisterSockets();
-		
-		PrepareTextRepo();
-		PrepareLevel();
-		PrepareGlowManager();
-		PreparePlayer();
-		PrepareCollisionManager();
-		PrepareCamera();
-	}
+		InitGlowManager();
+		InitPlayer();
 
+		PrepareForNextLevel();
+
+		player.RestoreDefaults();
+		player.SetPosition(level_manager.GetPlayerStartPosition());
+	}
+	
 
 	void Game::RegisterSockets()
 	{
 		m_collision_socket = collision_manager.GetCollisionSocket();
 		m_glow_socket = glow_manager.GetGlowSocket();
-		//m_level_socket = level_manager.GetPlayerGlowSocket();
 		m_camera_socket = camera.GetCameraSocket();
 		m_viewport_socket = viewport.GetViewportSocket();
 		m_life_socket = viewport.GetLifeHUDSocket();
 	}
+
+
+	void Game::InitGlowManager()
+	{
+		glow_manager.RegisterGameSocket(&m_game_hub);
+		glow_manager.RegisterCollisionSocket(m_collision_socket);
+	}
 	
 
-	void Game::PrepareTextRepo()
+	void Game::InitPlayer()
 	{
-		text_repo.LoadText("assets/text_layer_info.txt");
+		player.RegisterGameSocket(&m_game_hub);
+		player.RegisterGlowSocket(m_glow_socket);
+		player.RegisterCameraSocket(m_camera_socket);
+		player.RegisterLifeSocket(m_life_socket);
 	}
 
 
-	void Game::PrepareLevel()
+	// -----------------------------------------------------------
+	// Set up the next level
+	// -----------------------------------------------------------
+
+	void Game::PrepareForNextLevel()
 	{
-		// level_manager.RegisterCollisionSocket(m_collision_socket);
-		// level_manager.RegisterViewportSocket(m_viewport_socket);
-		level_id = 1;
-		level_manager.CreateLevel(level_id, text_repo); // starts at 1.
+		PrepareLevel();		
+		PrepareGlowManager();
+		PreparePlayer();
+		PrepareCollisionManager();
+		PrepareCamera();		
+	}
+
+		
+	void Game::PrepareLevel()
+	{		
+		//level_manager.RegisterGlowSocket(m_glow_socket);
+		level_manager.CreateLevel(level_id); // starts at 0 = tutorial.		
 	}
 
 
 	void Game::PrepareGlowManager()
 	{
-		glow_manager.RegisterGameSocket(&m_game_hub);
-		glow_manager.RegisterCollisionSocket(m_collision_socket);
-		
 		glow_manager.SetMapLayer(level_manager.GetMapLayer());
 		glow_manager.SetObstacleLayer(level_manager.GetObstacleLayer());
-		glow_manager.SetTextLayer(level_manager.GetTextLayer());
 	}
-
 
 	void Game::PreparePlayer()
 	{
-		player.SetPlayerGlowOrb(glow_manager.GetPlayerGlowOrb());
-
-		player.RegisterGameSocket(&m_game_hub);
-		player.RegisterGlowSocket(m_glow_socket);
-		player.RegisterCameraSocket(m_camera_socket);
-		player.RegisterLifeSocket(m_life_socket);
-
-		player.RestoreDefaults();
-		player.SetPosition(level_manager.GetPlayerStartPosition());
+		player.SetIsTutorialMode(level_id == 0);
 	}
 
-
 	void Game::PrepareCollisionManager()
-	{
+	{		
 		collision_manager.SetNewLevel(level_manager);
 	}
 
 
 	void Game::PrepareCamera()
 	{
+		camera.SetRevealedLayer(level_manager.GetRevealedLayer());
 		camera.SetLevelBounds(level_manager.GetBounds());
 	}
 
@@ -105,6 +114,7 @@ namespace Tmpl8
 	// -----------------------------------------------------------
 	void Game::Shutdown()
 	{}
+
 
 	// -----------------------------------------------------------
 	// Main application tick function
@@ -142,7 +152,7 @@ namespace Tmpl8
 			2. Draw player on top of everything else.
 			3. Draw rest of game overlay (HUD, pause menu, etc).
 		*/
-		viewport.Draw();	// SHOULD HOLD ALL SURFACES? OR CREATE SEPARATE SURFACE DATA CLASS?
+		viewport.Draw(deltaTime);	// SHOULD HOLD ALL SURFACES? OR CREATE SEPARATE SURFACE DATA CLASS?
 	}
 
 
@@ -165,28 +175,81 @@ namespace Tmpl8
 
 		for (GameMessage& message : messages)
 		{
-			switch (message.m_action)
+			if (m_is_in_level_reset)
 			{
-			/*
-				Steps to reset level/player.
-			*/
-			case GameAction::PLAYER_DEATH:
-				++m_level_reset_step;
-				FadeToBlack();
-				break;
-			case GameAction::ORBS_REMOVED:
-				++m_level_reset_step;
-				DisablePlayerCollisions();
-				break;
-			case GameAction::PLAYER_IN_FREE_FALL:
-				++m_level_reset_step;
-				DisablePlayerCollisions();
-				break;
-			case GameAction::PLAYER_SUSPENDED:
-				++m_level_reset_step;
-				ResetPlayerPosition();
-				break;
+				CheckLevelResetProgress(message);
 			}
+			else if (m_is_in_level_advancement)
+			{
+				CheckLevelAdvancementProgress(message);
+			}
+			else
+			{
+				CheckMessage(message);
+			}
+		}
+	}
+
+
+	void Game::CheckLevelResetProgress(GameMessage& message)
+	{
+		switch (message.m_action)
+		{		
+		case GameAction::ORBS_REMOVED:
+			++m_level_action_tracker;
+			DisablePlayerCollisions();
+			break;
+		case GameAction::PLAYER_IN_FREE_FALL:
+			++m_level_action_tracker;
+			DisablePlayerCollisions();
+			break;
+		case GameAction::PLAYER_SUSPENDED:			
+			ResetPlayerPosition();
+			m_is_in_level_reset = false;
+			m_level_action_tracker = 0;
+			break;
+		}
+	}
+
+	
+	void Game::CheckLevelAdvancementProgress(GameMessage& message)
+	{
+		switch (message.m_action)
+		{
+		case GameAction::ORBS_REMOVED:
+			++m_level_action_tracker;
+			DisablePlayerCollisions();
+			break;
+		case GameAction::PLAYER_IN_FREE_FALL:
+			++m_level_action_tracker;
+			DisablePlayerCollisions();
+			break;		
+		case GameAction::PLAYER_SUSPENDED:
+			// Display transition message.
+			// See core memory.
+			// Award new powers.
+			// - There would be a new GameMessage/Action after these are complete.
+			// - We would move this action to happen after that trigger.
+			ReadyNextLevel();			
+			m_is_in_level_advancement = false;
+			m_level_action_tracker = 0;
+			break;
+		}
+	}
+
+
+	void Game::CheckMessage(GameMessage& message)
+	{
+		switch (message.m_action)
+		{
+		case GameAction::PLAYER_DEATH:
+			m_is_in_level_reset = true;
+			FadeToBlack();
+			break;
+		case GameAction::LEVEL_COMPLETE:
+			m_is_in_level_advancement = true;
+			FadeToBlack();
+			break;
 		}
 	}
 
@@ -199,6 +262,7 @@ namespace Tmpl8
 	void Game::FadeToBlack()
 	{
 		glow_manager.TriggerSafeOrbDestruction();
+		camera.FadeToBlack();
 	}
 	
 
@@ -206,9 +270,10 @@ namespace Tmpl8
 	void Game::DisablePlayerCollisions()
 	{
 		// 'Orbs removed' and 'player in free-fall' must both happen first.
-		if (m_level_reset_step != 3) return;
-
-		collision_manager.EnablePlayerCollisions(false);
+		if (m_level_action_tracker == 2)
+		{
+			collision_manager.EnablePlayerCollisions(false);
+		}
 	}
 
 
@@ -218,12 +283,27 @@ namespace Tmpl8
 		player.RestoreDefaults();
 		player.TransitionToPosition(level_manager.GetPlayerStartPosition());
 		camera.SetPosition(level_manager.GetPlayerStartPosition());
+		camera.FadeIntoView();
 		collision_manager.EnablePlayerCollisions(true);
-
-		// All steps completed. Prepare counter for next time.
-		m_level_reset_step = 0;
 	}
 
+
+	// -----------------------------------------------------------
+	// Go to next level
+	// -----------------------------------------------------------
+
+	void Game::ReadyNextLevel()
+	{
+		if (++level_id > 3)
+		{
+			// Game completed.
+		}
+		else
+		{
+			PrepareForNextLevel();
+			ResetPlayerPosition();
+		}
+	}
 
 	// -----------------------------------------------------------
 	// Keyboard events

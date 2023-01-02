@@ -71,6 +71,7 @@ public:
 	Surface( int a_Width, int a_Height, Pixel* a_Buffer, int a_Pitch );
 	Surface( int a_Width, int a_Height );
 	Surface( char* a_File );
+	Surface& operator=(Surface& copy);
 	~Surface();
 	// member data access
 	Pixel* GetBuffer() { return m_Buffer; }

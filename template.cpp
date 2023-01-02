@@ -328,7 +328,6 @@ int main( int argc, char **argv )
 #endif
 	int exitapp = 0;
 	game = new Game(surface);
-	//game->SetTarget( surface );
 	timer t;
 	t.reset();
 	while (!exitapp) 

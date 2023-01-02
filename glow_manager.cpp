@@ -30,15 +30,7 @@ namespace Tmpl8
 		m_collision_socket = collision_socket;
 	}
 
-	void GlowManager::SetTextLayer(Surface& text_layer)
-	{
-		m_text_layer = &text_layer;
-		
-		// Once we have the text layer, create player's glow orb. It always exists.
-		CreateGlowOrb(GlowMessage{ GlowAction::MAKE_ORB, vec2{0.0f, 0.0f}, 1.0f, CollidableType::PLAYER_GLOW });
-	}
-
-
+	
 	void GlowManager::Update(float deltaTime)
 	{
 		// Check if a new orb should be created.
@@ -118,9 +110,6 @@ namespace Tmpl8
 				CreateGlowOrb(message);
 				m_is_orb_list_changed = true;
 				break;
-			case GlowAction::MOVE_PLAYER_ORB_POSITION:
-				MovePlayerOrbPosition(message);
-				break;
 			case GlowAction::LEVEL_RESET:
 				TriggerSafeOrbDestruction();
 				m_is_resetting_level = true;
@@ -144,17 +133,10 @@ namespace Tmpl8
 		case CollidableType::SAFE_GLOW:
 			m_orbs.push_back(std::make_shared<SafeGlowOrb>(message.m_orb_position, message.m_player_strength, m_obstacle_layer));
 			break;
-		case CollidableType::PLAYER_GLOW:
-			m_player_orb = std::make_shared<PlayerGlowOrb>(message.m_orb_position, message.m_player_strength, m_text_layer);
-			//m_orbs.push_back(m_player_orb);
+		case CollidableType::PICKUP_GLOW:
+			m_orbs.push_back(std::make_shared<SafeGlowOrb>(message.m_orb_position, message.m_player_strength, m_obstacle_layer));
 			break;
 		}
-	}
-
-
-	void GlowManager::MovePlayerOrbPosition(GlowMessage& message)
-	{
-		m_player_orb->SetPosition(message.m_orb_position);
 	}
 
 

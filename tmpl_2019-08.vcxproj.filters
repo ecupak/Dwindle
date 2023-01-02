@@ -70,15 +70,17 @@
     <ClCompile Include="text_repo.cpp">
       <Filter>Game Files\Text Repo</Filter>
     </ClCompile>
-    <ClCompile Include="player_glow_orb.cpp">
-      <Filter>Glow Files\Player Glow Orb</Filter>
-    </ClCompile>
     <ClCompile Include="text_sprite_maker.cpp">
-      <Filter>Static Files\Text Sprite Maker</Filter>
+      <Filter>Game Files\Text Sprite Maker</Filter>
     </ClCompile>
     <ClCompile Include="message_box.cpp">
       <Filter>Level Files\Message Box</Filter>
     </ClCompile>
+    <ClCompile Include="permanent_glow_orb.cpp">
+      <Filter>Glow Files\Permanent Glow Orb</Filter>
+    </ClCompile>
+    <ClCompile Include="light_pickup.cpp" />
+    <ClCompile Include="pickup_glow_orb.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="surface.h">
@@ -175,18 +177,20 @@
     <ClInclude Include="game_socket.h">
       <Filter>Game Files\Game</Filter>
     </ClInclude>
-    <ClInclude Include="player_glow_orb.h">
-      <Filter>Glow Files\Player Glow Orb</Filter>
-    </ClInclude>
     <ClInclude Include="blueprint_code.h">
       <Filter>Level Files\Blueprints</Filter>
     </ClInclude>
     <ClInclude Include="text_sprite_maker.h">
-      <Filter>Static Files\Text Sprite Maker</Filter>
+      <Filter>Game Files\Text Sprite Maker</Filter>
     </ClInclude>
     <ClInclude Include="message_box.h">
       <Filter>Level Files\Message Box</Filter>
     </ClInclude>
+    <ClInclude Include="permanent_glow_orb.h">
+      <Filter>Glow Files\Permanent Glow Orb</Filter>
+    </ClInclude>
+    <ClInclude Include="light_pickup.h" />
+    <ClInclude Include="pickup_glow_orb.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="template code">
@@ -261,9 +265,6 @@
     <Filter Include="Player Files\Echoes">
       <UniqueIdentifier>{3970886c-25b1-44a1-b18a-8c0faf353d3d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Glow Files\Player Glow Orb">
-      <UniqueIdentifier>{331f1456-74a0-4ea0-89d1-2a6a12624930}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Game Files">
       <UniqueIdentifier>{1b2eb349-45be-445a-9445-fa7a2aba5556}</UniqueIdentifier>
     </Filter>
@@ -273,14 +274,14 @@
     <Filter Include="Game Files\Text Repo">
       <UniqueIdentifier>{a3c8287a-dbec-43a6-84fc-3b2bc79ac8b4}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Static Files">
-      <UniqueIdentifier>{80ab8aa2-170e-4422-aa5d-7ea22ee359ee}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Static Files\Text Sprite Maker">
-      <UniqueIdentifier>{a631c166-14a8-4640-8ab8-615b1e3bde05}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Level Files\Message Box">
       <UniqueIdentifier>{89ff01a1-4fcd-4a45-88f2-7831269b9e9b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Glow Files\Permanent Glow Orb">
+      <UniqueIdentifier>{faebc812-279b-4a0d-834b-947c1dac02e4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game Files\Text Sprite Maker">
+      <UniqueIdentifier>{a631c166-14a8-4640-8ab8-615b1e3bde05}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

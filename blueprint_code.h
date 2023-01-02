@@ -6,12 +6,16 @@
 namespace Tmpl8
 {
 	// Constants.
-	constexpr char OBSTACLE_TILE{ 'X' };
-	constexpr char NO_TILE{ 'O' };
-	constexpr char UNREACHABLE_TILE{ '-' };
-	constexpr char START_TILE{ '!' };
-	constexpr char MESSAGE_TILE{ '#' };
-	constexpr char EOF_MARK{ '.' };
+	constexpr char NO_TILE{ '.' };
+	constexpr char SAFE_TILE{ 'S' };
+	constexpr char OBSTACLE_TILE{ 'U' };	
+	constexpr char UNREACHABLE_TILE{ 'X' };
+	constexpr char EXIT1_TILE{ 'G' };
+	constexpr char EXIT2_TILE{ 'R' };
+	constexpr char PICKUP_TILE{ '^' };	
+	constexpr char START_TILE{ 'O' };
+	constexpr char FINISH_TILE{ '#' };
+	constexpr char EOF_MARK{ '!' };
 	constexpr char UNKNOWN_MARK{ '?' };
 
 	struct BlueprintCode

@@ -26,6 +26,12 @@ namespace Tmpl8
 	}
 
 
+	void Camera::SetRevealedLayer(Surface& revealed_layer)
+	{
+		m_revealed_layer = &revealed_layer;
+	}
+
+
 	void Camera::SetLevelBounds(vec2& level_bounds)
 	{
 		m_level_size = level_bounds;
@@ -38,36 +44,69 @@ namespace Tmpl8
 	}
 	
 
-	void Camera::Draw(Surface* screen)
+	void Camera::FadeToBlack()
+	{
+		m_is_fading_out = true;
+	}
+
+
+	void Camera::FadeIntoView()
+	{
+		m_opacity = 1.0f;
+	}
+
+
+	void Camera::Draw(Surface* visible_layer)
 	{
 		// Set bounds constrained by screen boundary.
-		float inbound_left = Max(left, 0);
-		float inbound_right = Min(right, static_cast<int>(m_level_size.x) - 1);
-		float inbound_top = Max(top, 0);
-		float inbound_bottom = Min(bottom, static_cast<int>(m_level_size.y) - 1);
+		int inbound_left = Max(left, 0);
+		int inbound_right = Min(right, static_cast<int>(m_level_size.x) - 1);
+		int inbound_top = Max(top, 0);
+		int inbound_bottom = Min(bottom, static_cast<int>(m_level_size.y) - 1);
+
+		//Pixel* d_pix{ screen->GetBuffer() };
+		Pixel* destination_pix{ visible_layer->GetBuffer() + (inbound_left - left) + ((inbound_top - top) * visible_layer->GetPitch())};
+		Pixel* source_pix{ m_revealed_layer->GetBuffer() + inbound_left + (inbound_top * m_revealed_layer->GetPitch()) };
+				
+		for (int y{ inbound_top }; y < inbound_bottom; ++y)
+		{
+			for (int x{ 0 }; x < (inbound_right - inbound_left); ++x)
+			{
+				if (source_pix[x] > 0)
+				{
+					destination_pix[x] = MixAlpha(source_pix[x], m_opacity, 0xFF000000, false);
+				}
+			}
+			destination_pix += visible_layer->GetPitch();
+			source_pix += m_revealed_layer->GetPitch();
+		}
 
 		// Draw any part of a collidable that overlaps with view.
 		for (Collidable*& collision : m_collisions)
 		{
-			collision->Draw(screen, left, top, inbound_left, inbound_top, inbound_right, inbound_bottom);
+			collision->Draw(visible_layer, left, top, inbound_left, inbound_top, inbound_right, inbound_bottom);
 		}
 		m_collisions.clear();
 
 		// Draw player (draw last so always on top).
-		m_subject.Draw(screen, left, top, inbound_left, inbound_top, inbound_right, inbound_bottom);
+		m_subject.Draw(visible_layer, left, top, inbound_left, inbound_top, inbound_right, inbound_bottom);
 
-		//// Camera bounds.
-		//screen->Box(left - left, top - top, right - left, bottom - top, 0xFFFF0000);
-		//// Crosshairs.
-		//screen->Line(left - left, center.y - top, right - left, center.y - top, 0x000000FF);
-		//screen->Line(center.x - left, top - top, center.x - left, bottom - top, 0x000000FF);
-		//// Focus box.
-		//screen->Box(m_focus.x - 10 - left, m_focus.y - 10 - top, m_focus.x + 10 - left, m_focus.y + 10 - top, 0x00FF0000);
+
 	}
 
 
 	void Camera::Update(float deltaTime)
 	{
+		// Fade revealed layer on level reset/end.
+		if (m_is_fading_out)
+		{
+			m_opacity -= opacity_delta * deltaTime;
+			opacity_delta += opacity_delta_delta * deltaTime;
+
+			m_opacity = Max(0.0f, m_opacity);
+			m_is_fading_out = (m_opacity > 0.0f);
+		}
+
 		// Find new focus.
 		if (m_camera_hub.HasNewMessage())
 		{

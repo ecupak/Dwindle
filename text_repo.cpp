@@ -6,57 +6,17 @@
 
 namespace Tmpl8
 {
-	TextRepo::TextRepo() {};
-
-
-	std::string& TextRepo::GetText(int book_id, int entry_id)
+	// Return list of messages to caller.
+	std::vector<Entry>& TextRepo::GetEntriesForLevel(int level_id)
 	{
-		return m_library[book_id][entry_id];
-	}
-
-
-	void TextRepo::LoadText(const std::string& file_location)
-	{
-		// Try to load file with text.
-		std::ifstream if_stream{ file_location };
-		if (!if_stream)
+		switch (level_id)
 		{
-			std::cerr << "Could not find file.\n";
+		case 0:
+			return m_level_0_entries;
+		case 1:
+			return m_level_1_entries;
+		default:
+			break;
 		}
-
-		// Read file and store text by level/book.
-		std::string m_entry;
-		while (if_stream)
-		{
-			std::getline(if_stream, m_entry);
-
-			switch (m_entry.length())
-			{
-			// Delimiter for new level/book is a single number.
-			case 1:
-				AddBookToLibrary();
-				break;
-			// Otherwise group all lines into same vector.
-			default:
-				AddEntryToBook(m_entry);
-				break;
-			}
-		}
-	}
-
-
-	void TextRepo::AddBookToLibrary()
-	{
-		if (m_book.size() > 0)
-		{
-			m_library.push_back(m_book);
-			m_book.clear();
-		}
-	}
-
-
-	void TextRepo::AddEntryToBook(std::string& entry)
-	{
-		m_book.push_back(entry);
 	}
 };

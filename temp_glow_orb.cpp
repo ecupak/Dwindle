@@ -50,7 +50,7 @@ namespace Tmpl8
 
 	void TempGlowOrb::UpdateEveryPhase(float deltaTime)
 	{
-		opacity = Clamp(opacity, 0.0f, 230.0f);
+		opacity = Clamp(opacity, 0.0f, 230.0f); // Limited to less than full brightness so not drawn over safe/perm orbs.
 		radius = Clamp(radius, 0.0f, radius_max);
 	}
 };

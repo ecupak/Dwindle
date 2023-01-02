@@ -5,14 +5,14 @@
 
 namespace Tmpl8
 {
-	bool Blueprints::LoadBlueprint(int level_id)
+	bool Blueprints::LoadBlueprintData(int level_id)
 	{
 		is_iterator_set = false;
 
 		try
 		{
-			m_loaded_blueprint = blueprints.at(level_id - 1);
-			blueprint_it = m_loaded_blueprint.begin();
+			m_loaded_blueprint_data = blueprint_data.at(level_id);
+			blueprint_it = m_loaded_blueprint_data.m_blueprint.begin();
 			is_iterator_set = true;
 		}
 		catch (std::out_of_range)
@@ -20,7 +20,19 @@ namespace Tmpl8
 			is_iterator_set = false;
 		}
 		
-		return is_iterator_set;
+		return (is_iterator_set && m_loaded_blueprint_data.m_blueprint.size() > 0);
+	}
+
+
+	int Blueprints::GetBlueprintWidth()
+	{
+		return m_loaded_blueprint_data.m_width;
+	}
+
+
+	int Blueprints::GetBlueprintHeight()
+	{
+		return m_loaded_blueprint_data.m_height;
 	}
 
 
@@ -28,14 +40,14 @@ namespace Tmpl8
 	{
 		BlueprintCode blueprint_code;
 
-		if (!is_iterator_set || m_loaded_blueprint.size() == 0)
+		if (!is_iterator_set)
 		{
 			blueprint_code.m_tile_id = UNKNOWN_MARK;
 			return blueprint_code;
 		}
 
 		// If read full blueprint, return EOF.
-		if (blueprint_it == m_loaded_blueprint.end())
+		if (blueprint_it == m_loaded_blueprint_data.m_blueprint.end())
 		{
 			is_iterator_set = false;
 			blueprint_code.m_tile_id = EOF_MARK;
@@ -47,20 +59,17 @@ namespace Tmpl8
 		{
 		case OBSTACLE_TILE:
 		case NO_TILE:
+		case SAFE_TILE:
 		case UNREACHABLE_TILE:
 		case START_TILE:
+		case PICKUP_TILE:
+		case EXIT1_TILE:
+		case EXIT2_TILE:
+		case FINISH_TILE:
 			blueprint_code.m_tile_id = *blueprint_it;
 			break;
-		default:
-			if (IsHexadecimal(*blueprint_it))
-			{
-				blueprint_code.m_tile_id = MESSAGE_TILE;
-				blueprint_code.SetTileDetail(*blueprint_it);
-			}
-			else
-			{
-				blueprint_code.m_tile_id = UNKNOWN_MARK;
-			}
+		default:			
+			blueprint_code.m_tile_id = UNKNOWN_MARK;
 			break;
 		}		
 			
@@ -72,16 +81,7 @@ namespace Tmpl8
 	}
 
 
-	bool Blueprints::IsHexadecimal(char tile_id)
-	{
-		return (
-			(tile_id >= 48 && tile_id <= 57)	// ASCII 0 to 9.
-			|| (tile_id >= 65 && tile_id <= 70) // ASCII A to F.
-		);
-	}
-
-
-	int Blueprints::GetAutotileId(int center_x, int center_y, int blueprint_size)
+	int Blueprints::GetAutotileId(int center_x, int center_y)
 	{
 		/* Autotile mapping credit: Godot docs (https://docs.godotengine.org/en/stable/tutorials/2d/using_tilemaps.html)
 			Loop over the 8 adjacent tiles, starting in the upper-left to the lower-right.
@@ -93,7 +93,7 @@ namespace Tmpl8
 			is added to the autotile id if the tile is a wall.
 		*/
 
-		if (m_loaded_blueprint.size() == 0) return 0;
+		if (m_loaded_blueprint_data.m_blueprint.size() == 0) return 0;
 
 		int autotile_id{ 0 }, tile_value{ 1 };
 
@@ -103,9 +103,9 @@ namespace Tmpl8
 			{
 				if (y != center_y || x != center_x) // Skip checking self.
 				{
-					bool out_of_bounds = (y < 0 || y >= blueprint_size || x < 0 || x >= blueprint_size);
+					bool out_of_bounds = (y < 0 || y >= m_loaded_blueprint_data.m_height || x < 0 || x >= m_loaded_blueprint_data.m_width);
 
-					if (out_of_bounds || GetIsWallAdjacent(m_loaded_blueprint[x + (y * blueprint_size)]))
+					if (out_of_bounds || GetIsWallAdjacent(m_loaded_blueprint_data.m_blueprint[x + (y * m_loaded_blueprint_data.m_width)]))
 						autotile_id |= tile_value;
 
 					tile_value <<= 1;
@@ -120,8 +120,9 @@ namespace Tmpl8
 	{
 		switch (adjacent_value)
 		{
-		case 'X':
-		case 'W':
+		case OBSTACLE_TILE:
+		case SAFE_TILE:
+		case UNREACHABLE_TILE:
 			return true;
 		default:
 			return false;

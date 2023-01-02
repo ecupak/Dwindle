@@ -11,7 +11,7 @@
 #include "full_glow_orb.h"
 #include "temp_glow_orb.h"
 #include "safe_glow_orb.h"
-#include "player_glow_orb.h"
+#include "permanent_glow_orb.h"
 
 
 namespace Tmpl8
@@ -32,25 +32,18 @@ namespace Tmpl8
 		void RegisterCollisionSocket(Socket<CollisionMessage>* collision_socket);
 
 		void SetMapLayer(Surface& map_layer) { m_map_layer = &map_layer; }
-		void SetObstacleLayer(Surface& obstacle_layer) { m_obstacle_layer = &obstacle_layer; }
-		void SetTextLayer(Surface& text_layer);
-
-		std::shared_ptr<PlayerGlowOrb> GetPlayerGlowOrb() { return m_player_orb; }
+		void SetObstacleLayer(Surface& obstacle_layer) { m_obstacle_layer = &obstacle_layer; }			
 
 	private:
 		void ProcessMessages();
 		void CreateGlowOrb(GlowMessage& message);
-		void MovePlayerOrbPosition(GlowMessage& message);
 		void RemoveExpiredGlowOrb(std::vector<std::shared_ptr<GlowOrb>>::const_iterator index_it);
 
 		bool m_is_orb_list_changed{ false };
 		bool m_is_resetting_level{ false };
 
-		std::shared_ptr<PlayerGlowOrb> m_player_orb{ nullptr };
-
 		Surface* m_obstacle_layer{ nullptr };
 		Surface* m_map_layer{ nullptr };
-		Surface* m_text_layer{ nullptr };
 		
 		Socket<GlowMessage> m_glow_hub;
 		Socket<GameMessage>* m_game_socket{ nullptr };

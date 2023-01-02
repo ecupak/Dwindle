@@ -5,13 +5,36 @@ namespace Tmpl8
 {
 	constexpr int LETTER_HEIGHT{ 5 };
 	constexpr int LETTER_WIDTH{ 6 };
+	constexpr int PADDING_X{ 5 };
+	constexpr int PADDING_Y{ 5 };
+	constexpr int LEADING{ static_cast<int>(LETTER_HEIGHT * 1.2f) };
+	constexpr int LETTER_LIMIT{ 24 };
 
-	std::unique_ptr<Sprite> TextSpriteMaker::GetTextSprite(std::string& contents, Pixel text_color)
-	{
-		// Make the surface with text.
-		Surface* surface{ GetNewSurface(contents) };
-		surface->Clear(0x00000000);
-		surface->Print(&contents[0], 0, 0, text_color);
+
+	TextSpriteMaker::TextSpriteMaker(int tile_size, int margin) :
+		m_tile_size{ tile_size },
+		m_min_margin{ margin }
+	{	}
+
+
+	std::unique_ptr<Sprite> TextSpriteMaker::GetTextSprite(int horizontal_span, std::string& contents, Pixel text_color)
+	{		
+		ResetValues();
+
+		// Break the content into multiple lines.
+		// All lines will be centered in the box.
+		m_lines.emplace_back(contents);
+		FindMaxCharactersPerLine(horizontal_span);
+		ApplyWordWrap();
+		FindMaxLengthLine();
+		SetLineIndentation();
+
+		// Make the surface.
+		Surface* surface{ GetNewSurface() };
+		surface->Clear(0xFF010101);	// Not pure black because the template makes that transparent.
+
+		// Pring the lines on the surface.
+		PrintLines(surface, text_color);
 
 		// Put it on a sprite (give sprite ownership of surface ptr).		
 		// And return as unique ptr.
@@ -19,27 +42,91 @@ namespace Tmpl8
 	}
 
 
-	Surface* TextSpriteMaker::GetNewSurface(std::string& contents)
+	void TextSpriteMaker::FindMaxCharactersPerLine(int horizontal_span)
 	{
-		return new Surface{ GetSurfaceWidth(contents), GetSurfaceHeight() };
-	};
-	
+		int full_span = horizontal_span * m_tile_size;
 
-	int TextSpriteMaker::GetSurfaceWidth(std::string& contents)
-	{
-		return GetContentLengthInPixels(contents);
+		// Margin is gap from tile edge to sprite edge.
+		// Padding is gap from sprite edge to printed text.
+		full_span -= ((PADDING_X * 2) + (m_min_margin * 2));
+		
+		m_max_characters_per_line = static_cast<int>(floor(1.0f * full_span / (LETTER_WIDTH * 2))); // x2 cuz that's the scaling factor.
 	}
 
 
-	int TextSpriteMaker::GetContentLengthInPixels(std::string& contents)
+	void TextSpriteMaker::ApplyWordWrap()
 	{
-		int length = contents.length();
+		const char whitespace{ ' ' };
 
+		for (std::size_t line_index{ 0 }; line_index < m_lines.size(); ++line_index)
+		{
+			LineInfo& line_info{ m_lines[line_index] };
+
+			if (line_info.m_line.length() > m_max_characters_per_line)
+			{
+				// Find where a whitespace occurs.
+				for (int letter_index{ m_max_characters_per_line + 1 }; letter_index >= 0; --letter_index)
+				{
+					// Split the line at this spot.
+					if (line_info.m_line[letter_index] == whitespace)
+					{
+						std::string old_line{ line_info.m_line.substr(0, letter_index) }; // Start of line to before the whitespace.
+						std::string new_line{ line_info.m_line.substr(letter_index + 1) }; // After whitespace to the end.
+
+						line_info.m_line = old_line;
+						m_lines.emplace_back(new_line);
+
+						break;
+					}
+				}
+			}
+		}
+	}
+
+
+	void TextSpriteMaker::FindMaxLengthLine()
+	{
+		// Find the longest line first.
+		for (LineInfo& line_info : m_lines)
+		{
+			if (line_info.m_line.length() > m_max_length)
+			{
+				m_max_length = line_info.m_line.length();
+			}
+		}
+	}
+
+
+	void TextSpriteMaker::SetLineIndentation()
+	{
+		// Find (in pixels) the amount of indent needed for each line to be centered.
+		for (LineInfo& line_info : m_lines)
+		{
+			if (line_info.m_line.length() < m_max_length)
+			{
+				int padding{ static_cast<int>(m_max_length - line_info.m_line.length()) * LETTER_WIDTH };
+				line_info.m_left_padding = static_cast<int>(padding * 0.5f);
+			}
+		}
+	}
+
+
+	Surface* TextSpriteMaker::GetNewSurface()
+	{
+		return new Surface{ GetContentLength(), GetSurfaceHeight() };
+	};
+
+
+	int TextSpriteMaker::GetContentLength()
+	{
 		// Letter length is 5 pixels + 1 separating pixel.
-		length *= LETTER_WIDTH;
+		int length = m_max_length * LETTER_WIDTH;
 
-		// Don't need the final separating space.
+		// Discard the final vertical line of blank pixels.
 		length -= 1;
+
+		// Include left and right padding.
+		length += PADDING_X * 2;
 
 		return length;
 	}
@@ -47,6 +134,39 @@ namespace Tmpl8
 
 	int TextSpriteMaker::GetSurfaceHeight()
 	{
-		return LETTER_HEIGHT;
+		// Height of all the lines.
+		int height = m_lines.size() * LETTER_HEIGHT;
+
+		// Include top and bottom padding.
+		height += PADDING_Y * 2;
+
+		// Inlude the leading (space between lines).
+		height += LEADING * (m_lines.size() - 1);
+
+		return height;
+	}
+
+
+	void TextSpriteMaker::PrintLines(Surface* surface, Pixel text_color)
+	{
+		for (std::size_t i{ 0 }; i < m_lines.size(); ++i)
+		{
+			LineInfo& line_info{ m_lines[i] };
+
+			surface->Print(
+				&(line_info.m_line)[0],
+				PADDING_X + line_info.m_left_padding,				
+				PADDING_Y + ( i * (LETTER_HEIGHT + LEADING)),
+				text_color
+			);
+		}		
+	}
+
+
+	void TextSpriteMaker::ResetValues()
+	{
+		m_lines.clear();
+		m_max_length = 0;
+		m_max_characters_per_line = 0;
 	}
 }

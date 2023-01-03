@@ -316,6 +316,15 @@ namespace Tmpl8
 
 	void Player::ResolveCollisions()
 	{
+		if (m_is_collision_state_disabled)
+		{
+			for (DetectorPoint& point : points)
+			{
+				point.ClearCollisions();
+			}
+			return;
+		}
+
 		int new_mode{ NONE };
 		bool is_ricochet_set{ false };
 		int post_id{ NONE };

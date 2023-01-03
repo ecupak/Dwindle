@@ -6,7 +6,7 @@
 
 namespace Tmpl8
 {
-	GlowOrb::GlowOrb(vec2 position, float player_strength, CollidableType object_type, Surface* source_layer, std::vector<CollidableType> collidables_of_interest, int draw_order) :
+	GlowOrb::GlowOrb(vec2 position, float player_strength, CollidableType object_type, Surface* source_layer, int draw_order) :
 		Collidable{ object_type, draw_order, position },
 		m_source_layer{ source_layer },
 		m_player_strength{ player_strength }

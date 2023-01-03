@@ -66,13 +66,13 @@ namespace Tmpl8
 			Entry{vec2{7, 36}, 5,
 				"You can touch a spot you have already lit without losing more light."
 			},
-			Entry{vec2{13, 36}, 4,
+			Entry{vec2{13, 36}, 5,
 				"This is a Spark. It will restore some of your lost light."
 			},
-			Entry{vec2{18, 36}, 4,
-				"Everything will fade away if your light reaches 0."
+			Entry{vec2{19, 36}, 4,
+				"Everything will fade away if you touch a dark surface with no light remaining."
 			},
-			Entry{vec2{23, 36}, 4,
+			Entry{vec2{24, 36}, 5,
 				"Find an exit to each stage. Good luck!"
 			},
 		};

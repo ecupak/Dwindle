@@ -6,230 +6,180 @@
 
 namespace Tmpl8
 {
-	CollisionManager::CollisionManager(Player& player, Camera& camera) :
-		m_player{ player },
-		m_camera{ camera },
-		m_level{ nullptr }	// Set via method after level_manager has been created and initialized.
-	{	};
-
-
-	// Public methods.
-
-
-	void CollisionManager::SetNewLevel(Level& current_level)
-	{
-		/* Update reference to the level_manager and recreate collidables. */
-
-		m_level = &current_level;
-		m_is_level_update_needed = true;
-		CreateCollidables(CollidableGroup::CAMERA);
-		CreateCollidables(CollidableGroup::PLAYER);
-	}
-
-		
 	Socket<CollisionMessage>* CollisionManager::GetCollisionSocket()
 	{
 		return &m_collision_hub;
 	}
 
 
-	void CollisionManager::UpdateCollisions(CollidableGroup c_group)
+	void CollisionManager::PopulateLists()
 	{
-		if (c_group == CollidableGroup::PLAYER && !m_is_player_collisions_enabled) return;
-
-		UpdateCollidables(c_group);
-		CheckForCollisions(c_group);
-		ProcessCollisions(c_group);
-	}
-
-
-	// Private methods. 
-
-
-	void CollisionManager::ProcessCollisions(CollidableGroup c_group)
-	{
-		switch (c_group)
-		{
-		case CollidableGroup::CAMERA:
-			//m_camera.ProcessCollisions();
-			break;
-		case CollidableGroup::PLAYER:
-			//m_player.ProcessCollisions();
-			break;
-		}
-	}
-
-
-	void CollisionManager::CreateCollidables(CollidableGroup c_group)
-	{
-		UpdateCollidables(c_group);
-	}
-
-
-	void CollisionManager::UpdateCollidables(CollidableGroup c_group)
-	{
-		switch (c_group)
-		{
-		case CollidableGroup::CAMERA:
-			UpdateCameraCollidables();
-			break;
-		case CollidableGroup::PLAYER:
-			UpdatePlayerCollidables();
-			break;
-		}		
-	}
-	
-
-	void CollisionManager::UpdateCameraCollidables()
-	{
-		/*
-			Called after new level_manager has been registered or during collision loop.
-			If there is a new glow orb in the list, update list.
-			Add unique item (viewport) that cares about the glow orbs.
-		*/
-		
-		// Messages are sent after level_manager update. Only need to check
-		// socket on Camera collidable update, which happens after level_manager update.
-
 		CheckSocketForNewCollisionMessages();
 
-		if (m_is_glow_orb_list_updated) //should be a generic bool for any messages in hub.
-		{
-			GetCollidablesFromLevel(CollidableGroup::CAMERA);
-			AddUniqueElementToCollidables(CollidableGroup::CAMERA);
-			m_is_glow_orb_list_updated = false;
-		}
+		UpdateCollidables();
+	}
+
+
+	void CollisionManager::RunCollisionCycle()
+	{
+		CheckSocketForNewCollisionMessages();
+
+		UpdateCollidables();
+		CheckForCollisions();
+		ResolveCollisions();
 	}
 
 
 	void CollisionManager::CheckSocketForNewCollisionMessages()
 	{
-		if (m_collision_hub.HasNewMessage())
-		{
-			ProcessMessages();
-		}
-	}
-
-
-	void CollisionManager::ProcessMessages()
-	{
 		std::vector<CollisionMessage> messages = m_collision_hub.ReadMessages();
 		m_collision_hub.ClearMessages();
 
+		m_has_static_list_changed = false;
+		m_has_dynamic_list_changed = false;
 		for (CollisionMessage& message : messages)
 		{
 			switch (message.m_action)
 			{
-			case CollisionAction::UPDATE_ORB_LIST:
-				UpdateGlowOrbList(message);
+			
+			case CollisionAction::UPDATE_PLAYER_POINT_LIST: // From glow manager.
+				UpdateList(message, m_player_point_collidables);
+				m_has_static_list_changed = true;
 				break;
-			case CollisionAction::DISABLE_PLAYER_COLLISIONS:
-				EnablePlayerCollisions(false);
+			case CollisionAction::UPDATE_OBSTACLE_LIST: // From level manager.
+				UpdateList(message, m_obstacle_collidables);
+				m_has_static_list_changed = true;
+				break;
+			case CollisionAction::UPDATE_PICKUP_LIST: // From level manager.
+				UpdateList(message, m_pickup_collidables);
+				m_has_static_list_changed = true;
+				break;
+			case CollisionAction::UPDATE_FINISH_LINE_LIST: // From level manager.
+				UpdateList(message, m_finish_line_collidables);
+				m_has_static_list_changed = true;
+				break;
+			case CollisionAction::UPDATE_UNIQUE_LIST: // From multiple.
+				AddToList(message, m_unique_collidables);
+				m_has_static_list_changed = true;
+				break;
+			case CollisionAction::UPDATE_ORB_LIST: // From glow manager.
+				UpdateList(message, m_glow_orb_collidables);
+				m_has_dynamic_list_changed = true;
 				break;
 			}
 		}
 	}
 
 
-	void CollisionManager::UpdateGlowOrbList(CollisionMessage& collision_message)
+	void CollisionManager::UpdateList(CollisionMessage& collision_message, std::vector<Collidable*>& list_to_update)
 	{
-		m_glow_orb_collidables = collision_message.m_collidables;
-		m_is_glow_orb_list_updated = true;
+		list_to_update = collision_message.m_collidables;
 	}
 
 
-	void CollisionManager::EnablePlayerCollisions(bool is_enabled)
+	void CollisionManager::AddToList(CollisionMessage& collision_message, std::vector<Collidable*>& list_to_add_to)
 	{
-		m_is_player_collisions_enabled = is_enabled;
+		list_to_add_to.push_back(collision_message.m_collidable);
 	}
-	
 
-	void CollisionManager::UpdatePlayerCollidables()
+
+	void CollisionManager::UpdateCollidables()
 	{
-		/*
-			Called after new level_manager has been registered.
-			Adds obstacles to list.
-			Add unique item (player) that cares about obstacles.
-		*/
-
-		if (m_is_level_update_needed)
+		if (m_has_static_list_changed)
 		{
-			GetCollidablesFromLevel(CollidableGroup::PLAYER);
-			AddUniqueElementToCollidables(CollidableGroup::PLAYER);
-			m_is_level_update_needed = false;
+			RebuildStaticList();
+			RebuildResolvableList();
 		}
-	}
 
-
-	void CollisionManager::GetCollidablesFromLevel(CollidableGroup c_group)
-	{
-		/* Get collidables from level_manager. Will stay synced. */
-
-		switch (c_group)
+		if (m_has_dynamic_list_changed || m_has_static_list_changed)
 		{
-		case CollidableGroup::CAMERA:
-			m_camera_collidables = m_glow_orb_collidables;
-			break;
-		case CollidableGroup::PLAYER:			
-			//m_player_collidables = m_level->GetPlayerCollidables();			
-			break;
+			RebuildCollidablesList();
 		}
-	}
-	
 
-	void CollisionManager::AddUniqueElementToCollidables(CollidableGroup c_group)
-	{
-		/* Add the viewport/player to the collidables list that it will interact with. */
-
-		switch (c_group)
-		{
-		case CollidableGroup::CAMERA:
-			m_camera_collidables.push_back(&m_camera);
-			// Player collidable is a set of collidables along perimeter.
-			for (DetectorPoint& point : m_player.GetCollisionPoints())
-			{
-				m_camera_collidables.push_back(&point);
-			}
-			break;
-		case CollidableGroup::PLAYER:
-			// Player collidable is a set of collidables along perimeter.
-			for (DetectorPoint& point : m_player.GetCollisionPoints())
-			{
-				m_player_collidables.push_back(&point);
-			}
-			break;
-		}
 	}
 
 
-	void CollisionManager::CheckForCollisions(CollidableGroup c_group)
+	void CollisionManager::RebuildStaticList()
 	{
-		std::vector<Collidable*>& collidables{ GetCollidableByGroup(c_group) };
-		
-		if (collidables.size() < 2) return;
+		// Credit to Kirill V. Lyadvinsky at https://stackoverflow.com/questions/3177241/what-is-the-best-way-to-concatenate-two-vectors
 
+		// Preallocate memory.
+		m_static_collidables.clear();
+		m_static_collidables.reserve(
+			m_player_point_collidables.size()
+			+ m_obstacle_collidables.size()
+			+ m_pickup_collidables.size()
+			+ m_finish_line_collidables.size()
+			+ m_unique_collidables.size()
+		);
+
+		// Insert all into single vector.		
+		m_static_collidables.insert(m_static_collidables.end(), m_player_point_collidables.begin(), m_player_point_collidables.end());
+		m_static_collidables.insert(m_static_collidables.end(), m_obstacle_collidables.begin(), m_obstacle_collidables.end());
+		m_static_collidables.insert(m_static_collidables.end(), m_pickup_collidables.begin(), m_pickup_collidables.end());
+		m_static_collidables.insert(m_static_collidables.end(), m_finish_line_collidables.begin(), m_finish_line_collidables.end());
+		m_static_collidables.insert(m_static_collidables.end(), m_unique_collidables.begin(), m_unique_collidables.end());
+	}
+
+
+	void CollisionManager::RebuildResolvableList()
+	{
+		// Credit to Kirill V. Lyadvinsky at https://stackoverflow.com/questions/3177241/what-is-the-best-way-to-concatenate-two-vectors
+
+		// Preallocate memory.
+		m_resolvable_collidables.clear();
+		m_resolvable_collidables.reserve(			
+			m_pickup_collidables.size()			
+			+ m_unique_collidables.size()
+		);
+
+		// Insert all into single vector.
+		m_resolvable_collidables.insert(m_resolvable_collidables.end(), m_pickup_collidables.begin(), m_pickup_collidables.end());
+		m_resolvable_collidables.insert(m_resolvable_collidables.end(), m_unique_collidables.begin(), m_unique_collidables.end());
+	}
+
+
+	void CollisionManager::RebuildCollidablesList()
+	{
+		// Credit to Kirill V. Lyadvinsky at https://stackoverflow.com/questions/3177241/what-is-the-best-way-to-concatenate-two-vectors
+
+		// Preallocate memory.
+		m_collidables.clear();
+		m_collidables.reserve(
+			m_static_collidables.size()
+			+ m_glow_orb_collidables.size()
+		);
+
+		// Insert all into single vector.
+		m_collidables.insert(m_collidables.end(), m_static_collidables.begin(), m_static_collidables.end());
+		m_collidables.insert(m_collidables.end(), m_glow_orb_collidables.begin(), m_glow_orb_collidables.end());
+	}
+
+
+	void CollisionManager::CheckForCollisions()
+	{
 		/*
 			Pre-sort by x-axis value (left to right).
 			Allows quicker comparison for the x-axis overlap check.
 		*/
-		SortCollidablesOnXAxis(collidables);
+		SortCollidablesOnXAxis();
 
 		/*
 			Get a list of collidable pairs that overlap on the X axis,
 			then use that list to get a list of collidable pairs that fully
 			overlap. Notify each pair of what it has collided with.
 		*/
-		std::vector<std::vector<Collidable*>> x_overlaps = GetXAxisOverlaps(collidables);
-		std::vector<std::vector<Collidable*>> collisions = GetCollisions(x_overlaps);
-		NotifyCollisionPairs(collisions);
+		std::vector<std::vector<Collidable*>> x_overlaps = GetXAxisOverlaps(m_collidables);
+		x_and_y_overlaps = GetYAxisOverlaps(x_overlaps);
+		NotifyCollisionPairs();
 	}
-	
 
-	void CollisionManager::SortCollidablesOnXAxis(std::vector<Collidable*>& collidables)
+
+	void CollisionManager::SortCollidablesOnXAxis()
 	{
 		/* Sort by left-most x-position of each collidable. */
 
-		std::sort(collidables.begin(), collidables.end(),
+		std::sort(m_collidables.begin(), m_collidables.end(),
 			[=](Collidable* a, Collidable* b) { return a->left < b->left; });
 	}
 
@@ -238,7 +188,7 @@ namespace Tmpl8
 	{
 		/*
 			The outer loop goes through all collidables.
-			
+
 			The current collidable is the focus. After the focus has been compared to all prior foci,
 			it is put in the priorFocusList and will be compared against the next focus.
 
@@ -255,8 +205,11 @@ namespace Tmpl8
 			// If focus is active, check for collisions. Otherwise, skip it (don't add to priorFocusList).
 			if (collidables[focus]->m_is_active)
 			{
-				for (std::size_t priorFoci{ 0 }; priorFoci < priorFocusList.size(); priorFoci++)	// Go thorugh list of things to the left of the focus.
+				for (std::size_t priorFoci{ 0 }; priorFoci < priorFocusList.size(); priorFoci++)	// Go through list of things to the left of the focus.
 				{
+					if (collidables[focus]->m_object_type == CollidableType::PLAYER_POINT)
+						int z = 3;
+
 					// If focus and prior focus don't overlap, erase prior focus.
 					if (collidables[focus]->left > priorFocusList[priorFoci]->right)
 					{
@@ -267,8 +220,8 @@ namespace Tmpl8
 						*/
 						priorFoci--;
 					}
-					// Register overlap as long as objects are different types.
-					else if (collidables[focus]->m_object_type != priorFocusList[priorFoci]->m_object_type)
+					// Register overlap as long as collision id of priorFoci is in list of wanted collision ids of focus.
+					else if (collidables[focus]->m_collision_ids_wanted & priorFocusList[priorFoci]->m_collision_id)
 					{
 						std::vector<Collidable*> collisionPair;
 						collisionPair.push_back(collidables[focus]);
@@ -276,14 +229,15 @@ namespace Tmpl8
 						allPairs.push_back(collisionPair);
 					}
 				}
-				priorFocusList.push_back(collidables[focus]);	// Add current focus to list of prior foci to now be checked against the next foci.
+				// Add current focus to list of prior foci to now be checked against the next foci.
+				priorFocusList.push_back(collidables[focus]);
 			}
 		}
 		return allPairs;
 	}
 
 
-	std::vector<std::vector<Collidable*>> CollisionManager::GetCollisions(std::vector<std::vector<Collidable*>>& x_overlaps)
+	std::vector<std::vector<Collidable*>> CollisionManager::GetYAxisOverlaps(std::vector<std::vector<Collidable*>>& x_overlaps)
 	{
 		/*
 			Each x_overlap pair is a potential collision; now we compare their y-values.
@@ -305,29 +259,25 @@ namespace Tmpl8
 	}
 
 
-	void CollisionManager::NotifyCollisionPairs(std::vector<std::vector<Collidable*>>& collisions)
+	void CollisionManager::NotifyCollisionPairs()
 	{
 		/* Notify each collidable it has collided, passing the other object to it. */
 
-		for (std::vector<Collidable*>& collision : collisions)
+		for (std::vector<Collidable*>& collision : x_and_y_overlaps)
 		{
-		//	collision.front()->ResolveCollision(collision.back());
-		//	collision.back()->ResolveCollision(collision.front());
+			collision.front()->RegisterCollision(collision.back());
+			collision.back()->RegisterCollision(collision.front());
 		}
+
+		x_and_y_overlaps.clear();
 	}
 
 
-	// Private assitant methods.
-
-
-	std::vector<Collidable*>& CollisionManager::GetCollidableByGroup(CollidableGroup c_group)
-	{
-		switch (c_group)
+	void CollisionManager::ResolveCollisions()
+	{	
+		for (Collidable*& collidable : m_resolvable_collidables)
 		{
-		case CollidableGroup::CAMERA:
-			return m_camera_collidables;
-		case CollidableGroup::PLAYER:			
-			return m_player_collidables;
+			collidable->ResolveCollisions();
 		}
 	}
 };

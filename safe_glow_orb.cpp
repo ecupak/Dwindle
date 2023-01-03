@@ -4,7 +4,7 @@
 namespace Tmpl8
 {
 	SafeGlowOrb::SafeGlowOrb(vec2 position, float player_strength, Surface* source_layer) :
-		GlowOrb{ position, player_strength, CollidableType::SAFE_GLOW, source_layer, m_collidables_of_interest, 2 }
+		GlowOrb{ position, player_strength, CollidableType::SAFE_GLOW, source_layer, 2 }
 	{
 		SetCollidablesWantedBitflag(m_collidables_of_interest);
 		radius_max = 30.0f;

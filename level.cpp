@@ -30,7 +30,7 @@ namespace Tmpl8
 	// Constructor.
 	Level::Level(TextRepo& text_repo) :
 		m_text_repo{ &text_repo },
-		m_background_layer{ bg }, // should change each level.
+		//m_background_layer{ bg }, // should change each level.
 		m_obstacle_layer{ 1, 1 },
 		m_map_layer{ 1, 1 },
 		m_revealed_layer{ 1, 1 }
@@ -96,9 +96,23 @@ namespace Tmpl8
 	void Level::PrepareMapLayer()
 	{
 		// Set background.
-		//Surface background_layer{ bg };
-		m_background_layer.Bar(0, 0, m_background_layer.GetWidth(), m_background_layer.GetHeight(), 0xFF000000, true, 0.5f);
-		m_background_layer.CopyTo(&m_map_layer, 0, 0);
+		char* asset_path;
+		switch (m_level_id)
+		{
+		case 0:
+			asset_path = "assets/backgrounds/tutorial.png"; // Justin Prno at https://dribbble.com/hi_jmp
+			break;
+		case 1:
+			asset_path = "assets/backgrounds/L01.png"; // Justin Prno at https://dribbble.com/hi_jmp
+			break;
+		default:
+			asset_path = "assets/backgrounds/tutorial.png"; // Justin Prno at https://dribbble.com/hi_jmp
+			break;
+		}
+
+		Surface background_layer{ asset_path };
+		background_layer.Bar(0, 0, background_layer.GetWidth(), background_layer.GetHeight(), 0xFF000000, true, 0.5f);
+		background_layer.CopyTo(&m_map_layer, 0, 0);
 
 		//m_map_layer.Clear(0xFFFFFFFF);
 

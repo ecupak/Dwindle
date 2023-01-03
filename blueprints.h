@@ -44,7 +44,7 @@ namespace Tmpl8
 
 		std::array<BlueprintData, 4> blueprint_data
 		{
-			BlueprintData{29, 38, // Tutorial			
+			BlueprintData{29, 38, // Tutorial: 1856 x 2432
 			"XXSSSSSSSSSSSSSSXSSSSSSSSSXXX"
 			"XXS............SXS.......SXXX"
 			"XXS............SXS.......SXXX"
@@ -80,11 +80,11 @@ namespace Tmpl8
 			"S..UXXXXXXXXXXXXXXXXXXXXXXXXX"
 			"U..UUUUUUUUUUUUUUUUUUUUUUUUUU"
 			"U......................G#...."
-			"U................^...O..#...."
+			"U..............^...O....#...."
 			"UUUUUUUUUUUUUUUUUUUUUUUUSSSSS"
 			"XXXXXXXXXXXXXXXXXXXXXXXXXXXXX"},
 
-			BlueprintData{28, 17, // Level 1
+			BlueprintData{28, 17, // Level 1: 1792 x 1088
 			"XXXXXXXXXXXXXUUUUUUUUUUUUXXX"
 			"XXXXXXXXXXXXXU..........UUUU"
 			"XXXXXXXXXXXXXU..........G#.."

@@ -24,14 +24,14 @@ namespace Tmpl8
 	{
 		return vec2{
 			(x * TILE_SIZE) + (TILE_SIZE / 2.0f),
-			(y * TILE_SIZE) + (TILE_SIZE / 2.0f)
+			(y * TILE_SIZE * 1.0f)
 		};
 	}
 
 
 	void LightPickup::Update(float deltaTime)
 	{		
-		m_elapsed_time += deltaTime * m_sign_of_direction;
+		m_elapsed_time += deltaTime * 0.4f * m_sign_of_direction;
 
 		if (m_elapsed_time < 0.0f || m_elapsed_time > 1.0f)
 		{
@@ -56,7 +56,10 @@ namespace Tmpl8
 
 	void LightPickup::RegisterCollision(Collidable*& collision)
 	{
-		m_has_been_picked_up = true;
+		if (collision->m_object_type == CollidableType::PLAYER_POINT)
+		{
+			m_has_been_picked_up = true;
+		}
 	}
 
 
@@ -92,14 +95,19 @@ namespace Tmpl8
 
 		// <<<<< to here: make part of base class? not override. add another Draw() to derived class, that calls base class Draw first with parameters?
 		
-		Pixel* s_pix = m_image.GetBuffer() + (d_left - c_left) + ((d_top - c_top) * m_image.GetPitch());
+		Pixel* s_pix = m_image.GetBuffer() + (d_left - left) + ((d_top - top) * m_image.GetPitch());
 
 		for (int y{ d_top }; y < d_bottom; y++)
 		{
-			for (int x{ 0 }; x <= (d_right - d_left); x++)
+			for (int x{ 0 }; x < (d_right - d_left); x++)
 			{
-				d_pix[x] = s_pix[x];
+				if (s_pix[x] > 0)
+				{
+					d_pix[x] = s_pix[x];
+				}
 			}
+			d_pix += viewable_layer->GetPitch();
+			s_pix += m_image.GetPitch();
 		}
 	}
 

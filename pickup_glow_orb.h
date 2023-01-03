@@ -10,7 +10,7 @@ namespace Tmpl8
 	{
 	public:
 		// METHODS.		
-		PickupGlowOrb(vec2 position, float player_strength, Surface* source_layer);
+		PickupGlowOrb(vec2 position, float player_strength, Surface* source_layer, int parent_id);
 
 	private:
 		// METHODS.

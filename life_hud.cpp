@@ -7,6 +7,7 @@ namespace Tmpl8
 	constexpr int LETTER_WIDTH{ 6 };
 	constexpr unsigned int DANGER_ZONE{ 3 };
 	constexpr unsigned int NORMAL{ 0xFFFFFFFF };
+	constexpr unsigned int WARNING{ 0xFFFFFF00 };
 	constexpr unsigned int CRITICAL{ 0xFFFF0000 };
 	constexpr unsigned int BLACK{ 0xFF000000 };
 	
@@ -14,6 +15,7 @@ namespace Tmpl8
 	LifeHUD::LifeHUD() :
 		m_value_layer{ GetSurfaceWidth(m_value.length()), GetSurfaceHeight() },
 		m_value_sprite{ &m_value_layer, 1, false },
+		m_icon_layer{ "assets/life.png" },
 		m_heart_sprite{ new Surface("assets/life.png"), 1, true },
 		m_tutorial_message_layer{ GetSurfaceWidth(m_tutorial_message.length()), GetSurfaceHeight() },
 		m_tutorial_message_sprite{ &m_tutorial_message_layer, 1, false }
@@ -47,20 +49,20 @@ namespace Tmpl8
 		m_value_scaled_height = m_value_scaling_factor * LETTER_HEIGHT;
 		m_value_scaled_width = m_value_scaling_factor * GetSurfaceWidth(m_value.length());
 
-		int value_height = Max(m_heart_sprite.GetHeight(), m_value_scaled_height);
+		int value_height = Max(m_icon_layer.GetHeight(), m_value_scaled_height);
 		
-		float heart_padding = floor((value_height - m_heart_sprite.GetHeight()) / 2.0f);
+		float icon_padding = floor((value_height - m_icon_layer.GetHeight()) / 2.0f);
 		float value_padding = floor((value_height - m_value_scaled_height) / 2.0f);
 
 		m_box_start = vec2{ 20.0f, 20.0f };
 		
-		m_heart_start = vec2{
+		m_icon_start = vec2{
 			m_box_start.x + m_horizontal_box_padding,
-			m_box_start.y + m_vertical_box_padding + heart_padding
+			m_box_start.y + m_vertical_box_padding + icon_padding
 		};
 		
 		m_value_start = vec2{
-			m_heart_start.x + m_heart_sprite.GetWidth() + m_spacing,
+			m_icon_start.x + m_icon_layer.GetWidth() + m_spacing,
 			m_box_start.y + m_vertical_box_padding + value_padding
 		};
 		
@@ -112,31 +114,42 @@ namespace Tmpl8
 			std::vector<LifeMessage> messages = m_life_hub.ReadMessages();
 			m_life_hub.ClearMessages();
 
-			// We only need the most recent message.
-			// But not really any way we can get more than 1 at a time.
-			UpdateValueLayer(
-				messages.back().m_new_value,
-				messages.back().m_player_strength
-			);
-
-			m_draw_color = (messages.back().m_new_value > DANGER_ZONE) ? NORMAL : CRITICAL;
-
-			if (messages.back().m_action == LifeAction::TUTORIAL_SAVE)
+			for (LifeMessage& message : messages)
 			{
-				m_tutorial_message_opacity = 1.0f;
+				switch (message.m_action)
+				{
+				case LifeAction::TUTORIAL_SAVE:
+					m_tutorial_message_opacity = 1.0f;
+					[[__fallthrough]]
+				case LifeAction::UPDATE:
+					UpdateValueLayer(message);
+					break;
+				default:
+					break;
+				}
 			}
 		}
 	}
 
 
-	void LifeHUD::UpdateValueLayer(int new_value, float new_opacity)
+	void LifeHUD::UpdateValueLayer(LifeMessage& message)
 	{
+		int new_value{ message.m_new_value };
+
 		// Should not be passed a negative value. Ignore it.
 		if (new_value < 0) return;
 		
+		// Get numbers as char.
 		m_value_as_char = ConvertInt2CharPointer(new_value);
-		m_opacity = new_opacity;
+
+		// Update opacity (mimics player's full glow orb brightness).
+		m_opacity = message.m_player_strength;
+
+		// Briefly light up the life HUD to signify loss of life.
 		m_flash_opacity = Min(m_opacity + 0.3f, 1.0f);
+
+		// Update color when close to death.
+		m_draw_color = (new_value > DANGER_ZONE) ? NORMAL : (new_value > 0 ? WARNING : CRITICAL);
 	}
 
 	
@@ -163,7 +176,7 @@ namespace Tmpl8
 		visible_layer->Bar(m_box_start.x, m_box_start.y, m_box_end.x, m_box_end.y, BLACK);
 		visible_layer->Box(m_box_start.x, m_box_start.y, m_box_end.x, m_box_end.y, m_draw_color, true, m_flash_opacity);
 
-		m_heart_sprite.Draw(visible_layer, m_heart_start.x, m_heart_start.y, true, m_flash_opacity);
+		DrawIcon(visible_layer);
 
 		m_value_sprite.DrawScaled(m_value_start.x, m_value_start.y, m_value_scaled_width, m_value_scaled_height, visible_layer);
 
@@ -173,6 +186,26 @@ namespace Tmpl8
 			m_tutorial_message_layer.Clear(0x00000000);
 			m_tutorial_message_layer.Print(&(m_tutorial_message)[0], 0, 0, m_draw_color, true, m_tutorial_message_opacity);
 			m_tutorial_message_sprite.DrawScaled(m_tutorial_message_start.x, m_tutorial_message_start.y, m_tutorial_message_scaled_width, m_tutorial_message_scaled_height, visible_layer);
+		}
+	}
+
+
+	void LifeHUD::DrawIcon(Surface* visible_layer)
+	{
+		Pixel* s_pix = m_icon_layer.GetBuffer();
+		Pixel* d_pix = visible_layer->GetBuffer() + static_cast<int>(m_icon_start.x + (m_icon_start.y * visible_layer->GetPitch()));
+
+		for (int y{ 0 }; y < m_icon_layer.GetHeight(); ++y)
+		{
+			for (int x{ 0 }; x < m_icon_layer.GetWidth(); ++x)
+			{
+				if (s_pix[x] == 0xFFFFFFFF)
+				{
+					d_pix[x] = MixAlpha(m_draw_color, m_flash_opacity, 0xFF000000, false);
+				}				
+			}
+			s_pix += m_icon_layer.GetPitch();
+			d_pix += visible_layer->GetPitch();
 		}
 	}
 }

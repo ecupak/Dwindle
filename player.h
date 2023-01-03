@@ -84,6 +84,7 @@ namespace Tmpl8 {
 		int GetStartingLife();
 		
 		void SetIsTutorialMode(bool is_tutorial_mode) { m_is_tutorial_mode = is_tutorial_mode; }
+		void DisableCollisionChecking(bool is_disabled) { m_is_collision_state_disabled = is_disabled; }
 			
 
 	private:
@@ -152,7 +153,7 @@ namespace Tmpl8 {
 			Buffer is the minimum brightness set by user.
 			- Is only decreased during death (no affect on user experience).
 		*/
-		int m_player_max_strength{ 5 };
+		int m_player_max_strength{ 15 };
 		int m_player_min_brightness_buffer{ 5 };
 		int m_player_strength{ m_player_max_strength };
 		float m_player_brightness_buffer{ 1.0f * m_player_min_brightness_buffer };
@@ -227,6 +228,8 @@ namespace Tmpl8 {
 		bool m_is_echo_update_enabled{ true };
 		bool m_is_at_finish_line{ false };		
 		int m_life_restored_by_pickup{ 5 };
+
+		bool m_is_collision_state_disabled{ false };
 
 		std::vector<CollidableType> m_collidables_of_interest{
 			CollidableType::CAMERA

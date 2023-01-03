@@ -4,7 +4,7 @@
 namespace Tmpl8
 {
 	FullGlowOrb::FullGlowOrb(vec2 position, float player_strength, Surface* source_layer, Socket<GlowMessage>* glow_socket, bool is_safe_glow_needed) :
-		GlowOrb{ position, player_strength, CollidableType::FULL_GLOW, source_layer, m_collidables_of_interest, 1 },
+		GlowOrb{ position, player_strength, CollidableType::FULL_GLOW, source_layer, 1 },
 		m_glow_socket{ glow_socket }
 	{
 		SetCollidablesWantedBitflag(m_collidables_of_interest);

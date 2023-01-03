@@ -144,51 +144,29 @@ namespace Tmpl8
 	// -----------------------------------------------------------	
 	void Game::Tick(float deltaTime)
 	{
-		// Convert to seconds. If very slow comp, process at ~30 FPS minimum.
-		// Unlikely to break anything if larger deltaTime, but experience gets weird.
 		deltaTime = Clamp(deltaTime * 0.001f, 0.0f, 0.033f);
 
-		// See if anything has sent a message to game. Usually about player death or level completion.
+		// See if anything has sent a message to game (player death or level completion).
 		CheckSocketForNewMessages();
 
-		/*
-			Move player and check for collisions.
-			- Reposition if in obstacle.
-			- Trigger creation of new glow orb.
-			- Set new mode (ground/wall/ceiling).		
-		*/
-		//player.Update(deltaTime);
-		//collision_manager.UpdateCollisions(CollidableGroup::PLAYER);
-
-		// Update Level (move pickups up and down).
-		//level_manager.Update(deltaTime);
-
-		// Update GlowOrbs (destroy old, create new, update sizes).
-		//glow_manager.Update(deltaTime);
-
-		/*
-			Follow player if moved too far from center.
-			- Objects only drawn to screen if they collide with the viewport.
-		*/
+		// Move camera (child of viewport) to follow player.
 		viewport.Update(deltaTime);
-		// Update player.
+		
+		// User input moves player - may be clipping an object at this point.
 		player.Update(deltaTime);
-		// Update Level (move pickups up and down).
+		
+		// Update Level (basically powers the pickup animation).
 		level_manager.Update(deltaTime);
-		// Update GlowOrbs (destroy old, create new, update sizes).
+		
+		// Update GlowOrbs (destroy old, create new, update sizes, etc).
 		glow_manager.Update(deltaTime);
 
-		// Do collisions all at once.
+		// Do collisions in one pass. This will get player out of walls and figure out what the camera can see / will draw.
 		collision_manager.RunCollisionCycle();
-
-		/*
-			1. Draw objects the camera sees (glow orbs and pickups).
-			2. Draw player on top of everything else.
-			3. Draw rest of game overlay (HUD, pause menu, etc).
-		*/
-		viewport.Draw(deltaTime);	// SHOULD HOLD ALL SURFACES? OR CREATE SEPARATE SURFACE DATA CLASS?
+		
+		// Render whatever the camera has collided with based on its new position.
+		viewport.Draw(deltaTime);
 	}
-
 
 	// -----------------------------------------------------------
 	// Game socket/messaging check
@@ -306,7 +284,7 @@ namespace Tmpl8
 		// 'Orbs removed' and 'player in free-fall' must both happen first.
 		if (m_level_action_tracker == 2)
 		{
-			collision_manager.EnablePlayerCollisions(false);
+			player.DisableCollisionChecking(true);
 		}
 	}
 
@@ -318,7 +296,7 @@ namespace Tmpl8
 		player.TransitionToPosition(level_manager.GetPlayerStartPosition());
 		camera.SetPosition(level_manager.GetPlayerStartPosition());
 		camera.FadeIntoView();
-		collision_manager.EnablePlayerCollisions(true);
+		player.DisableCollisionChecking(false);
 	}
 
 

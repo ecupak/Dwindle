@@ -8,8 +8,7 @@
 #include "level.h"
 #include "text_repo.h"
 #include "glow_manager.h"
-//#include "collision_manager.h"
-#include "cm.h"
+#include "collision_manager.h"
 #include "viewport.h"
 #include "camera.h"
 
@@ -65,7 +64,7 @@ namespace Tmpl8
 		Player player;
 		Camera camera;		
 		Viewport viewport;
-		CollisionManager2 collision_manager;
+		CollisionManager collision_manager;
 		GlowManager glow_manager;
 		Level level_manager;
 		TextRepo text_repo;

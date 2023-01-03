@@ -76,11 +76,13 @@
     <ClCompile Include="message_box.cpp">
       <Filter>Level Files\Message Box</Filter>
     </ClCompile>
-    <ClCompile Include="permanent_glow_orb.cpp">
-      <Filter>Glow Files\Permanent Glow Orb</Filter>
+    <ClCompile Include="collision_processor.cpp" />
+    <ClCompile Include="pickup_glow_orb.cpp">
+      <Filter>Glow Files\Pickup Glow Orb</Filter>
     </ClCompile>
-    <ClCompile Include="light_pickup.cpp" />
-    <ClCompile Include="pickup_glow_orb.cpp" />
+    <ClCompile Include="light_pickup.cpp">
+      <Filter>Level Files\Light Pickup</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="surface.h">
@@ -186,11 +188,13 @@
     <ClInclude Include="message_box.h">
       <Filter>Level Files\Message Box</Filter>
     </ClInclude>
-    <ClInclude Include="permanent_glow_orb.h">
-      <Filter>Glow Files\Permanent Glow Orb</Filter>
+    <ClInclude Include="collision_processor.h" />
+    <ClInclude Include="pickup_glow_orb.h">
+      <Filter>Glow Files\Pickup Glow Orb</Filter>
     </ClInclude>
-    <ClInclude Include="light_pickup.h" />
-    <ClInclude Include="pickup_glow_orb.h" />
+    <ClInclude Include="light_pickup.h">
+      <Filter>Level Files\Light Pickup</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="template code">
@@ -277,11 +281,14 @@
     <Filter Include="Level Files\Message Box">
       <UniqueIdentifier>{89ff01a1-4fcd-4a45-88f2-7831269b9e9b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Glow Files\Permanent Glow Orb">
-      <UniqueIdentifier>{faebc812-279b-4a0d-834b-947c1dac02e4}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Game Files\Text Sprite Maker">
       <UniqueIdentifier>{a631c166-14a8-4640-8ab8-615b1e3bde05}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Glow Files\Pickup Glow Orb">
+      <UniqueIdentifier>{0c6824cb-7457-41c8-96c8-4e6c5b1e7e91}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Level Files\Light Pickup">
+      <UniqueIdentifier>{61230fe0-f1c9-4cfa-8108-50899cb3ff86}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

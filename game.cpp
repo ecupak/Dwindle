@@ -29,6 +29,7 @@ namespace Tmpl8
 	void Game::Init()
 	{
 		RegisterSockets();
+		InitLevelManager();
 		InitGlowManager();
 		InitPlayer();
 
@@ -46,6 +47,12 @@ namespace Tmpl8
 		m_camera_socket = camera.GetCameraSocket();
 		m_viewport_socket = viewport.GetViewportSocket();
 		m_life_socket = viewport.GetLifeHUDSocket();
+	}
+
+
+	void Game::InitLevelManager()
+	{
+		level_manager.RegisterGlowSocket(m_glow_socket);
 	}
 
 
@@ -81,7 +88,6 @@ namespace Tmpl8
 		
 	void Game::PrepareLevel()
 	{		
-		//level_manager.RegisterGlowSocket(m_glow_socket);
 		level_manager.CreateLevel(level_id); // starts at 0 = tutorial.		
 	}
 
@@ -92,10 +98,12 @@ namespace Tmpl8
 		glow_manager.SetObstacleLayer(level_manager.GetObstacleLayer());
 	}
 
+
 	void Game::PreparePlayer()
 	{
 		player.SetIsTutorialMode(level_id == 0);
 	}
+
 
 	void Game::PrepareCollisionManager()
 	{		
@@ -136,6 +144,9 @@ namespace Tmpl8
 		*/
 		player.Update(deltaTime);
 		collision_manager.UpdateCollisions(CollidableGroup::PLAYER);
+
+		// Update Level (move pickups up and down).
+		level_manager.Update(deltaTime);
 
 		// Update GlowOrbs (destroy old, create new, update sizes).
 		glow_manager.Update(deltaTime);

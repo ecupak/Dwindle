@@ -38,6 +38,7 @@ namespace Tmpl8
 		vec2 center{ 0.0f, 0.0f };
 		int m_id{ 0 };
 		CollidableType m_object_type{ CollidableType::UNKNOWN };
+		bool m_is_active{ true };
 
 	private:
 		static int id_generator;

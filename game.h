@@ -32,6 +32,7 @@ namespace Tmpl8
 
 	private:
 		void RegisterSockets();
+		void InitLevelManager();
 		void InitGlowManager();
 		void InitPlayer();
 		

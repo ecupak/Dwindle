@@ -61,6 +61,18 @@ namespace Tmpl8
 	}
 
 
+	void Level::Update(float deltaTime)
+	{
+		for (LightPickup& pickup : m_pickups)
+		{
+			if (pickup.m_is_active)
+			{
+				pickup.Update(deltaTime);
+			}
+		}
+	}
+
+
 	void Level::CreateLayers()
 	{
 		// Copy bg to the map layer and draw obstacles on top.
@@ -437,18 +449,15 @@ namespace Tmpl8
 
 
 	void Level::CreatePickup(int x, int y)
-	{
-		/*Pickup pickup{ x, y, TILE_SIZE, CollidabelType::Pickup, m_light_pickup };
+	{		
+		LightPickup pickup{ x, y, TILE_SIZE, CollidableType::PICKUP, m_light_pickup, m_glow_socket };
 
-		m_obstacles.push_back(obstacle);*/
+		m_pickups.push_back(pickup);
 	}
 
 
 	void Level::AddExitSign(int x, int y, std::string image_path)
 	{
-		//Sprite sprite{ new Surface(&image_path[0]), 1, true };
-		//sprite.Draw(&m_revealed_layer, x * TILE_SIZE, y * TILE_SIZE);
-
 		Surface surface{ &image_path[0] };
 		surface.CopyTo(&m_revealed_layer, x * TILE_SIZE, y * TILE_SIZE);
 	}

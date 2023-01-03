@@ -306,10 +306,14 @@ namespace Tmpl8
 		vec2 delta_position{ 0.0f, 0.0f };
 		vec2 ricochet_velocity{ 0.0f, 0.0f };
 		
+		
 		// Get change in position after collision, and the new mode.
 		for (DetectorPoint& point : points)		
-		{		
+		{	
+			//m_collision_processor.SetPointToProcess(point);
+			//m_collision_processor.CheckPointForCollisions();
 
+			// Check for finish line collision.
 			if (state == State::ALIVE && point.m_is_at_finish_line)
 			{
 				state = State::DEAD;
@@ -327,6 +331,14 @@ namespace Tmpl8
 				m_game_socket->SendMessage(GameMessage{ GameAction::LEVEL_COMPLETE });
 			}
 
+			// Gain life and update life hud.
+			if (point.m_is_on_pickup)
+			{
+				m_player_strength += m_life_restored_by_pickup;
+				m_life_socket->SendMessage(LifeMessage{ LifeAction::UPDATE, m_player_strength, 1.0f * Max(m_player_strength, m_player_min_brightness_buffer) / m_player_max_strength });
+			}
+
+			// Check for surface collisions.
 			if (point.CheckForCollisions())
 			{
 				/*
@@ -359,6 +371,22 @@ namespace Tmpl8
 				}
 			}
 		}
+
+		//if (m_collision_processor.HasCollision)
+		//{
+		//	// Let this be done by enclosing class. CollisionProcessor should not direct the detector points (even tho it could).
+		//	for (DetectorPoint& point : points)
+		//	{
+		//		point.ApplyDeltaPosition(delta_position);
+		//	}
+		//}
+		//
+		//// Same deal. Detector points are only managed by the player class.
+		//for (DetectorPoint& point : points)
+		//{
+		//	point.ClearCollisions();
+		//}
+		//
 
 		// If at least 1 axis is not 0, there was a collision that needs to be handled.
 		if (delta_position.x != 0.0f || delta_position.y != 0.0f)

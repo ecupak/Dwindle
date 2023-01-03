@@ -11,7 +11,6 @@ namespace Tmpl8
 		GlowOrb{ position, player_strength, CollidableType::TEMP_GLOW, source_layer }
 	{
 		radius_max = 100.0f;
-		//delay_max = 0.15f;
 		delay = delay_max;
 	}
 

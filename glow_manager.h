@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <memory>
+#include <functional>
 
 #include "collision_socket.h"
 #include "game_socket.h"
@@ -11,7 +12,6 @@
 #include "full_glow_orb.h"
 #include "temp_glow_orb.h"
 #include "safe_glow_orb.h"
-#include "permanent_glow_orb.h"
 
 
 namespace Tmpl8
@@ -37,7 +37,9 @@ namespace Tmpl8
 	private:
 		void ProcessMessages();
 		void CreateGlowOrb(GlowMessage& message);
+		void RemoveGlowOrb(GlowMessage& message);
 		void RemoveExpiredGlowOrb(std::vector<std::shared_ptr<GlowOrb>>::const_iterator index_it);
+		void FindAndRemove(std::function<bool(std::shared_ptr<GlowOrb>& orb)> search_fn);
 
 		bool m_is_orb_list_changed{ false };
 		bool m_is_resetting_level{ false };

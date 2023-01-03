@@ -254,7 +254,8 @@ namespace Tmpl8
 		{
 			for (std::size_t priorFoci{ 0 }; priorFoci < priorFocusList.size(); priorFoci++)	// Go thorugh list of things to the left of the focus.
 			{
-				if (collidables[focus]->left > priorFocusList[priorFoci]->right)		// If focus and prior focus don't overlap, erase prior focus.
+				// If focus and prior focus don't overlap, erase prior focus.
+				if (collidables[focus]->left > priorFocusList[priorFoci]->right)
 				{
 					priorFocusList.erase(priorFocusList.begin() + priorFoci);
 					/*
@@ -263,7 +264,8 @@ namespace Tmpl8
 					*/
 					priorFoci--; 
 				}
-				else if (collidables[focus]->m_object_type != priorFocusList[priorFoci]->m_object_type)	// We don't care if objects of the same type touch.
+				// Register overlap as long as objects are different types and focus is in an active state.
+				else if (collidables[focus]->m_object_type != priorFocusList[priorFoci]->m_object_type && collidables[focus]->m_is_active)	
 				{
 					std::vector<Collidable*> collisionPair;
 					collisionPair.push_back(collidables[focus]);

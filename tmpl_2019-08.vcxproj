@@ -240,9 +240,9 @@
     <ClCompile Include="light_pickup.cpp" />
     <ClCompile Include="message_box.cpp" />
     <ClCompile Include="obstacle.cpp" />
-    <ClCompile Include="permanent_glow_orb.cpp" />
     <ClCompile Include="pickup_glow_orb.cpp" />
     <ClCompile Include="player.cpp" />
+    <ClCompile Include="collision_processor.cpp" />
     <ClCompile Include="player_echo.cpp" />
     <ClCompile Include="safe_glow_orb.cpp" />
     <ClCompile Include="second_echo.cpp" />
@@ -274,8 +274,8 @@
     <ClInclude Include="life_socket.h" />
     <ClInclude Include="light_pickup.h" />
     <ClInclude Include="message_box.h" />
-    <ClInclude Include="permanent_glow_orb.h" />
     <ClInclude Include="pickup_glow_orb.h" />
+    <ClInclude Include="collision_processor.h" />
     <ClInclude Include="player_echo.h" />
     <ClInclude Include="safe_glow_orb.h" />
     <ClInclude Include="second_echo.h" />

@@ -5,6 +5,7 @@
 #include "key_state.h"
 #include "collidable.h"
 #include "detector_point.h"
+//#include "collision_processor.h" inner class for later.
 
 #include "game_socket.h"
 #include "glow_socket.h"
@@ -65,7 +66,7 @@ namespace Tmpl8 {
 		void TransitionToPosition(vec2& new_position);
 
 		std::vector<DetectorPoint>& GetCollisionPoints();
-		virtual void ResolveCollision(Collidable*& collision);
+		void ResolveCollision(Collidable*& collision) override;
 		void ProcessCollisions();
 		
 		// Point method test.
@@ -132,8 +133,9 @@ namespace Tmpl8 {
 		/* ATTRIBUTES */
 		int m_frame_id{ 0 };
 		
+		//CollisionProcessor m_collision_processor{ *this };
 		FirstEcho m_player_echo;
-		//std::shared_ptr<PlayerGlowOrb> m_player_glow_orb;
+		
 
 		Socket<GameMessage>* m_game_socket{ nullptr };
 		Socket<GlowMessage>* m_glow_socket{ nullptr };
@@ -220,5 +222,6 @@ namespace Tmpl8 {
 
 		bool m_is_echo_update_enabled{ true };
 		bool m_is_at_finish_line{ false };		
+		int m_life_restored_by_pickup{ 5 };
 	};
 }

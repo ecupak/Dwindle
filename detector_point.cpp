@@ -94,25 +94,23 @@ namespace Tmpl8
 			|| collision->m_object_type == CollidableType::PERM_GLOW
 			|| (collision->m_object_type == CollidableType::FINISH_LINE && m_state == State::DEAD && m_is_at_finish_line == false))
 		{
-			m_obstacles.push_back(collision);
-			m_interaction_type = InteractionType::SURFACE;
+			m_obstacles.push_back(collision);			
 		}		
 		// We hit a safe zone - don't lose life if hitting a surface.
 		else if (collision->m_object_type == CollidableType::SAFE_GLOW
 			|| collision->m_object_type == CollidableType::PERM_GLOW)
 		{
-			m_glow_orbs.push_back(collision);
-			m_interaction_type = InteractionType::SAFETY;
+			m_glow_orbs.push_back(collision);			
 		}
 		// We hit a pickup - gain life.
 		else if (collision->m_object_type == CollidableType::PICKUP)
 		{
-			m_interaction_type = InteractionType::PICKUP;
+			m_is_on_pickup = true;
 		}
 		// We crossed the level exit - trigger transition steps.
 		else if (m_state == State::ALIVE && collision->m_object_type == CollidableType::FINISH_LINE)
 		{
-			m_interaction_type = InteractionType::LEVEL_END;
+			m_is_at_finish_line = true;
 		}
 	}
 
@@ -160,6 +158,8 @@ namespace Tmpl8
 		{
 			m_glow_orbs.clear();
 		}
+
+		ResetValues();
 	}
 
 
@@ -179,13 +179,18 @@ namespace Tmpl8
 	}
 
 
-	bool DetectorPoint::CheckForCollisions()
+	void DetectorPoint::ResetValues()
 	{
 		delta_position.x = 0.0f;
 		delta_position.y = 0.0f;
-		is_part_of_collision = false;
+		m_is_collision_detected = false;
+		m_is_on_pickup = false;
 		new_mode = NONE;
+	}
 
+
+	bool DetectorPoint::CheckForCollisions()
+	{
 		if (m_obstacles.size() == 0)
 			return false;
 		
@@ -332,12 +337,9 @@ namespace Tmpl8
 				break;
 			}
 
-			return true;
-		}
-		else // Even though collision boxes overlapped, the path of the point did not cross another object.
-		{
-			return false;
-		}
+			m_is_collision_detected = true;
+		}		
+		return m_is_collision_detected;
 	}
 
 

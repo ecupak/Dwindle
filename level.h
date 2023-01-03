@@ -10,6 +10,7 @@
 
 #include "collidable.h"
 #include "obstacle.h"
+#include "light_pickup.h"
 
 #include "glow_socket.h"
 #include "collision_socket.h"
@@ -29,8 +30,10 @@ namespace Tmpl8
 	public:
 		Level(TextRepo& text_repo);
 
+		void Update(float deltaTime);
+
 		void CreateLevel(int level_id);
-		void CreateLayers();
+		
 		vec2& GetPlayerStartPosition();
 		vec2 GetBounds();
 
@@ -48,6 +51,7 @@ namespace Tmpl8
 
 	private:
 		// METHODS
+		void CreateLayers();
 		void ResetLevel();
 		void ResizeSurfaces();
 		void CreateComponents();
@@ -75,14 +79,15 @@ namespace Tmpl8
 
 		// ATTRIBUTES
 		Surface m_tilemap_smooth{"assets/tilemap_smooth_64x.png"};
-		Surface m_tilemap_rough{ "assets/tilemap_rough.png" };
+		Surface m_tilemap_rough{ "assets/tilemap_rough.png" };		
+		Surface m_light_pickup{ "assets/light.png" };
 		char* bg{ "assets/noise_robson_1280.png" }; // credit: https://robson.plus/white-noise-image-generator/	
-		Sprite m_light_pickup{ new Surface("assets/light.png"), 1, true };
 
-		std::vector<Obstacle> m_obstacles;
-		std::vector<Collidable*> m_player_collidables;		
-		std::vector<MessageBox> m_message_boxes;
+		std::vector<Obstacle> m_obstacles;		
 		std::vector<Collidable> m_finish_lines;
+		std::vector<LightPickup> m_pickups;
+		std::vector<Collidable*> m_player_collidables;
+		std::vector<MessageBox> m_message_boxes;
 
 		//level_blueprint m_current_level_blueprint{ 0, 0, 10, 10 };
 		

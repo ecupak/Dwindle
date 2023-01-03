@@ -19,7 +19,7 @@ namespace Tmpl8
 	{
 		UpdateByPhase(deltaTime);
 		UpdateBounds();
-		is_expired = (opacity <= 0.0f);
+		m_is_active = (opacity <= 0.0f);
 	}
 
 

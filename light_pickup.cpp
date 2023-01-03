@@ -2,9 +2,9 @@
 
 namespace Tmpl8
 {
-	LightPickup::LightPickup(int x, int y, int TILE_SIZE, CollidableType object_type, Surface& image, GlowOrb& glow_orb) :
+	LightPickup::LightPickup(int x, int y, int TILE_SIZE, CollidableType object_type, Surface& image, Socket<GlowMessage>* glow_socket) :
 		m_image{ image },
-		m_glow_orb{ glow_orb }
+		m_glow_socket{ glow_socket }
 	{
 		left = x * TILE_SIZE;
 		right = left + TILE_SIZE - 1;
@@ -17,6 +17,8 @@ namespace Tmpl8
 		};
 
 		m_object_type = object_type;
+
+		m_glow_socket->SendMessage(GlowMessage{ GlowAction::MAKE_ORB, center, 1.0f, CollidableType::PICKUP_GLOW, m_id });
 	}
 
 
@@ -31,6 +33,17 @@ namespace Tmpl8
 		}
 
 		center.x = (m_elapsed_time * m_elapsed_time) * (3 - (2 * m_elapsed_time));
+	}
+
+
+	void LightPickup::ResolveCollision(Collidable*& collision)
+	{
+		// If touched by player, mark for removal and tell accompanying glow orb to start fading away.
+		m_is_active = false;
+		if (collision->m_object_type == CollidableType::PLAYER)
+		{
+			m_glow_socket->SendMessage(GlowMessage{ GlowAction::REMOVE_ORB, m_id });
+		}
 	}
 
 

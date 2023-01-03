@@ -40,9 +40,11 @@ namespace Tmpl8
 		vec2& GetNewVelocity();
 		void UpdatePreviousPosition();
 		void ClearCollisions();
+		void ResetValues();
+		
 		void UpdateState(State new_state);
 
-		bool is_part_of_collision{ false };
+		bool m_is_collision_detected{ false };
 
 		vec2 position;
 		vec2 prev_position;
@@ -60,6 +62,7 @@ namespace Tmpl8
 		int new_mode{ 0 };
 		bool m_is_safe_glow_needed{ false };
 		bool m_is_at_finish_line{ false };
+		bool m_is_on_pickup{ false };
 		bool isRicochetCollision{ false };
 
 		InteractionType m_interaction_type{ InteractionType::NONE };

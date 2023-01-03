@@ -1,7 +1,5 @@
 #include "glow_manager.h"
 
-#include <cstdio> //printf
-
 
 namespace Tmpl8
 {
@@ -45,7 +43,7 @@ namespace Tmpl8
 			m_collision_socket->SendMessage(CollisionMessage{ CollisionAction::UPDATE_ORB_LIST, m_collidables });
 		}
 
-		if (m_is_resetting_level && m_orbs.size() == 0) // Player glow orb is not included.
+		if (m_is_resetting_level && m_orbs.size() == 0)
 		{
 			m_game_socket->SendMessage(GameMessage{ GameAction::ORBS_REMOVED });
 			m_is_resetting_level = false;
@@ -67,16 +65,16 @@ namespace Tmpl8
 		{
 			auto orb_it{ m_orbs.begin() + index };
 
-			if ((**orb_it).IsExpired())
-			{
-				m_is_orb_list_changed = true;
-				RemoveExpiredGlowOrb(m_orbs.begin() + index);
-				index--;
-			}
-			else
+			if ((**orb_it).m_is_active)
 			{
 				(**orb_it).Update(deltaTime);
 				m_collidables.push_back(&(**orb_it));
+			}
+			else
+			{
+				RemoveExpiredGlowOrb(m_orbs.begin() + index);
+				index--;
+				m_is_orb_list_changed = true;
 			}
 		}
 	}
@@ -110,6 +108,9 @@ namespace Tmpl8
 				CreateGlowOrb(message);
 				m_is_orb_list_changed = true;
 				break;
+			case GlowAction::REMOVE_ORB:
+				RemoveGlowOrb(message);
+				break;
 			case GlowAction::LEVEL_RESET:
 				TriggerSafeOrbDestruction();
 				m_is_resetting_level = true;
@@ -140,16 +141,36 @@ namespace Tmpl8
 	}
 
 
+	void GlowManager::RemoveGlowOrb(GlowMessage& message)
+	{
+		// Remove 1 specific orb.
+		std::function<bool(std::shared_ptr<GlowOrb>& orb)> find_this{
+			[=](std::shared_ptr<GlowOrb>& orb) {return (*orb).m_id == message.m_parent_id;}
+		};
+
+		FindAndRemove(find_this);
+	}
+
+
 	void GlowManager::TriggerSafeOrbDestruction()
 	{
 		m_is_resetting_level = true;
 
+		// Remove all safe glow orbs.
+		std::function<bool(std::shared_ptr<GlowOrb>& orb)> find_all{
+			[=](std::shared_ptr<GlowOrb>& orb) {return (*orb).m_object_type == CollidableType::SAFE_GLOW;}
+		};			
+
+		FindAndRemove(find_all);
+	}
+
+
+	void GlowManager::FindAndRemove(std::function<bool(std::shared_ptr<GlowOrb>& orb)> search_fn)
+	{
 		auto orb_it{ m_orbs.begin() };
 		while (orb_it != m_orbs.end())
 		{
-			orb_it = std::find_if(orb_it, m_orbs.end(),
-				[=] (std::shared_ptr<GlowOrb>& orb) {return (*orb).m_object_type == CollidableType::SAFE_GLOW;}
-			);
+			orb_it = std::find_if(orb_it, m_orbs.end(), search_fn);
 
 			if (orb_it != m_orbs.end())
 			{

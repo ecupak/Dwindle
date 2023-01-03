@@ -2,7 +2,6 @@
 
 #include <vector>
 
-
 namespace Tmpl8
 {
 	template<typename T>

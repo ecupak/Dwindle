@@ -20,7 +20,7 @@ namespace Tmpl8
 		player{ leftKey, rightKey, upKey, downKey },
 		camera{ player },
 		viewport{ surface, camera },
-		collision_manager{ player, camera }
+		collision_manager{ }
 	{	}
 
 	// -----------------------------------------------------------
@@ -29,8 +29,11 @@ namespace Tmpl8
 	void Game::Init()
 	{
 		RegisterSockets();
+		InitLevelManager();
 		InitGlowManager();
 		InitPlayer();
+		InitCamera();
+		InitCollisionManager();
 
 		PrepareForNextLevel();
 
@@ -49,6 +52,13 @@ namespace Tmpl8
 	}
 
 
+	void Game::InitLevelManager()
+	{
+		level_manager.RegisterGlowSocket(m_glow_socket);
+		level_manager.RegisterCollisionSocket(m_collision_socket);
+	}
+
+
 	void Game::InitGlowManager()
 	{
 		glow_manager.RegisterGameSocket(&m_game_hub);
@@ -62,8 +72,20 @@ namespace Tmpl8
 		player.RegisterGlowSocket(m_glow_socket);
 		player.RegisterCameraSocket(m_camera_socket);
 		player.RegisterLifeSocket(m_life_socket);
+		player.RegisterCollisionSocket(m_collision_socket);
 	}
 
+	void Game::InitCamera()
+	{
+		camera.RegisterCollisionSocket(m_collision_socket);
+	}
+
+
+	void Game::InitCollisionManager()
+	{
+		player.RegisterWithCollisionManager();
+		camera.RegisterWithCollisionManager();
+	}
 
 	// -----------------------------------------------------------
 	// Set up the next level
@@ -81,7 +103,6 @@ namespace Tmpl8
 		
 	void Game::PrepareLevel()
 	{		
-		//level_manager.RegisterGlowSocket(m_glow_socket);
 		level_manager.CreateLevel(level_id); // starts at 0 = tutorial.		
 	}
 
@@ -92,14 +113,16 @@ namespace Tmpl8
 		glow_manager.SetObstacleLayer(level_manager.GetObstacleLayer());
 	}
 
+
 	void Game::PreparePlayer()
 	{
 		player.SetIsTutorialMode(level_id == 0);
 	}
 
+
 	void Game::PrepareCollisionManager()
-	{		
-		collision_manager.SetNewLevel(level_manager);
+	{	
+		collision_manager.PopulateLists();
 	}
 
 
@@ -134,18 +157,29 @@ namespace Tmpl8
 			- Trigger creation of new glow orb.
 			- Set new mode (ground/wall/ceiling).		
 		*/
-		player.Update(deltaTime);
-		collision_manager.UpdateCollisions(CollidableGroup::PLAYER);
+		//player.Update(deltaTime);
+		//collision_manager.UpdateCollisions(CollidableGroup::PLAYER);
+
+		// Update Level (move pickups up and down).
+		//level_manager.Update(deltaTime);
 
 		// Update GlowOrbs (destroy old, create new, update sizes).
-		glow_manager.Update(deltaTime);
+		//glow_manager.Update(deltaTime);
 
 		/*
 			Follow player if moved too far from center.
 			- Objects only drawn to screen if they collide with the viewport.
 		*/
 		viewport.Update(deltaTime);
-		collision_manager.UpdateCollisions(CollidableGroup::CAMERA); // MAKE COLLISION MANAGER A BASE CLASS. CAMERA AND PLAYER WILL BE SUBCLASSES.
+		// Update player.
+		player.Update(deltaTime);
+		// Update Level (move pickups up and down).
+		level_manager.Update(deltaTime);
+		// Update GlowOrbs (destroy old, create new, update sizes).
+		glow_manager.Update(deltaTime);
+
+		// Do collisions all at once.
+		collision_manager.RunCollisionCycle();
 
 		/*
 			1. Draw objects the camera sees (glow orbs and pickups).

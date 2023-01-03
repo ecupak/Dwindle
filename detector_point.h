@@ -31,7 +31,10 @@ namespace Tmpl8
 		void SetPosition(vec2& center, int radius);
 		void UpdatePosition(vec2& player_velocity, vec2& distance);
 		void UpdateCollisionBox();
-		void ResolveCollision(Collidable*& collision) override;
+		
+		void RegisterCollision(Collidable*& collision) override;
+		void ResolveCollisions() {};
+
 		bool CheckForCollisions();
 		vec2& GetDeltaPosition();
 		int GetNewMode();		
@@ -40,9 +43,11 @@ namespace Tmpl8
 		vec2& GetNewVelocity();
 		void UpdatePreviousPosition();
 		void ClearCollisions();
+		void ResetValues();
+		
 		void UpdateState(State new_state);
 
-		bool is_part_of_collision{ false };
+		bool m_is_collision_detected{ false };
 
 		vec2 position;
 		vec2 prev_position;
@@ -60,6 +65,7 @@ namespace Tmpl8
 		int new_mode{ 0 };
 		bool m_is_safe_glow_needed{ false };
 		bool m_is_at_finish_line{ false };
+		bool m_is_on_pickup{ false };
 		bool isRicochetCollision{ false };
 
 		InteractionType m_interaction_type{ InteractionType::NONE };
@@ -84,6 +90,14 @@ namespace Tmpl8
 
 		int collision_count{ 0 };
 		State m_state{ State::ALIVE };
+
+		std::vector<CollidableType> m_collidables_of_interest{
+			CollidableType::OBSTACLE,
+			CollidableType::PERM_GLOW,
+			CollidableType::PICKUP,
+			CollidableType::FINISH_LINE,
+			CollidableType::SAFE_GLOW,			
+		};
 	};
 };
 

@@ -21,10 +21,9 @@ namespace Tmpl8
 	{
 	public:
 		// METHODS.		
-		GlowOrb(vec2 position, float player_strength, CollidableType object_type, Surface* source_layer);
+		GlowOrb(vec2 position, float player_strength, CollidableType object_type, Surface* source_layer, std::vector<CollidableType> collidables_of_interest, int draw_order);
 		
 		void Update(float deltaTime);
-		bool IsExpired() { return is_expired; }
 		void Draw(Surface* viewable_layer, int c_left, int c_top, int in_left, int in_top, int in_right, int in_bottom) override;
 		virtual void SetPhase(Phase new_phase);
 
@@ -40,7 +39,6 @@ namespace Tmpl8
 
 		Phase phase{ Phase::WAXING };
 		float opacity{ 1.0f };
-		bool is_expired{ false };
 		float radius{ 1.0f };
 		
 		float m_player_strength{ 1.0f };
@@ -59,8 +57,7 @@ namespace Tmpl8
 	private:
 		// METHODS.
 		void UpdateByPhase(float deltaTime);
-				
-
+		
 		Surface* m_source_layer;
 	};
 };

@@ -19,5 +19,10 @@ namespace Tmpl8
 		void UpdateEveryPhase(float deltaTime) override;
 
 		unsigned int glow_color{ 0xFF00FF00 };
+
+		std::vector<CollidableType> m_collidables_of_interest{
+			CollidableType::CAMERA,
+			CollidableType::PLAYER_POINT,
+		};
 	};
 };

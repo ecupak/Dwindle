@@ -23,5 +23,9 @@ namespace Tmpl8
 
 		// ATTRIBUTES.		
 		Socket<GlowMessage>* m_glow_socket;
+
+		std::vector<CollidableType> m_collidables_of_interest{
+			CollidableType::CAMERA,
+		};
 	};
 };

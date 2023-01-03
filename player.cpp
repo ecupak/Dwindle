@@ -22,7 +22,7 @@ namespace Tmpl8
 	constexpr int WALL{ 2 };
 	constexpr int CEILING{ 4 };
 	/* Bitwise values of surface types. */
-	constexpr int SMOOTH{ 1 };
+	constexpr int OBSTACLE{ 1 };
 	constexpr int SMOOTH_CORNER{ 2 };
 	constexpr int ROUGH{ 4 };
 	constexpr int ROUGH_CORNER{ 8 };
@@ -30,6 +30,7 @@ namespace Tmpl8
 
 	// Constructor.
 	Player::Player(keyState& leftKey, keyState& rightKey, keyState& upKey, keyState& downKey) :
+		Collidable{ CollidableType::PLAYER, 10 },
 		m_sprite{ Sprite{new Surface("assets/ball.png"), 3, true} }, // player.png is 40px by 40px.
 		half_height{ m_sprite.GetHeight() / 2 },
 		half_width{ m_sprite.GetWidth() / 2 },
@@ -37,6 +38,8 @@ namespace Tmpl8
 		m_leftKey{ leftKey }, m_rightKey{ rightKey }, m_upKey{ upKey }, m_downKey{ downKey },
 		m_player_echo{ m_sprite }
 	{
+		SetCollidablesWantedBitflag(m_collidables_of_interest);
+
 		// Create array of points that will go around circle.
 		for (int i{ 0 }; i < POINTS; i++)
 		{
@@ -82,7 +85,7 @@ namespace Tmpl8
 		case Mode::CEILING:
 			updateCeiling();
 			break;
-		case Mode::REST:
+		case Mode::SUSPENDED:
 			break;
 		case Mode::FREE_FALL:
 			updateFreeFall();
@@ -291,14 +294,27 @@ namespace Tmpl8
 		m_life_socket = life_socket;
 	}
 	
-
-	void Player::ResolveCollision(Collidable*& collision)
+	
+	void Player::RegisterCollisionSocket(Socket<CollisionMessage>* collision_socket)
 	{
-		collisions.push_back(collision);
+		m_collision_socket = collision_socket;
 	}
 
 
-	void Player::ProcessCollisions()
+	void Player::RegisterWithCollisionManager()
+	{	
+		std::vector<Collidable*> m_point_collidables;
+		for (Collidable& collidable : points)
+		{
+			m_point_collidables.push_back(&collidable);
+		}
+
+		m_collision_socket->SendMessage(CollisionMessage{ CollisionAction::UPDATE_PLAYER_POINT_LIST, m_point_collidables });
+		m_collision_socket->SendMessage(CollisionMessage{ CollisionAction::UPDATE_UNIQUE_LIST, this });
+	}
+
+
+	void Player::ResolveCollisions()
 	{
 		int new_mode{ NONE };
 		bool is_ricochet_set{ false };
@@ -971,22 +987,23 @@ namespace Tmpl8
 
 
 	void Player::updateFreeFall()
-	{
-		if (velocity.y == max_velocity.y)
+	{		
+		if (velocity.y >= max_velocity.y)
 		{
 			++m_free_fall_frame_count;
 			if (m_free_fall_frame_count >= 30)
 			{
 				velocity.y = 0.0f;
 				m_is_echo_update_enabled = false;
+				mode = Mode::SUSPENDED;
 				m_game_socket->SendMessage(GameMessage{ GameAction::PLAYER_SUSPENDED });
 			}
 		}
-		else if (m_free_fall_frame_count < 30)
+		else // keep falling until max velocity reached.
 		{
 			updateVerticalMovement();
 		}
-
+		
 		// Keep pushing x velocity towards 0.
 		updateHorizontalMovement();
 	}

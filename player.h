@@ -10,6 +10,7 @@
 #include "game_socket.h"
 #include "glow_socket.h"
 #include "camera_socket.h"
+#include "collision_socket.h"
 #include "life_socket.h"
 
 #include "first_echo.h"
@@ -43,7 +44,7 @@ namespace Tmpl8 {
 		GROUND,
 		WALL,
 		CEILING,
-		REST,
+		SUSPENDED,
 		FREE_FALL,
 		NONE,
 	};
@@ -66,8 +67,7 @@ namespace Tmpl8 {
 		void TransitionToPosition(vec2& new_position);
 
 		std::vector<DetectorPoint>& GetCollisionPoints();
-		void ResolveCollision(Collidable*& collision) override;
-		void ProcessCollisions();
+		void ResolveCollisions() override;
 		
 		// Point method test.
 		std::vector<DetectorPoint> points;
@@ -77,6 +77,9 @@ namespace Tmpl8 {
 		void RegisterGlowSocket(Socket<GlowMessage>* glow_socket);
 		void RegisterCameraSocket(Socket<CameraMessage>* camera_socket);
 		void RegisterLifeSocket(Socket<LifeMessage>* life_socket);
+		void RegisterCollisionSocket(Socket<CollisionMessage>* collision_socket);
+		
+		void RegisterWithCollisionManager();
 
 		int GetStartingLife();
 		
@@ -141,6 +144,7 @@ namespace Tmpl8 {
 		Socket<GlowMessage>* m_glow_socket{ nullptr };
 		Socket<CameraMessage>* m_camera_socket{ nullptr };
 		Socket<LifeMessage>* m_life_socket{ nullptr };
+		Socket<CollisionMessage>* m_collision_socket{ nullptr };
 
 
 		/*
@@ -223,5 +227,9 @@ namespace Tmpl8 {
 		bool m_is_echo_update_enabled{ true };
 		bool m_is_at_finish_line{ false };		
 		int m_life_restored_by_pickup{ 5 };
+
+		std::vector<CollidableType> m_collidables_of_interest{
+			CollidableType::CAMERA
+		};
 	};
 }

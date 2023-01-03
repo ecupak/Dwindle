@@ -1,11 +1,17 @@
 #include "camera.h"
+
 #include <cmath>
+#include <algorithm>
+
 
 namespace Tmpl8
 {
 	Camera::Camera(Collidable& subject) :
+		Collidable{CollidableType::CAMERA, 0 },
 		m_subject{ subject }
 	{
+		SetCollidablesWantedBitflag(m_collidables_of_interest);
+
 		m_offset.x = floor(ScreenWidth * 0.5f);
 		m_offset.y = floor(ScreenHeight * 0.5f);
 	}
@@ -26,6 +32,18 @@ namespace Tmpl8
 	}
 
 
+	void Camera::RegisterCollisionSocket(Socket<CollisionMessage>* collision_socket)
+	{
+		m_collision_socket = collision_socket;
+	}
+
+
+	void Camera::RegisterWithCollisionManager()
+	{
+		m_collision_socket->SendMessage(CollisionMessage{ CollisionAction::UPDATE_UNIQUE_LIST, this });
+	}
+
+
 	void Camera::SetRevealedLayer(Surface& revealed_layer)
 	{
 		m_revealed_layer = &revealed_layer;
@@ -38,11 +56,18 @@ namespace Tmpl8
 	}
 
 
-	void Camera::ResolveCollision(Collidable*& collision)
+	void Camera::RegisterCollision(Collidable*& collision)
 	{
 		m_collisions.push_back(collision);
 	}
 	
+
+	void Camera::ResolveCollisions()
+	{
+		// Order by drawing layer. Low numbers are drawn first.
+		std::sort(m_collisions.begin(), m_collisions.end(),
+			[=](Collidable* a, Collidable* b) { return a->m_draw_order < b->m_draw_order; });
+	}
 
 	void Camera::FadeToBlack()
 	{
@@ -53,45 +78,6 @@ namespace Tmpl8
 	void Camera::FadeIntoView()
 	{
 		m_opacity = 1.0f;
-	}
-
-
-	void Camera::Draw(Surface* visible_layer)
-	{
-		// Set bounds constrained by screen boundary.
-		int inbound_left = Max(left, 0);
-		int inbound_right = Min(right, static_cast<int>(m_level_size.x) - 1);
-		int inbound_top = Max(top, 0);
-		int inbound_bottom = Min(bottom, static_cast<int>(m_level_size.y) - 1);
-
-		//Pixel* d_pix{ screen->GetBuffer() };
-		Pixel* destination_pix{ visible_layer->GetBuffer() + (inbound_left - left) + ((inbound_top - top) * visible_layer->GetPitch())};
-		Pixel* source_pix{ m_revealed_layer->GetBuffer() + inbound_left + (inbound_top * m_revealed_layer->GetPitch()) };
-				
-		for (int y{ inbound_top }; y < inbound_bottom; ++y)
-		{
-			for (int x{ 0 }; x < (inbound_right - inbound_left); ++x)
-			{
-				if (source_pix[x] > 0)
-				{
-					destination_pix[x] = MixAlpha(source_pix[x], m_opacity, 0xFF000000, false);
-				}
-			}
-			destination_pix += visible_layer->GetPitch();
-			source_pix += m_revealed_layer->GetPitch();
-		}
-
-		// Draw any part of a collidable that overlaps with view.
-		for (Collidable*& collision : m_collisions)
-		{
-			collision->Draw(visible_layer, left, top, inbound_left, inbound_top, inbound_right, inbound_bottom);
-		}
-		m_collisions.clear();
-
-		// Draw player (draw last so always on top).
-		m_subject.Draw(visible_layer, left, top, inbound_left, inbound_top, inbound_right, inbound_bottom);
-
-
 	}
 
 
@@ -186,5 +172,38 @@ namespace Tmpl8
 		right = center.x + m_offset.x;
 		top = center.y - m_offset.y;
 		bottom = center.y + m_offset.y;
+	}
+
+	void Camera::Draw(Surface* visible_layer)
+	{
+		// Set bounds constrained by screen boundary.
+		int inbound_left = Max(left, 0);
+		int inbound_right = Min(right, static_cast<int>(m_level_size.x) - 1);
+		int inbound_top = Max(top, 0);
+		int inbound_bottom = Min(bottom, static_cast<int>(m_level_size.y) - 1);
+
+		//Pixel* d_pix{ screen->GetBuffer() };
+		Pixel* destination_pix{ visible_layer->GetBuffer() + (inbound_left - left) + ((inbound_top - top) * visible_layer->GetPitch()) };
+		Pixel* source_pix{ m_revealed_layer->GetBuffer() + inbound_left + (inbound_top * m_revealed_layer->GetPitch()) };
+
+		for (int y{ inbound_top }; y < inbound_bottom; ++y)
+		{
+			for (int x{ 0 }; x < (inbound_right - inbound_left); ++x)
+			{
+				if (source_pix[x] > 0)
+				{
+					destination_pix[x] = MixAlpha(source_pix[x], m_opacity, 0xFF000000, false);
+				}
+			}
+			destination_pix += visible_layer->GetPitch();
+			source_pix += m_revealed_layer->GetPitch();
+		}
+
+		// Draw any part of a collidable that overlaps with view.
+		for (Collidable*& collision : m_collisions)
+		{
+			collision->Draw(visible_layer, left, top, inbound_left, inbound_top, inbound_right, inbound_bottom);
+		}
+		m_collisions.clear();
 	}
 };

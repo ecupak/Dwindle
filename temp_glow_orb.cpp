@@ -1,15 +1,13 @@
 #include "temp_glow_orb.h"
-#include "template.h"
-
-#include <cstdio> //printf
-#include <vector>
 
 
 namespace Tmpl8
 {
 	TempGlowOrb::TempGlowOrb(vec2 position, float player_strength, Surface* source_layer) :
-		GlowOrb{ position, player_strength, CollidableType::TEMP_GLOW, source_layer }
+		GlowOrb{ position, player_strength, CollidableType::TEMP_GLOW, source_layer, m_collidables_of_interest, 1 }
 	{
+		SetCollidablesWantedBitflag(m_collidables_of_interest);
+
 		radius_max = 100.0f;
 		delay = delay_max;
 	}

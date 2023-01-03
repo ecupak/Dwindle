@@ -51,10 +51,10 @@ namespace Tmpl8
 		switch (c_group)
 		{
 		case CollidableGroup::CAMERA:
-			m_camera.ProcessCollisions();
+			//m_camera.ProcessCollisions();
 			break;
 		case CollidableGroup::PLAYER:
-			m_player.ProcessCollisions();
+			//m_player.ProcessCollisions();
 			break;
 		}
 	}
@@ -93,7 +93,7 @@ namespace Tmpl8
 
 		CheckSocketForNewCollisionMessages();
 
-		if (m_is_glow_orb_list_updated)
+		if (m_is_glow_orb_list_updated) //should be a generic bool for any messages in hub.
 		{
 			GetCollidablesFromLevel(CollidableGroup::CAMERA);
 			AddUniqueElementToCollidables(CollidableGroup::CAMERA);
@@ -171,7 +171,7 @@ namespace Tmpl8
 			m_camera_collidables = m_glow_orb_collidables;
 			break;
 		case CollidableGroup::PLAYER:			
-			m_player_collidables = m_level->GetPlayerCollidables();			
+			//m_player_collidables = m_level->GetPlayerCollidables();			
 			break;
 		}
 	}
@@ -252,28 +252,32 @@ namespace Tmpl8
 
 		for (std::size_t focus{ 0 }; focus < collidables.size(); focus++)
 		{
-			for (std::size_t priorFoci{ 0 }; priorFoci < priorFocusList.size(); priorFoci++)	// Go thorugh list of things to the left of the focus.
+			// If focus is active, check for collisions. Otherwise, skip it (don't add to priorFocusList).
+			if (collidables[focus]->m_is_active)
 			{
-				// If focus and prior focus don't overlap, erase prior focus.
-				if (collidables[focus]->left > priorFocusList[priorFoci]->right)
+				for (std::size_t priorFoci{ 0 }; priorFoci < priorFocusList.size(); priorFoci++)	// Go thorugh list of things to the left of the focus.
 				{
-					priorFocusList.erase(priorFocusList.begin() + priorFoci);
-					/*
-						We removed an element and the remaining elements have all shifted over. So now there is
-						a new element at this same index. To check this index again, we must step back 1 first.
-					*/
-					priorFoci--; 
+					// If focus and prior focus don't overlap, erase prior focus.
+					if (collidables[focus]->left > priorFocusList[priorFoci]->right)
+					{
+						priorFocusList.erase(priorFocusList.begin() + priorFoci);
+						/*
+							We removed an element and the remaining elements have all shifted over. So now there is
+							a new element at this same index. To check this index again, we must step back 1 first.
+						*/
+						priorFoci--;
+					}
+					// Register overlap as long as objects are different types.
+					else if (collidables[focus]->m_object_type != priorFocusList[priorFoci]->m_object_type)
+					{
+						std::vector<Collidable*> collisionPair;
+						collisionPair.push_back(collidables[focus]);
+						collisionPair.push_back(priorFocusList[priorFoci]);
+						allPairs.push_back(collisionPair);
+					}
 				}
-				// Register overlap as long as objects are different types and focus is in an active state.
-				else if (collidables[focus]->m_object_type != priorFocusList[priorFoci]->m_object_type && collidables[focus]->m_is_active)	
-				{
-					std::vector<Collidable*> collisionPair;
-					collisionPair.push_back(collidables[focus]);
-					collisionPair.push_back(priorFocusList[priorFoci]);
-					allPairs.push_back(collisionPair);
-				}
+				priorFocusList.push_back(collidables[focus]);	// Add current focus to list of prior foci to now be checked against the next foci.
 			}
-			priorFocusList.push_back(collidables[focus]);	// Add current focus to list of prior foci to now be checked against the next foci.
 		}
 		return allPairs;
 	}
@@ -307,8 +311,8 @@ namespace Tmpl8
 
 		for (std::vector<Collidable*>& collision : collisions)
 		{
-			collision.front()->ResolveCollision(collision.back());
-			collision.back()->ResolveCollision(collision.front());
+		//	collision.front()->ResolveCollision(collision.back());
+		//	collision.back()->ResolveCollision(collision.front());
 		}
 	}
 

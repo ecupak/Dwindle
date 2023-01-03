@@ -11,6 +11,7 @@
 #include "collidable.h"
 #include "obstacle.h"
 #include "light_pickup.h"
+#include "finish_line.h"
 
 #include "glow_socket.h"
 #include "collision_socket.h"
@@ -31,15 +32,12 @@ namespace Tmpl8
 		Level(TextRepo& text_repo);
 
 		void Update(float deltaTime);
+		void Draw();
 
 		void CreateLevel(int level_id);
 		
 		vec2& GetPlayerStartPosition();
 		vec2 GetBounds();
-
-		// Player collidables are interactable things. The obstacles.
-		// The light pickups.
-		std::vector<Collidable*>& GetPlayerCollidables();
 
 		void RegisterCollisionSocket(Socket<CollisionMessage>* collision_socket);
 		void RegisterGlowSocket(Socket<GlowMessage>* glow_socket);
@@ -54,10 +52,13 @@ namespace Tmpl8
 		void CreateLayers();
 		void ResetLevel();
 		void ResizeSurfaces();
+
 		void CreateComponents();
 		void CreateComponentsFromBlueprint();
 		void CreateComponentAtPosition(BlueprintCode& blueprint_code, int x, int y);
-		void CreateCollidablesList();
+		void CreateCollidableLists();
+		void SendCollidableLists();
+
 		void SetPlayerStartPosition(int x, int y);
 		void CreateObstacle(int x, int y, int tile_id);
 		void CreateMessageBoxes();
@@ -84,9 +85,11 @@ namespace Tmpl8
 		char* bg{ "assets/noise_robson_1280.png" }; // credit: https://robson.plus/white-noise-image-generator/	
 
 		std::vector<Obstacle> m_obstacles;		
-		std::vector<Collidable> m_finish_lines;
+		std::vector<FinishLine> m_finish_lines;
 		std::vector<LightPickup> m_pickups;
-		std::vector<Collidable*> m_player_collidables;
+		std::vector<Collidable*> m_obstacle_collidables;
+		std::vector<Collidable*> m_finish_line_collidables;
+		std::vector<Collidable*> m_pickup_collidables;
 		std::vector<MessageBox> m_message_boxes;
 
 		//level_blueprint m_current_level_blueprint{ 0, 0, 10, 10 };

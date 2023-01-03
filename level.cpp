@@ -45,7 +45,8 @@ namespace Tmpl8
 		m_level_id = level_id;
 
 		CreateComponents();
-		CreateCollidablesList();
+		CreateCollidableLists();
+		SendCollidableLists();
 		CreateMessageBoxes();
 		CreateLayers();
 	}
@@ -53,11 +54,14 @@ namespace Tmpl8
 	
 	void Level::ResetLevel()
 	{
-		m_player_collidables.clear();
-		m_finish_lines.clear();
-		m_obstacles.clear();
-
 		m_message_boxes.clear();
+		m_obstacles.clear();
+		m_finish_lines.clear();
+		m_pickups.clear();
+
+		m_obstacle_collidables.clear();
+		m_finish_line_collidables.clear();
+		m_pickup_collidables.clear();		
 	}
 
 
@@ -119,7 +123,7 @@ namespace Tmpl8
 	{	
 		for (Obstacle& obstacle : m_obstacles)
 		{
-			if (!(obstacle.m_is_revealed))
+			if (obstacle.m_object_type == CollidableType::OBSTACLE)
 			{
 				obstacle.Draw(&m_obstacle_layer);
 				obstacle.ApplyBitwiseOverlap();
@@ -132,7 +136,7 @@ namespace Tmpl8
 	{
 		for (Obstacle& obstacle : m_obstacles)
 		{			
-			if (obstacle.m_is_revealed)
+			if (obstacle.m_object_type == CollidableType::PERM_GLOW)
 			{
 				obstacle.Draw(&m_revealed_layer);
 				obstacle.ApplyBitwiseOverlap();
@@ -149,6 +153,7 @@ namespace Tmpl8
 			}
 		}
 	}
+
 
 	Surface& Level::GetMapLayer() 
 	{ 
@@ -171,12 +176,6 @@ namespace Tmpl8
 	vec2 Level::GetBounds()
 	{
 		return vec2{ 1.0f * m_map_layer.GetWidth(), 1.0f * m_map_layer.GetHeight() };
-	}
-
-
-	std::vector<Collidable*>& Level::GetPlayerCollidables()
-	{
-		return m_player_collidables;
 	}
 
 
@@ -284,19 +283,32 @@ namespace Tmpl8
 	}
 
 
-	void Level::CreateCollidablesList()
+	void Level::CreateCollidableLists()
 	{
 		// Add obstacles that can interact with player to collidables list.
 		for (Obstacle& obstacle : m_obstacles)
 		{
 			if (obstacle.m_object_type != CollidableType::UNREACHABLE)
-				m_player_collidables.push_back(&obstacle);
+				m_obstacle_collidables.push_back(&obstacle);
+		}
+
+		for (LightPickup& pickup : m_pickups)
+		{
+			m_pickup_collidables.push_back(&pickup);
 		}
 
 		for (Collidable& finish_line : m_finish_lines)
 		{
-			m_player_collidables.push_back(&finish_line);
+			m_finish_line_collidables.push_back(&finish_line);
 		}
+	}
+
+
+	void Level::SendCollidableLists()
+	{
+		m_collision_socket->SendMessage(CollisionMessage{ CollisionAction::UPDATE_OBSTACLE_LIST, m_obstacle_collidables });
+		m_collision_socket->SendMessage(CollisionMessage{ CollisionAction::UPDATE_PICKUP_LIST, m_pickup_collidables });
+		m_collision_socket->SendMessage(CollisionMessage{ CollisionAction::UPDATE_FINISH_LINE_LIST, m_finish_line_collidables });
 	}
 
 
@@ -362,7 +374,7 @@ namespace Tmpl8
 			switch (tile_id)
 			{
 			case OBSTACLE_TILE:			
-				return CollidableType::SMOOTH;				
+				return CollidableType::OBSTACLE;				
 			case SAFE_TILE:
 				return CollidableType::PERM_GLOW;
 			}
@@ -465,7 +477,7 @@ namespace Tmpl8
 
 	void Level::CreateFinishBlock(int x, int y)
 	{
-		Collidable finish_line{ x, y, TILE_SIZE, CollidableType::FINISH_LINE };
+		FinishLine finish_line{ x, y, TILE_SIZE, CollidableType::FINISH_LINE };
 
 		m_finish_lines.push_back(finish_line);
 	}

@@ -8,7 +8,8 @@
 #include "level.h"
 #include "text_repo.h"
 #include "glow_manager.h"
-#include "collision_manager.h"
+//#include "collision_manager.h"
+#include "cm.h"
 #include "viewport.h"
 #include "camera.h"
 
@@ -35,7 +36,9 @@ namespace Tmpl8
 		void InitLevelManager();
 		void InitGlowManager();
 		void InitPlayer();
-		
+		void InitCamera();
+		void InitCollisionManager();
+
 		void PrepareForNextLevel();
 		void PrepareLevel();
 		void PrepareGlowManager();
@@ -62,7 +65,7 @@ namespace Tmpl8
 		Player player;
 		Camera camera;		
 		Viewport viewport;
-		CollisionManager collision_manager;
+		CollisionManager2 collision_manager;
 		GlowManager glow_manager;
 		Level level_manager;
 		TextRepo text_repo;

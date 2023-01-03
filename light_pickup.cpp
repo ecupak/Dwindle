@@ -3,22 +3,29 @@
 namespace Tmpl8
 {
 	LightPickup::LightPickup(int x, int y, int TILE_SIZE, CollidableType object_type, Surface& image, Socket<GlowMessage>* glow_socket) :
+		Collidable{ object_type, 3, GetCenter(x, y, TILE_SIZE) },
 		m_image{ image },
 		m_glow_socket{ glow_socket }
 	{
-		left = x * TILE_SIZE;
-		right = left + TILE_SIZE - 1;
-		top = y * TILE_SIZE;
-		bottom = top - TILE_SIZE - 1;
+		SetCollidablesWantedBitflag(m_collidables_of_interest);
 
-		center = vec2{
-			left + TILE_SIZE / 2.0f,
-			top + TILE_SIZE / 2.0f
-		};
+		m_half_height = static_cast<int>(m_image.GetHeight() * 0.5f);
 
-		m_object_type = object_type;
+		left = static_cast<int>(floor(center.x - (m_image.GetWidth() / 2.0f)));
+		right = left + m_image.GetWidth();
+		top = static_cast<int>(floor(center.y - m_half_height));
+		bottom = top + m_image.GetHeight();
 
 		m_glow_socket->SendMessage(GlowMessage{ GlowAction::MAKE_ORB, center, 1.0f, CollidableType::PICKUP_GLOW, m_id });
+	}
+
+
+	vec2 LightPickup::GetCenter(int x, int y, int TILE_SIZE)
+	{
+		return vec2{
+			(x * TILE_SIZE) + (TILE_SIZE / 2.0f),
+			(y * TILE_SIZE) + (TILE_SIZE / 2.0f)
+		};
 	}
 
 
@@ -32,16 +39,33 @@ namespace Tmpl8
 			m_sign_of_direction *= -1;
 		}
 
-		center.x = (m_elapsed_time * m_elapsed_time) * (3 - (2 * m_elapsed_time));
+		// Ease in/out formula (Bezier curve). Credit to Creak at https://stackoverflow.com/questions/13462001/ease-in-and-ease-out-animation-formula
+		m_offset_y = m_magnitude_coefficient * ((m_elapsed_time * m_elapsed_time) * (3 - (2 * m_elapsed_time)) - 0.5f);
+
+		UpdateYPosition();
+	}
+
+	
+	void LightPickup::UpdateYPosition()
+	{
+		// Only y position changes.
+		top = static_cast<int>(floor(center.y - m_half_height - m_offset_y));
+		bottom = top + (m_half_height * 2);
 	}
 
 
-	void LightPickup::ResolveCollision(Collidable*& collision)
+	void LightPickup::RegisterCollision(Collidable*& collision)
+	{
+		m_has_been_picked_up = true;
+	}
+
+
+	void LightPickup::ResolveCollisions()
 	{
 		// If touched by player, mark for removal and tell accompanying glow orb to start fading away.
-		m_is_active = false;
-		if (collision->m_object_type == CollidableType::PLAYER)
+		if (m_has_been_picked_up && m_is_active)
 		{
+			m_is_active = false;
 			m_glow_socket->SendMessage(GlowMessage{ GlowAction::REMOVE_ORB, m_id });
 		}
 	}

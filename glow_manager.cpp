@@ -43,7 +43,7 @@ namespace Tmpl8
 			m_collision_socket->SendMessage(CollisionMessage{ CollisionAction::UPDATE_ORB_LIST, m_collidables });
 		}
 
-		if (m_is_resetting_level && m_orbs.size() == 0)
+		if (m_is_resetting_level && HasRemovedAllSafeGlowOrbs())
 		{
 			m_game_socket->SendMessage(GameMessage{ GameAction::ORBS_REMOVED });
 			m_is_resetting_level = false;
@@ -135,7 +135,7 @@ namespace Tmpl8
 			m_orbs.push_back(std::make_shared<SafeGlowOrb>(message.m_orb_position, message.m_player_strength, m_obstacle_layer));
 			break;
 		case CollidableType::PICKUP_GLOW:
-			m_orbs.push_back(std::make_shared<SafeGlowOrb>(message.m_orb_position, message.m_player_strength, m_obstacle_layer));
+			m_orbs.push_back(std::make_shared<PickupGlowOrb>(message.m_orb_position, message.m_player_strength, m_map_layer));
 			break;
 		}
 	}
@@ -160,7 +160,7 @@ namespace Tmpl8
 		std::function<bool(std::shared_ptr<GlowOrb>& orb)> find_all{
 			[=](std::shared_ptr<GlowOrb>& orb) {return (*orb).m_object_type == CollidableType::SAFE_GLOW;}
 		};			
-
+				
 		FindAndRemove(find_all);
 	}
 
@@ -175,8 +175,18 @@ namespace Tmpl8
 			if (orb_it != m_orbs.end())
 			{
 				(**orb_it).SetPhase(Phase::WANING);
-				++orb_it;
+				++orb_it;	
 			}
 		}
+	}
+
+
+	bool GlowManager::HasRemovedAllSafeGlowOrbs()
+	{	
+		return (m_orbs.end() ==
+			std::find_if(m_orbs.begin(), m_orbs.end(), 
+				[=](std::shared_ptr<GlowOrb>& orb) {return (*orb).m_object_type == CollidableType::SAFE_GLOW;}
+			)
+		);
 	}
 };

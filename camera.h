@@ -3,7 +3,10 @@
 //#include "player.h"
 #include "collidable.h"
 #include "template.h"
+
 #include "camera_socket.h"
+#include "collision_socket.h"
+
 
 namespace Tmpl8
 {
@@ -13,8 +16,14 @@ namespace Tmpl8
 		Camera(Collidable& subject);
 		void Update(float deltaTime);
 		void Draw(Surface* screen);
-		void ResolveCollision(Collidable*& collision) override;
+
+		void RegisterCollision(Collidable*& collision);
+		void ResolveCollisions() override;
+
 		Socket<CameraMessage>* GetCameraSocket();
+		void RegisterCollisionSocket(Socket<CollisionMessage>* collision_socket);
+		void RegisterWithCollisionManager();
+
 		void SetPosition(vec2 position);
 		void ProcessCollisions() {};
 		void SetLevelBounds(vec2& level_bounds);
@@ -34,6 +43,8 @@ namespace Tmpl8
 		Surface* m_revealed_layer{ nullptr };
 
 		Socket<CameraMessage> m_camera_hub;
+		Socket<CollisionMessage>* m_collision_socket{ nullptr };
+
 		Collidable& m_subject;
 		bool m_has_moved{ false };
 		vec2 m_offset{ 0.0f, 0.0f };
@@ -55,6 +66,14 @@ namespace Tmpl8
 		float opacity_delta{ 0.0f };
 		float opacity_delta_delta{ 200.0f };
 		bool m_is_fading_out{ false };
+
+		std::vector<CollidableType> m_collidables_of_interest{
+			CollidableType::PICKUP,
+			CollidableType::FULL_GLOW,
+			CollidableType::TEMP_GLOW,
+			CollidableType::SAFE_GLOW,
+			CollidableType::PICKUP_GLOW,
+		};
 	};
 };
 

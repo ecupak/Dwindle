@@ -5,8 +5,6 @@
 
 namespace Tmpl8
 {
-	
-
 	// Constants.
 	/* Post positions around edge of sprite. */
 	constexpr int RIGHT{ 0 };
@@ -30,17 +28,13 @@ namespace Tmpl8
 	constexpr float LOW_Y_FACTOR{ 2.0f };
 	constexpr float MED_Y_FACTOR{ 3.0f };
 	constexpr float HIGH_Y_FACTOR{ 4.0f };
-	/* Bitwise values of surface types. */
-	constexpr int SMOOTH{ 1 };
-	constexpr int SMOOTH_CORNER{ 2 };
-	constexpr int ROUGH{ 4 };
-	constexpr int ROUGH_CORNER{ 8 };
 
 
 	DetectorPoint::DetectorPoint(int assigned_post) :
+		Collidable{ CollidableType::PLAYER_POINT, 0 },
 		post_id{ assigned_post }
 	{	
-		m_object_type = CollidableType::PLAYER;
+		SetCollidablesWantedBitflag(m_collidables_of_interest);
 	}
 
 
@@ -87,30 +81,35 @@ namespace Tmpl8
 	}
 
 
-	void DetectorPoint::ResolveCollision(Collidable*& collision)
+	void DetectorPoint::RegisterCollision(Collidable*& collision)
 	{
-		// We hit a physical object - bounce or cling.
-		if (collision->m_object_type == CollidableType::SMOOTH
-			|| collision->m_object_type == CollidableType::PERM_GLOW
-			|| (collision->m_object_type == CollidableType::FINISH_LINE && m_state == State::DEAD && m_is_at_finish_line == false))
+		switch (collision->m_object_type)
 		{
-			m_obstacles.push_back(collision);			
-		}		
-		// We hit a safe zone - don't lose life if hitting a surface.
-		else if (collision->m_object_type == CollidableType::SAFE_GLOW
-			|| collision->m_object_type == CollidableType::PERM_GLOW)
-		{
-			m_glow_orbs.push_back(collision);			
-		}
-		// We hit a pickup - gain life.
-		else if (collision->m_object_type == CollidableType::PICKUP)
-		{
+		case CollidableType::OBSTACLE:
+			m_obstacles.push_back(collision);
+			break;
+		case CollidableType::SAFE_GLOW:
+			m_glow_orbs.push_back(collision);
+			break;
+		case CollidableType::PERM_GLOW:
+			m_obstacles.push_back(collision);
+			m_glow_orbs.push_back(collision);
+			break;
+		case CollidableType::PICKUP:
 			m_is_on_pickup = true;
-		}
-		// We crossed the level exit - trigger transition steps.
-		else if (m_state == State::ALIVE && collision->m_object_type == CollidableType::FINISH_LINE)
-		{
-			m_is_at_finish_line = true;
+			break;
+		case CollidableType::FINISH_LINE:
+			if (m_state == State::ALIVE)
+			{
+				m_is_at_finish_line = true;
+			}
+			else if (m_state == State::DEAD && m_is_at_finish_line == false)
+			{
+				m_obstacles.push_back(collision);
+			}
+			break;
+		default:
+			break;
 		}
 	}
 
@@ -328,7 +327,7 @@ namespace Tmpl8
 
 			switch (closest_intersection.m_type_of_collision_object)
 			{
-			case CollidableType::SMOOTH:
+			case CollidableType::OBSTACLE:
 			case CollidableType::PERM_GLOW:
 			case CollidableType::FINISH_LINE:
 				ResolveSmoothCollision(closest_intersection);

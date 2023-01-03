@@ -12,6 +12,7 @@
 #include "full_glow_orb.h"
 #include "temp_glow_orb.h"
 #include "safe_glow_orb.h"
+#include "pickup_glow_orb.h"
 
 
 namespace Tmpl8
@@ -40,6 +41,7 @@ namespace Tmpl8
 		void RemoveGlowOrb(GlowMessage& message);
 		void RemoveExpiredGlowOrb(std::vector<std::shared_ptr<GlowOrb>>::const_iterator index_it);
 		void FindAndRemove(std::function<bool(std::shared_ptr<GlowOrb>& orb)> search_fn);
+		bool HasRemovedAllSafeGlowOrbs();
 
 		bool m_is_orb_list_changed{ false };
 		bool m_is_resetting_level{ false };

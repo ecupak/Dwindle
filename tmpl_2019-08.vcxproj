@@ -272,6 +272,7 @@
     <ClInclude Include="glow_socket.h" />
     <ClInclude Include="camera_socket.h" />
     <ClInclude Include="intersection.h" />
+    <ClInclude Include="key_manager.h" />
     <ClInclude Include="life_hud.h" />
     <ClInclude Include="life_socket.h" />
     <ClInclude Include="light_pickup.h" />
@@ -283,7 +284,6 @@
     <ClInclude Include="second_echo.h" />
     <ClInclude Include="socket.h" />
     <ClInclude Include="standard_form.h" />
-    <ClInclude Include="key_state.h" />
     <ClInclude Include="level.h" />
     <ClInclude Include="obstacle.h" />
     <ClInclude Include="player.h" />

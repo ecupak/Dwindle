@@ -94,7 +94,6 @@
     <ClInclude Include="template.h">
       <Filter>template code</Filter>
     </ClInclude>
-    <ClInclude Include="key_state.h" />
     <ClInclude Include="standard_form.h">
       <Filter>Collision Files</Filter>
     </ClInclude>
@@ -201,6 +200,7 @@
     <ClInclude Include="collision_manager.h">
       <Filter>Collision Files\Collision Manager</Filter>
     </ClInclude>
+    <ClInclude Include="key_manager.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="template code">

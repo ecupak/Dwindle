@@ -169,9 +169,9 @@ namespace Tmpl8
 	void Camera::UpdateBounds()
 	{
 		left = center.x - m_offset.x;
-		right = center.x + m_offset.x;
+		right = left + (m_offset.x * 2);
 		top = center.y - m_offset.y;
-		bottom = center.y + m_offset.y;
+		bottom = top + (m_offset.x * 2);
 	}
 
 

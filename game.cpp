@@ -14,13 +14,13 @@ namespace Tmpl8
 	// -----------------------------------------------------------
 	// Constructor
 	// -----------------------------------------------------------
-	Game::Game(Surface* surface) :
-		screen{ surface },		
+	Game::Game(Surface* surface) :		
+		collision_manager{ },
 		level_manager{ text_repo },
-		player{ leftKey, rightKey, upKey, downKey },
+		player{ key_manager },
 		camera{ player },
-		viewport{ surface, camera },
-		collision_manager{ }
+		screen{ surface },
+		viewport{ surface, camera }		
 	{	}
 
 	// -----------------------------------------------------------
@@ -28,6 +28,7 @@ namespace Tmpl8
 	// -----------------------------------------------------------
 	void Game::Init()
 	{
+		RegisterKeys();
 		RegisterSockets();
 		InitLevelManager();
 		InitGlowManager();
@@ -41,6 +42,15 @@ namespace Tmpl8
 		player.SetPosition(level_manager.GetPlayerStartPosition());
 	}
 	
+
+	void Game::RegisterKeys()
+	{
+		key_manager.RegisterKey(SDLK_LEFT);
+		key_manager.RegisterKey(SDLK_RIGHT);
+		key_manager.RegisterKey(SDLK_UP);
+		key_manager.RegisterKey(SDLK_DOWN);
+	}
+
 
 	void Game::RegisterSockets()
 	{
@@ -322,70 +332,43 @@ namespace Tmpl8
 	// Keyboard events
 	// -----------------------------------------------------------
 
-	// MAKE CLASS THAT CAN BE PASSED TO PLAYER AS REF FROM GAME.
-
 	/* Register key press only if the key was not already being pressed
 		(must register key release first). */
 
-	void Game::KeyDown(int key)
+	void Game::KeyDown(int key_code)
 	{
-		switch (key)
+		KeyInfo& key = key_manager.GetKey(key_code);
+		
+		if (key.m_is_pressed == false)
 		{
-		case 80: // LEFT.
-			if (!leftKey.isPressed)
+			key.m_is_active = true;
+			key.m_is_pressed = true;
+
+			switch (key_code)
 			{
-				leftKey.isActive = true;
-				leftKey.isPressed = true;
-				rightKey.isActive = false;
+			case SDLK_LEFT:
+				key_manager.GetKey(SDLK_RIGHT).m_is_active = false;
+				break;
+			case SDLK_RIGHT:
+				key_manager.GetKey(SDLK_LEFT).m_is_active = false;
+				break;
+			case SDLK_UP:
+				key_manager.GetKey(SDLK_DOWN).m_is_active = false;
+				break;
+			case SDLK_DOWN:
+				key_manager.GetKey(SDLK_UP).m_is_active = false;
+				break;
+			default:
+				break;
 			}
-			break;
-		case 79: // RIGHT.
-			if (!rightKey.isPressed)
-			{
-				rightKey.isActive = true;
-				rightKey.isPressed = true;
-				leftKey.isActive = false;
-			}
-			break;
-		case 82: // UP.
-			if (!upKey.isPressed)
-			{
-				upKey.isActive = true;
-				upKey.isPressed = true;
-				downKey.isActive = false;
-			}
-			break;
-		case 81: // DOWN.
-			if (!downKey.isPressed)
-			{
-				downKey.isActive = true;
-				downKey.isPressed = true;
-				upKey.isActive = false;
-			}
-			break;
 		}
 	}
 
-	void Game::KeyUp(int key)
+	void Game::KeyUp(int key_code)
 	{
-		switch (key)
-		{
-		case 80: // LEFT.
-			leftKey.isActive = false;
-			leftKey.isPressed = false;
-			break;
-		case 79: // RIGHT.
-			rightKey.isActive = false;
-			rightKey.isPressed = false;
-			break;
-		case 82: // UP.
-			upKey.isActive = false;
-			upKey.isPressed = false;
-			break;
-		case 81: // DOWN.
-			downKey.isActive = false;
-			downKey.isPressed = false;
-			break;
-		}
+		KeyInfo& key = key_manager.GetKey(key_code);
+
+		key.m_is_active = false;
+		key.m_is_pressed = false;
 	}
 };

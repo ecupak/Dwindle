@@ -2,7 +2,7 @@
 
 #include <memory>
 
-#include "key_state.h"
+#include "key_manager.h"
 #include "collidable.h"
 #include "detector_point.h"
 //#include "collision_processor.h" inner class for later.
@@ -54,7 +54,7 @@ namespace Tmpl8 {
 	public:
 		// Methods.
 		// Structor.
-		Player(keyState& leftKey, keyState& rightKey, keyState& upKey, keyState& downKey);
+		Player(KeyManager& key_manager);
 		
 		void SetPosition(vec2& start_position);
 		void Update(float deltaTime);
@@ -160,9 +160,6 @@ namespace Tmpl8 {
 		
 		// Player sprite.
 		Sprite m_sprite;
-		int half_height;
-		int half_width;
-		int half_size;
 
 		// State change tracker.
 		Mode mode{ Mode::AIR };
@@ -170,10 +167,7 @@ namespace Tmpl8 {
 
 		bool m_is_tutorial_mode{ false };
 
-		keyState& m_leftKey;
-		keyState& m_rightKey;
-		keyState& m_upKey;
-		keyState& m_downKey;
+		KeyManager& m_key_manager;
 
 		float m_delta_time{ 0.0f };
 		float m_dead_timer{ 0.0f };

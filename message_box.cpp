@@ -4,15 +4,8 @@ namespace Tmpl8
 {
 	constexpr int MARGIN{ 8 };
 
-	/*MessageBox::MessageBox(MessageType message_type, std::unique_ptr<Sprite> sprite, vec2& position, int tile_size) :
-		m_message_type{ message_type },
-		m_sprite{ std::move(sprite) },
-		left{ static_cast<int>(MARGIN + (position.x * tile_size)) },
-		top{ static_cast<int>(MARGIN + (position.y * tile_size)) }
-	{	}*/
-
-	MessageBox::MessageBox(MessageType message_type, Entry entry, int TILE_SIZE, Pixel color) :
-		m_message_type{ message_type },
+	MessageBox::MessageBox(Entry entry, int TILE_SIZE, Pixel color) :
+		m_message_type{ entry.m_message_type },
 		m_tsmaker{ TILE_SIZE, MARGIN },
 		m_sprite{ std::move(m_tsmaker.GetTextSprite(entry.m_span, entry.m_text, color)) },
 		m_extra_padding_x{ GetExtraXPadding(entry.m_span, TILE_SIZE) },

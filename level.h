@@ -32,7 +32,7 @@ namespace Tmpl8
 		Level(TextRepo& text_repo);
 
 		void Update(float deltaTime);
-		void Draw();
+		void Draw() {};
 
 		void CreateLevel(int level_id);
 		

@@ -201,6 +201,9 @@
       <Filter>Collision Files\Collision Manager</Filter>
     </ClInclude>
     <ClInclude Include="key_manager.h" />
+    <ClInclude Include="message_enums.h">
+      <Filter>Level Files\Message Box</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="template code">

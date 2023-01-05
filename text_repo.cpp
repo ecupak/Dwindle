@@ -1,8 +1,5 @@
 #include "text_repo.h"
 
-#include <fstream>
-#include <iostream>
-
 
 namespace Tmpl8
 {

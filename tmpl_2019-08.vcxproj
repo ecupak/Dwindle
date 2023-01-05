@@ -271,6 +271,7 @@
     <ClInclude Include="glow_orb.h" />
     <ClInclude Include="glow_socket.h" />
     <ClInclude Include="camera_socket.h" />
+    <ClInclude Include="message_enums.h" />
     <ClInclude Include="intersection.h" />
     <ClInclude Include="key_manager.h" />
     <ClInclude Include="life_hud.h" />

@@ -69,6 +69,7 @@ namespace Tmpl8
 			[=](Collidable* a, Collidable* b) { return a->m_draw_order < b->m_draw_order; });
 	}
 
+
 	void Camera::FadeToBlack()
 	{
 		m_is_fading_out = true;
@@ -171,7 +172,7 @@ namespace Tmpl8
 		left = center.x - m_offset.x;
 		right = left + (m_offset.x * 2);
 		top = center.y - m_offset.y;
-		bottom = top + (m_offset.x * 2);
+		bottom = top + (m_offset.y * 2);
 	}
 
 

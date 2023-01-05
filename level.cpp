@@ -518,15 +518,13 @@ namespace Tmpl8
 
 	void Level::CreateMessageBoxes()
 	{
-		MessageType message_type{ m_level_id == 0 ? MessageType::TUTORIAL : MessageType::GUIDE };
-
 		std::vector<Entry> entries{ m_text_repo->GetEntriesForLevel(m_level_id) };
 		
 		for (Entry& entry : entries)
 		{
 			//std::unique_ptr<Sprite> text_sprite{ m_tsmaker.GetTextSprite(entry.m_span, entry.m_text, 0xFFAAAAAA) };
 			//m_message_boxes.emplace_back(message_type, std::move(text_sprite), entry.m_position, TILE_SIZE);
-			m_message_boxes.emplace_back(message_type, entry, TILE_SIZE, 0xFFAAAAAA);
+			m_message_boxes.emplace_back(entry, TILE_SIZE, 0xFFAAAAAA);
 		}
 	}
 };

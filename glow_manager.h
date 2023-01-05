@@ -27,7 +27,7 @@ namespace Tmpl8
 		void CheckSocketForNewGlowOrbMessage();
 		void Update(float deltaTime);
 		void UpdateGlowOrbs(float deltaTime);
-		void TriggerSafeOrbDestruction();
+		void TriggerStaticOrbDestruction();
 
 		void RegisterGameSocket(Socket<GameMessage>* game_socket);
 		void RegisterCollisionSocket(Socket<CollisionMessage>* collision_socket);

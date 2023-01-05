@@ -112,7 +112,7 @@ namespace Tmpl8
 				RemoveGlowOrb(message);
 				break;
 			case GlowAction::LEVEL_RESET:
-				TriggerSafeOrbDestruction();
+				TriggerStaticOrbDestruction();
 				m_is_resetting_level = true;
 				break;
 			}
@@ -153,13 +153,14 @@ namespace Tmpl8
 	}
 
 
-	void GlowManager::TriggerSafeOrbDestruction()
+	void GlowManager::TriggerStaticOrbDestruction()
 	{
 		m_is_resetting_level = true;
 
 		// Remove all safe glow orbs.
 		std::function<bool(std::shared_ptr<GlowOrb>& orb)> find_all{
-			[=](std::shared_ptr<GlowOrb>& orb) {return (*orb).m_object_type == CollidableType::SAFE_GLOW;}
+			[=](std::shared_ptr<GlowOrb>& orb) 
+			{return (*orb).m_object_type == CollidableType::SAFE_GLOW || (*orb).m_object_type == CollidableType::PICKUP_GLOW;}
 		};			
 				
 		FindAndRemove(find_all);

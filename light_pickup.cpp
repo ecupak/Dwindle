@@ -23,13 +23,13 @@ namespace Tmpl8
 	vec2 LightPickup::GetCenter(int x, int y, int TILE_SIZE)
 	{
 		return vec2{
-			(x * TILE_SIZE) + (TILE_SIZE / 2.0f),
+			(x * TILE_SIZE * 1.0f),
 			(y * TILE_SIZE * 1.0f)
 		};
 	}
 
 
-	void LightPickup::Update(float deltaTime)
+	void LightPickup::Update(float deltaTime, float opacity)
 	{		
 		m_elapsed_time += deltaTime * 0.4f * m_sign_of_direction;
 
@@ -43,6 +43,7 @@ namespace Tmpl8
 		m_offset_y = m_magnitude_coefficient * ((m_elapsed_time * m_elapsed_time) * (3 - (2 * m_elapsed_time)) - 0.5f);
 
 		UpdateYPosition();
+		m_opacity = opacity;
 	}
 
 	
@@ -103,7 +104,14 @@ namespace Tmpl8
 			{
 				if (s_pix[x] > 0)
 				{
-					d_pix[x] = s_pix[x];
+					if (m_opacity < 1.0f)
+					{
+						d_pix[x] = MixAlpha(s_pix[x], m_opacity, d_pix[x], false);
+					}
+					else
+					{
+						d_pix[x] = s_pix[x];
+					}
 				}
 			}
 			d_pix += viewable_layer->GetPitch();

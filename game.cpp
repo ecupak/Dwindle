@@ -241,7 +241,7 @@ namespace Tmpl8
 			// See core memory.
 			// Award new powers.
 			// - There would be a new GameMessage/Action after these are complete.
-			// - We would move this action to happen after that trigger.
+			// - Would move ReadyNextLevel() to happen after that trigger.
 			ReadyNextLevel();			
 			m_is_in_level_advancement = false;
 			m_level_action_tracker = 0;
@@ -273,8 +273,9 @@ namespace Tmpl8
 	// Remove all safe glow orbs. Screen should be completely black during transition.
 	void Game::FadeToBlack()
 	{
-		glow_manager.TriggerSafeOrbDestruction();
+		glow_manager.TriggerStaticOrbDestruction();
 		camera.FadeToBlack();
+		level_manager.FadeToBlack();
 	}
 	
 

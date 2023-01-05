@@ -37,7 +37,7 @@ namespace Tmpl8
 		int GetCollisionId(CollidableType& collidable);
 
 		virtual void Draw(Surface* screen) {};
-		virtual void Draw(Surface* viewable_layer, int c_left, int c_top, int in_left, int in_top, int in_right, int in_bottom) {};
+		virtual void Draw(Surface* visible_layer, int c_left, int c_top, int in_left, int in_top, int in_right, int in_bottom) {};
 		virtual void RegisterCollision(Collidable*& collision) {};
 		virtual void ResolveCollisions() {};
 

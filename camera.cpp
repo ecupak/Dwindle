@@ -174,6 +174,7 @@ namespace Tmpl8
 		bottom = center.y + m_offset.y;
 	}
 
+
 	void Camera::Draw(Surface* visible_layer)
 	{
 		// Set bounds constrained by screen boundary.
@@ -181,14 +182,26 @@ namespace Tmpl8
 		int inbound_right = Min(right, static_cast<int>(m_level_size.x) - 1);
 		int inbound_top = Max(top, 0);
 		int inbound_bottom = Min(bottom, static_cast<int>(m_level_size.y) - 1);
+				
+		Draw(visible_layer, left, top, inbound_left, inbound_top, inbound_right, inbound_bottom);
 
-		//Pixel* d_pix{ screen->GetBuffer() };
-		Pixel* destination_pix{ visible_layer->GetBuffer() + (inbound_left - left) + ((inbound_top - top) * visible_layer->GetPitch()) };
-		Pixel* source_pix{ m_revealed_layer->GetBuffer() + inbound_left + (inbound_top * m_revealed_layer->GetPitch()) };
-
-		for (int y{ inbound_top }; y < inbound_bottom; ++y)
+		// Draw any part of a collidable that overlaps with view.
+		for (Collidable*& collision : m_collisions)
 		{
-			for (int x{ 0 }; x < (inbound_right - inbound_left); ++x)
+			collision->Draw(visible_layer, left, top, inbound_left, inbound_top, inbound_right, inbound_bottom);
+		}
+		m_collisions.clear();
+	}
+
+
+	void Camera::Draw(Surface* visible_layer, int c_left, int c_top, int in_left, int in_top, int in_right, int in_bottom)
+	{
+		Pixel* destination_pix{ visible_layer->GetBuffer() + (in_left - left) + ((in_top - top) * visible_layer->GetPitch()) };
+		Pixel* source_pix{ m_revealed_layer->GetBuffer() + in_left + (in_top * m_revealed_layer->GetPitch()) };
+
+		for (int y{ in_top }; y < in_bottom; ++y)
+		{
+			for (int x{ 0 }; x < (in_right - in_left); ++x)
 			{
 				if (source_pix[x] > 0)
 				{
@@ -198,12 +211,5 @@ namespace Tmpl8
 			destination_pix += visible_layer->GetPitch();
 			source_pix += m_revealed_layer->GetPitch();
 		}
-
-		// Draw any part of a collidable that overlaps with view.
-		for (Collidable*& collision : m_collisions)
-		{
-			collision->Draw(visible_layer, left, top, inbound_left, inbound_top, inbound_right, inbound_bottom);
-		}
-		m_collisions.clear();
 	}
 };

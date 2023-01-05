@@ -15,7 +15,8 @@ namespace Tmpl8
 	public:
 		Camera(Collidable& subject);
 		void Update(float deltaTime);
-		void Draw(Surface* screen);
+		void Draw(Surface* screen) override;
+		void Draw(Surface* visible_layer, int c_left, int c_top, int in_left, int in_top, int in_right, int in_bottom) override;
 
 		void RegisterCollision(Collidable*& collision);
 		void ResolveCollisions() override;
@@ -64,7 +65,7 @@ namespace Tmpl8
 
 		float m_opacity{ 1.0f };
 		float opacity_delta{ 0.0f };
-		float opacity_delta_delta{ 200.0f };
+		float opacity_delta_delta{ 0.2f };
 		bool m_is_fading_out{ false };
 
 		std::vector<CollidableType> m_collidables_of_interest{

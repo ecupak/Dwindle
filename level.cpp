@@ -61,21 +61,40 @@ namespace Tmpl8
 
 		m_obstacle_collidables.clear();
 		m_finish_line_collidables.clear();
-		m_pickup_collidables.clear();		
+		m_pickup_collidables.clear();
+
+		m_is_fading_out = false;
+		m_opacity = 1.0f;
 	}
 
 
 	void Level::Update(float deltaTime)
 	{
+		if (m_is_fading_out)
+		{
+			m_opacity -= opacity_delta * deltaTime;
+			opacity_delta += opacity_delta_delta * deltaTime;
+
+			m_opacity = Max(0.0f, m_opacity);
+			m_is_fading_out = (m_opacity > 0.0f);
+		}
+
 		for (LightPickup& pickup : m_pickups)
 		{
 			if (pickup.m_is_active)
 			{
-				pickup.Update(deltaTime);
+				pickup.Update(deltaTime, m_opacity);
 			}
 		}
 	}
 
+
+	void Level::FadeToBlack()
+	{
+		m_is_fading_out = true;
+	}
+
+	
 
 	void Level::CreateLayers()
 	{

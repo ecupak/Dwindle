@@ -47,6 +47,8 @@ namespace Tmpl8
 		Surface& GetObstacleLayer();
 		Surface& GetRevealedLayer();
 
+		void FadeToBlack();
+
 	private:
 		// METHODS
 		void CreateLayers();
@@ -111,5 +113,10 @@ namespace Tmpl8
 
 		Blueprints m_blueprints;
 		TextRepo* m_text_repo{ nullptr };
+
+		bool m_is_fading_out{ false };
+		float m_opacity{ 1.0f };
+		float opacity_delta{ 0.0f };
+		float opacity_delta_delta{ 0.2f };
 	};
 };

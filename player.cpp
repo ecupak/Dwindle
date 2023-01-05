@@ -102,20 +102,20 @@ namespace Tmpl8
 
 	void Player::Draw(Surface* viewable_layer, int c_left, int c_top, int in_left, int in_top, int in_right, int in_bottom)
 	{
-		/*for (DetectorPoint& point : points)
+		for (DetectorPoint& point : points)
 		{
 			viewable_layer->Box(point.left - c_left, point.top - c_top, point.right - c_left, point.bottom - c_top, 0xFFFFFFFF);
-		}*/
+		}
 
 		// Draw text revelaed by glow orb first.
 		//m_player_glow_orb->Draw(viewable_layer, c_left, c_top, in_left, in_top, in_right, in_bottom);
 
 		// Draw over that with echoes.
-		m_player_echo.Draw(viewable_layer, c_left, c_top);
+		//m_player_echo.Draw(viewable_layer, c_left, c_top);
 
 		// Finally draw player on top of all.
 		m_sprite.SetFrame(m_frame_id);
-		m_sprite.Draw(viewable_layer, position.x - c_left, position.y - c_top);
+		//m_sprite.Draw(viewable_layer, position.x - c_left, position.y - c_top);
 		
 	}
 
@@ -342,6 +342,7 @@ namespace Tmpl8
 			if (state == State::ALIVE && point.m_is_at_finish_line)
 			{
 				state = State::DEAD;
+				m_player_strength = 0;
 
 				// Ricochet velocitis will decrease while in dead bounce.
 				for (DetectorPoint& point : points)

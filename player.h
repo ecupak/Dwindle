@@ -153,8 +153,8 @@ namespace Tmpl8 {
 			Buffer is the minimum brightness set by user.
 			- Is only decreased during death (no affect on user experience).
 		*/
-		int m_player_max_strength{ 15 };
-		int m_player_min_brightness_buffer{ 5 };
+		int m_player_max_strength{ 20 };
+		int m_player_min_brightness_buffer{ 6 };
 		int m_player_strength{ m_player_max_strength };
 		float m_player_brightness_buffer{ 1.0f * m_player_min_brightness_buffer };
 		

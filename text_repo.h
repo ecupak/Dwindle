@@ -70,7 +70,7 @@ namespace Tmpl8
 				"This is a Spark. It will restore some of your lost light."
 			},
 			Entry{vec2{19, 36}, 4,
-				"Everything will fade away if you touch a dark surface with no light remaining."
+				"If you touch a dark surface with no light remaining you will restart the level."
 			},
 			Entry{vec2{24, 36}, 5,
 				"Find an exit to each stage. Good luck!"
@@ -79,8 +79,26 @@ namespace Tmpl8
 
 		std::vector<Entry> m_level_1_entries
 		{
-			Entry{vec2{1, 6}, 1,
-				"Use WASD or the arrow keys to move. Hit a wall to stick to it, then press up or away to wall jump."
+			Entry{vec2{5, 14}, 1,
+				"Hello, Dear."
+			},
+			Entry{vec2{9, 12}, 3,
+				"...It's been a long time."				
+			},
+			Entry{vec2{14, 14}, 3,
+				"We'll get through this together."
+			},
+			Entry{vec2{22, 14}, 2,
+				"You always did like climbing."
+			},
+			Entry{vec2{22, 9}, 2,
+				"Be careful."
+			},
+			Entry{vec2{19, 5}, 2,
+				"Do you see it? Almost there."
+			},
+			Entry{vec2{18, 2}, 2,
+				"Keep going. I'm by your side."
 			},
 		};
 	};

@@ -29,13 +29,10 @@ namespace Tmpl8
 
 
 	// Constructor.
-	Player::Player(keyState& leftKey, keyState& rightKey, keyState& upKey, keyState& downKey) :
+	Player::Player(KeyManager& key_manager) :
 		Collidable{ CollidableType::PLAYER, 10 },
 		m_sprite{ Sprite{new Surface("assets/ball.png"), 3, true} }, // player.png is 40px by 40px.
-		half_height{ m_sprite.GetHeight() / 2 },
-		half_width{ m_sprite.GetWidth() / 2 },
-		half_size{ half_height },
-		m_leftKey{ leftKey }, m_rightKey{ rightKey }, m_upKey{ upKey }, m_downKey{ downKey },
+		m_key_manager{ key_manager },
 		m_player_echo{ m_sprite }
 	{
 		SetCollidablesWantedBitflag(m_collidables_of_interest);
@@ -183,10 +180,8 @@ namespace Tmpl8
 
 		for (DetectorPoint& point : points)
 		{
-			point.SetPosition(center, half_size - 4);
+			point.SetPosition(center, (m_sprite.GetWidth() * 0.5f) - 4);
 		}
-
-		//m_glow_socket->SendMessage(GlowMessage{ GlowAction::MOVE_PLAYER_ORB_POSITION, center });
 	}
 
 
@@ -247,9 +242,12 @@ namespace Tmpl8
 	}
 
 
-	void Player::SetCenterAndBounds()	
+	void Player::SetCenterAndBounds()
 	{
-		center = vec2(position.x + half_width, position.y + half_height);
+		center = vec2(
+			position.x + (m_sprite.GetWidth() * 0.5f),
+			position.y + (m_sprite.GetHeight() * 0.5f)
+		);
 		UpdateCollisionBox();
 	}
 
@@ -602,7 +600,7 @@ namespace Tmpl8
 		// Only take input while player is alive.
 		if (state == State::ALIVE)
 		{
-			direction.x = -(m_leftKey.isActive) + m_rightKey.isActive;
+			direction.x = -(m_key_manager.GetKey(SDLK_LEFT).m_is_active) + (m_key_manager.GetKey(SDLK_RIGHT).m_is_active);
 		}
 		else
 		{
@@ -768,13 +766,12 @@ namespace Tmpl8
 		/* Reposition ball just off of wall and lose all velocity. Register trigger and
 			set trigger duration. Update the sprite. WALL mode sticks ball on wall. */
 
-		m_leftKey.isActive = false;
-		m_rightKey.isActive = false;
-		m_upKey.isActive = false;
-		m_downKey.isActive = false;
+		m_key_manager.GetKey(SDLK_LEFT).m_is_active = false;
+		m_key_manager.GetKey(SDLK_RIGHT).m_is_active = false;
+		m_key_manager.GetKey(SDLK_UP).m_is_active = false;
+		m_key_manager.GetKey(SDLK_DOWN).m_is_active = false;
 
 		wallBounceTrigger = trigger;
-		//triggerFrameCount = 1.0f;
 		
 		// Need to figure out how to rotate sprite for side squash. Matrix rotation preferred.
 		// But can also create static sprite frames for each wall and ceiling.
@@ -888,7 +885,7 @@ namespace Tmpl8
 			Otherwise it has more powerful bounce. */
 				
 		// Press down - soft release.
-		if (m_downKey.isActive)
+		if (m_key_manager.GetKey(SDLK_DOWN).m_is_active)
 		{
 			BounceStrength wall_bounce_x_power{ BounceStrength::WEAK };
 			BounceStrength wall_bounce_y_power{ BounceStrength::NONE };
@@ -896,7 +893,7 @@ namespace Tmpl8
 			bounceOffWall(wall_bounce_x_power, wall_bounce_y_power);
 		}
 		// Press up - high vertical jump, less horizontal movement.
-		else if (m_upKey.isActive)
+		else if (m_key_manager.GetKey(SDLK_UP).m_is_active)
 		{
 			BounceStrength wall_bounce_x_power{ BounceStrength::WEAK };
 			BounceStrength wall_bounce_y_power{ BounceStrength::STRONG };
@@ -904,7 +901,8 @@ namespace Tmpl8
 			bounceOffWall(wall_bounce_x_power, wall_bounce_y_power);
 		}
 		// Press left/right (away from wall) - good horizontal movement, less vertical jump.
-		else if(wallBounceTrigger == Trigger::LEFT && m_leftKey.isActive || wallBounceTrigger == Trigger::RIGHT && m_rightKey.isActive)
+		else if(wallBounceTrigger == Trigger::LEFT && m_key_manager.GetKey(SDLK_LEFT).m_is_active
+			|| wallBounceTrigger == Trigger::RIGHT && m_key_manager.GetKey(SDLK_RIGHT).m_is_active)
 		{			
 			BounceStrength wall_bounce_x_power{ BounceStrength::STRONG };
 			BounceStrength wall_bounce_y_power{ BounceStrength::WEAK };

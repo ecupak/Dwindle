@@ -3,7 +3,7 @@
 #include "template.h"
 #include "surface.h"
 
-#include "key_state.h"
+#include "key_manager.h"
 #include "player.h"
 #include "level.h"
 #include "text_repo.h"
@@ -27,10 +27,11 @@ namespace Tmpl8
 		void MouseUp(int button) {};
 		void MouseDown(int button) {};
 		void MouseMove(int x, int y) {};
-		void KeyUp(int key);
-		void KeyDown(int key);
+		void KeyUp(int key_code);
+		void KeyDown(int key_code);
 
 	private:
+		void RegisterKeys();
 		void RegisterSockets();
 		void InitLevelManager();
 		void InitGlowManager();
@@ -59,27 +60,30 @@ namespace Tmpl8
 
 
 		// ATTRIBUTES
-		// Core classes.
-		Surface* screen{ nullptr };
-		Player player;
-		Camera camera;		
-		Viewport viewport;
+		/* 
+			Core classes.
+			Leave in order for initialization.
+		*/
 		CollisionManager collision_manager;
-		GlowManager glow_manager;
+		TextRepo text_repo{};
 		Level level_manager;
-		TextRepo text_repo;
-				
-		keyState leftKey;
-		keyState rightKey;
-		keyState upKey;
-		keyState downKey;
-
+		KeyManager key_manager;
+		Player player;
+		Camera camera;
+		Surface* screen{ nullptr };
+		Viewport viewport;
+		GlowManager glow_manager{};
+		
+		/*
+			Sockets.
+			Handles communication among classes.
+		*/
 		Socket<GameMessage> m_game_hub;
-		Socket<GlowMessage>* m_glow_socket;
-		Socket<CollisionMessage>* m_collision_socket;
-		Socket<CameraMessage>* m_camera_socket;
-		Socket<ViewportMessage>* m_viewport_socket;
-		Socket<LifeMessage>* m_life_socket;
+		Socket<GlowMessage>* m_glow_socket{ nullptr };
+		Socket<CollisionMessage>* m_collision_socket{ nullptr };
+		Socket<CameraMessage>* m_camera_socket{ nullptr };
+		Socket<ViewportMessage>* m_viewport_socket{ nullptr };
+		Socket<LifeMessage>* m_life_socket{ nullptr };
 
 		int level_id{ 0 };
 		int m_free_fall_frames{ 0 };

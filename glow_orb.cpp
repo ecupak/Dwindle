@@ -61,6 +61,9 @@ namespace Tmpl8
 	
 	void GlowOrb::Draw(Surface* viewable_layer, int c_left, int c_top, int in_left, int in_top, int in_right, int in_bottom)
 	{
+		if (in_bottom - c_top != 720)
+			int z = 3;
+
 		/*
 			Get bounding box of orb(constrained by window size).
 		*/

@@ -57,14 +57,14 @@ namespace Tmpl8
 		// Otherwise get next code.		
 		switch (*blueprint_it)
 		{
-		case OBSTACLE_TILE:
 		case NO_TILE:
-		case SAFE_TILE:
-		case UNREACHABLE_TILE:
+		case HIDDEN_OBSTACLE_TILE:		
+		case VISIBLE_OBSTACLE_TILE:
+		case UNREACHABLE_OBSTACLE_TILE:
 		case START_TILE:
 		case PICKUP_TILE:
-		case EXIT1_TILE:
-		case EXIT2_TILE:
+		case EASY_EXIT_TILE:
+		case HARD_EXIT_TILE:
 		case FINISH_TILE:
 			blueprint_code.m_tile_id = *blueprint_it;
 			break;
@@ -120,9 +120,9 @@ namespace Tmpl8
 	{
 		switch (adjacent_value)
 		{
-		case OBSTACLE_TILE:
-		case SAFE_TILE:
-		case UNREACHABLE_TILE:
+		case HIDDEN_OBSTACLE_TILE:
+		case VISIBLE_OBSTACLE_TILE:
+		case UNREACHABLE_OBSTACLE_TILE:
 			return true;
 		default:
 			return false;

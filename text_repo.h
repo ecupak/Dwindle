@@ -82,7 +82,7 @@ namespace Tmpl8
 				"Find an exit to each stage. Good luck!"
 			},
 			Entry{m_guide, vec2{9, 29}, 3,
-				"Press F1 to toggle debug info."
+				"Press F1 to toggle debug mode."
 			},
 		};
 

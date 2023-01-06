@@ -10,6 +10,8 @@
 
 #include "collidable.h"
 #include "obstacle.h"
+#include "obstacle_consts.h"
+
 #include "light_pickup.h"
 #include "finish_line.h"
 
@@ -61,6 +63,10 @@ namespace Tmpl8
 		void CreateCollidableLists();
 		void SendCollidableLists();
 
+		int GetAutotileId(int x, int y);
+		void CleanupAutotileId(int& autotile_id);
+		Sprite& GetTilemapSprite(int tile_id);
+
 		void SetPlayerStartPosition(int x, int y);
 		void CreateObstacle(int x, int y, int tile_id);
 		void CreateMessageBoxes();
@@ -68,10 +74,6 @@ namespace Tmpl8
 		void CreateFinishBlock(int x, int y);
 		void CreatePickup(int x, int y);
 
-		/* Setup autotiles */
-		int GetAutotileId(int x, int y);
-		//bool GetIsWallAdjacent(Pixel adjacent_value);
-		void CleanupAutotileId(int& autotile_id);		
 		CollidableType GetCollidableType(int autotile_id, int tile_id);
 		int GetFrameId(int autotile_id);
 		int GetBitwiseOverlap(int autotile_id);
@@ -81,7 +83,7 @@ namespace Tmpl8
 		void PrepareRevealedLayer();
 
 		// ATTRIBUTES
-		Surface m_tilemap_smooth{"assets/tilemap_smooth_64x.png"};
+		//Surface m_tilemap_smooth{"assets/tilemap_smooth_64x.png"};
 		//Surface m_tilemap_rough{ "assets/tilemap_rough.png" };		
 		Surface m_light_pickup{ "assets/light-lg.png" };
 		//char* bg{ "assets/noise_robson_1280.png" }; // credit: https://robson.plus/white-noise-image-generator/	
@@ -110,6 +112,9 @@ namespace Tmpl8
 		Surface m_obstacle_layer;
 		Surface m_map_layer;
 		Surface m_revealed_layer;
+
+		Sprite m_obstacle_tilemap_sprite{ new Surface("assets/tilemaps/tilemap_smooth_64x.png"), 47, true };
+		Sprite m_safe_tilemap_sprite{ new Surface("assets/tilemaps/tilemap_safe_64x.png"), 47, true };
 
 		Blueprints m_blueprints;
 		TextRepo* m_text_repo{ nullptr };

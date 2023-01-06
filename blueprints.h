@@ -51,7 +51,7 @@ namespace Tmpl8
 			"XXS......SSSSS.SXS.SSSSS.SXXX"
 			"XXS......SXXXS.SXS.SXXXS.SXXX"
 			"XXS......SXXXS.SXS.SXXXS.SXXX"
-			"XXS......SXXXS.SXS.SXXXS.SXXX"
+			"XXS.O....SXXXS.SXS.SXXXS.SXXX"
 			"XXS......SXXXS.SXS.SXXXS.SXXX"
 			"XXSSSSSSSSXXXS.SSS.SXXXS.SXXX"
 			"XXXXXXXXXXXXXS.....SXXXS.SXXX"
@@ -80,7 +80,7 @@ namespace Tmpl8
 			"S........UXXXXXXXXXXXXXXXXXXX"
 			"U..UUUUUUUUUUUUUUUUUUUUUUUUUU"
 			"U......................G#...."
-			"U......O.......^........#...."
+			"U..............^........#...."
 			"UUUUUUUUUUUUUUUUUUUUUUUUSSSSS"
 			"XXXXXXXXXXXXXXXXXXXXXXXXXXXXX"},
 

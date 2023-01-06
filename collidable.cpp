@@ -49,8 +49,9 @@ namespace Tmpl8
 		{
 		case CollidableType::PLAYER_POINT:
 			return 0x1;
-		case CollidableType::OBSTACLE:
-		case CollidableType::PERM_GLOW:
+		case CollidableType::OBSTACLE_HIDDEN:
+		case CollidableType::OBSTACLE_VISIBLE:
+		case CollidableType::OBSTACLE_DANGEROUS:
 			return 0x10;
 		case CollidableType::FINISH_LINE:
 			return 0x100;

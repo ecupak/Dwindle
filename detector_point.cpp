@@ -81,39 +81,6 @@ namespace Tmpl8
 	}
 
 
-	void DetectorPoint::RegisterCollision(Collidable*& collision)
-	{
-		switch (collision->m_object_type)
-		{
-		case CollidableType::OBSTACLE:
-			m_obstacles.push_back(collision);
-			break;
-		case CollidableType::SAFE_GLOW:
-			m_glow_orbs.push_back(collision);
-			break;
-		case CollidableType::PERM_GLOW:
-			m_obstacles.push_back(collision);
-			m_glow_orbs.push_back(collision);
-			break;
-		case CollidableType::PICKUP:
-			m_is_on_pickup = true;
-			break;
-		case CollidableType::FINISH_LINE:
-			if (m_state == State::ALIVE)
-			{
-				m_is_at_finish_line = true;
-			}
-			else if (m_state == State::DEAD && m_is_at_finish_line == false)
-			{
-				m_obstacles.push_back(collision);
-			}
-			break;
-		default:
-			break;
-		}
-	}
-
-
 	vec2& DetectorPoint::GetDeltaPosition()
 	{
 		return delta_position;
@@ -183,8 +150,42 @@ namespace Tmpl8
 		delta_position.x = 0.0f;
 		delta_position.y = 0.0f;
 		m_is_collision_detected = false;
-		m_is_on_pickup = false;
+		m_is_on_pickup = false;		
 		new_mode = NONE;
+	}
+
+
+	void DetectorPoint::RegisterCollision(Collidable*& collision)
+	{
+		switch (collision->m_object_type)
+		{
+		case CollidableType::OBSTACLE_HIDDEN:
+		case CollidableType::OBSTACLE_DANGEROUS:
+			m_obstacles.push_back(collision);
+			break;
+		case CollidableType::SAFE_GLOW:
+			m_glow_orbs.push_back(collision);
+			break;
+		case CollidableType::OBSTACLE_VISIBLE:
+			m_obstacles.push_back(collision);
+			m_glow_orbs.push_back(collision);
+			break;
+		case CollidableType::PICKUP:
+			m_is_on_pickup = true;
+			break;
+		case CollidableType::FINISH_LINE:
+			if (m_state == State::ALIVE)
+			{
+				m_is_at_finish_line = true;
+			}
+			else if (m_state == State::DEAD && m_is_at_finish_line == false)
+			{
+				m_obstacles.push_back(collision);
+			}
+			break;
+		default:
+			break;
+		}
 	}
 
 
@@ -327,8 +328,9 @@ namespace Tmpl8
 
 			switch (closest_intersection.m_type_of_collision_object)
 			{
-			case CollidableType::OBSTACLE:
-			case CollidableType::PERM_GLOW:
+			case CollidableType::OBSTACLE_HIDDEN:
+			case CollidableType::OBSTACLE_VISIBLE:
+			case CollidableType::OBSTACLE_DANGEROUS:
 			case CollidableType::FINISH_LINE:
 				ResolveSmoothCollision(closest_intersection);
 				break;
@@ -450,6 +452,7 @@ namespace Tmpl8
 		{
 			new_mode = GetNextMode();
 			m_is_safe_glow_needed = GetIsSafeGlowNeeded();
+			m_is_on_dangerous_obstacle = intersection_info.m_collision_object->m_object_type == CollidableType::OBSTACLE_DANGEROUS;
 		}
 	}
 

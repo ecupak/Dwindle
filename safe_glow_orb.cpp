@@ -3,14 +3,32 @@
 
 namespace Tmpl8
 {
-	SafeGlowOrb::SafeGlowOrb(vec2 position, float player_strength, Surface* source_layer) :
-		GlowOrb{ position, player_strength, CollidableType::SAFE_GLOW, source_layer, 2 }
+	SafeGlowOrb::SafeGlowOrb(vec2 position, float player_strength, Surface* source_layer, float delay_time) :
+		GlowOrb{ position, player_strength, CollidableType::SAFE_GLOW, source_layer, 2 },
+		m_is_on_dangerous_tile{ delay_time >= 0.0f }
 	{
 		SetCollidablesWantedBitflag(m_collidables_of_interest);
+
+		phase = Phase::FULL;		
+		delay = delay_time;
+
 		radius_max = 30.0f;
-		radius = radius_max;
-		phase = Phase::FULL;
+		radius = radius_max;		
 		opacity = 235.0f;
+	}
+
+	
+	void SafeGlowOrb::UpdateFullPhase(float deltaTime)
+	{
+		if (m_is_on_dangerous_tile)
+		{
+			delay -= deltaTime;
+
+			if (delay <= 0)
+			{
+				phase = Phase::WANING;
+			}
+		}
 	}
 
 
@@ -39,7 +57,7 @@ namespace Tmpl8
 				
 		if ((source_pix[x_pos] & BlueMask) > 1)
 		{
-			destination_pix[x_pos] = MixAlpha(glow_color, new_opacity, 0xFF000000, true);		
+			destination_pix[x_pos] = MixAlpha(glow_color, new_opacity, destination_pix[x_pos], true);
 		}
 	}
 };

@@ -7,23 +7,8 @@
 
 namespace Tmpl8
 {
-	//TODO:  Move a lot of thinking from the level file to within Obstacle.
-
-	//Obstacle::Obstacle(int x, int y, int TILE_SIZE, CollidableType object_type, Surface* autotile_map, int autotile_max_frame_id, int autotile_frame_id, int bitwise_overlap, bool is_revealed) :
-	//	Collidable{x, y, TILE_SIZE, object_type, 0 },
-	//	m_sprite{ autotile_map, autotile_max_frame_id, false },
-	//	m_autotile_id{ autotile_frame_id },
-	//	m_bitwise_overlap{ bitwise_overlap }
-	//	//m_is_revealed{ is_revealed }
-	//{
-		//SetCollidablesWantedBitflag(m_collidables_of_interest);
-		//center.x = left + m_sprite.GetWidth() / 2.0f;
-		//center.y = top + m_sprite.GetHeight() / 2.0f;
-	//}
-
-
 	Obstacle::Obstacle(int x, int y, int TILE_SIZE, int autotile_id, int tile_id, Sprite& sprite) :
-		Collidable{ x, y, TILE_SIZE, GetCollidableType(autotile_id, tile_id), 0 },
+		Collidable{ x, y, TILE_SIZE, GetCollidableType(tile_id), 0 },
 		m_sprite{ sprite },
 		m_frame_id{ GetFrameId(autotile_id) },
 		m_autotile_id{ autotile_id }
@@ -38,11 +23,12 @@ namespace Tmpl8
 		m_sprite.Draw(layer, left, top);
 	}
 
+
 	void Obstacle::ApplyOverlap()
 	{
 		// Extend bounding box into neighbor by 1 pixel.
 		// Solution to detector points sometimes "slipping" between obstacles.
-		if (m_object_type != CollidableType::UNREACHABLE)
+		if (m_object_type != CollidableType::OBSTACLE_UNREACHABLE)
 		{
 			if (m_autotile_id & LEFT)
 				--left;
@@ -59,22 +45,19 @@ namespace Tmpl8
 	}
 
 
-	CollidableType Obstacle::GetCollidableType(int autotile_id, int tile_id)
-	{
-		if (autotile_id == 255)
+	CollidableType Obstacle::GetCollidableType(int tile_id)
+	{		
+		switch (tile_id)
 		{
-			return CollidableType::UNREACHABLE;
-		}
-		else
-		{
-			switch (tile_id)
-			{
-			case HIDDEN_OBSTACLE_TILE:
-				return CollidableType::OBSTACLE;
-			case VISIBLE_OBSTACLE_TILE:
-				return CollidableType::PERM_GLOW;
-			}
-		}
+		case VISIBLE_OBSTACLE_TILE:
+			return CollidableType::OBSTACLE_VISIBLE;
+		case HIDDEN_OBSTACLE_TILE:
+			return CollidableType::OBSTACLE_HIDDEN;
+		case UNREACHABLE_OBSTACLE_TILE:
+			return CollidableType::OBSTACLE_UNREACHABLE;
+		case DANGEROUS_OBSTACLE_TILE:
+			return CollidableType::OBSTACLE_DANGEROUS;
+		}		
 	}
 
 

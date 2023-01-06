@@ -129,6 +129,7 @@ namespace Tmpl8 {
 		float GetDistanceToMove(VectorIndex vector_index, float pre_calculated_t2);
 
 		bool GetIsSafeGlowNeeded(int post_id);
+		bool GetIsOnDangerousObstacle(int post_id);
 
 		template <typename T> int GetSign(T val);
 		template <typename T> T GetAbsoluteMax(T val1, T val2);

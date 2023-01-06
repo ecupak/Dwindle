@@ -113,8 +113,8 @@ namespace Tmpl8
 		Surface m_map_layer;
 		Surface m_revealed_layer;
 
-		Sprite m_obstacle_tilemap_sprite{ new Surface("assets/tilemaps/tilemap_smooth_64x.png"), 47, true };
-		Sprite m_safe_tilemap_sprite{ new Surface("assets/tilemaps/tilemap_safe_64x.png"), 47, true };
+		Sprite m_normal_obstacle_tilemap_sprite{ new Surface("assets/tilemaps/tilemap_normal_64x.png"), 47, true };
+		Sprite m_dangerous_obstacle_tilemap_sprite{ new Surface("assets/tilemaps/tilemap_dangerous_64x.png"), 47, true };
 
 		Blueprints m_blueprints;
 		TextRepo* m_text_repo{ nullptr };

@@ -61,6 +61,7 @@ namespace Tmpl8
 		case HIDDEN_OBSTACLE_TILE:		
 		case VISIBLE_OBSTACLE_TILE:
 		case UNREACHABLE_OBSTACLE_TILE:
+		case DANGEROUS_OBSTACLE_TILE:
 		case START_TILE:
 		case PICKUP_TILE:
 		case EASY_EXIT_TILE:
@@ -123,6 +124,7 @@ namespace Tmpl8
 		case HIDDEN_OBSTACLE_TILE:
 		case VISIBLE_OBSTACLE_TILE:
 		case UNREACHABLE_OBSTACLE_TILE:
+		case DANGEROUS_OBSTACLE_TILE:
 			return true;
 		default:
 			return false;

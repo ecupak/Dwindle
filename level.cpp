@@ -179,7 +179,7 @@ namespace Tmpl8
 		case HIDDEN_OBSTACLE_TILE:		
 		case VISIBLE_OBSTACLE_TILE:
 		case UNREACHABLE_OBSTACLE_TILE:
-		//case HAZARDOUS_OBSTACLE_TILE:
+		case DANGEROUS_OBSTACLE_TILE:
 			CreateObstacle(x, y, blueprint_code.m_tile_id);
 			break;
 		case NO_TILE:
@@ -262,11 +262,12 @@ namespace Tmpl8
 	{
 		switch (tile_id)
 		{
+		case VISIBLE_OBSTACLE_TILE:
 		case HIDDEN_OBSTACLE_TILE:
 		case UNREACHABLE_OBSTACLE_TILE:
-			return m_obstacle_tilemap_sprite;
-		case VISIBLE_OBSTACLE_TILE:
-			return m_safe_tilemap_sprite;
+			return m_normal_obstacle_tilemap_sprite;
+		case DANGEROUS_OBSTACLE_TILE:
+			return m_dangerous_obstacle_tilemap_sprite;
 		}
 	}
 
@@ -298,7 +299,7 @@ namespace Tmpl8
 		// Add obstacles that can interact with player to collidables list.
 		for (Obstacle& obstacle : m_obstacles)
 		{
-			if (obstacle.m_object_type != CollidableType::UNREACHABLE)
+			if (obstacle.m_object_type != CollidableType::OBSTACLE_UNREACHABLE)
 				m_obstacle_collidables.push_back(&obstacle);
 		}
 
@@ -395,7 +396,7 @@ namespace Tmpl8
 	{
 		for (Obstacle& obstacle : m_obstacles)
 		{
-			if (obstacle.m_object_type == CollidableType::OBSTACLE)
+			if (obstacle.m_object_type != CollidableType::OBSTACLE_VISIBLE)
 			{
 				obstacle.Draw(&m_obstacle_layer);
 				obstacle.ApplyOverlap();
@@ -408,7 +409,7 @@ namespace Tmpl8
 	{
 		for (Obstacle& obstacle : m_obstacles)
 		{
-			if (obstacle.m_object_type == CollidableType::PERM_GLOW)
+			if (obstacle.m_object_type == CollidableType::OBSTACLE_VISIBLE)
 			{
 				obstacle.Draw(&m_revealed_layer);
 				obstacle.ApplyOverlap();

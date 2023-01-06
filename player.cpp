@@ -1,7 +1,10 @@
 #pragma once
 
-#include <algorithm>
 #include "player.h"
+
+#include <algorithm>
+#include <map>
+
 
 namespace Tmpl8
 {
@@ -325,11 +328,12 @@ namespace Tmpl8
 
 		int new_mode{ NONE };
 		bool is_ricochet_set{ false };
-		int post_id{ NONE };
+		int post_id{ -1 };
 		vec2 delta_position{ 0.0f, 0.0f };
 		vec2 ricochet_velocity{ 0.0f, 0.0f };
 		
-		
+		std::map<int, int> contact_points;
+
 		// Get change in position after collision, and the new mode.
 		for (DetectorPoint& point : points)		
 		{	
@@ -377,11 +381,14 @@ namespace Tmpl8
 					Get new mode (hit a flat surface). If new mode is WALL,
 					store the post info so we know which side of player the wall is.
 				*/
-				new_mode |= point.GetNewMode();
-				if (point.GetNewMode() & WALL)
+
+				int detected_mode = point.GetNewMode();
+				if (detected_mode != NONE)
 				{
-					post_id = point.post_id;
+					new_mode |= detected_mode;
+					contact_points.insert(std::pair<int, int>(detected_mode, point.post_id));
 				}
+								
 
 				// Store the first instance of a ricochet collision - ignore the rest.
 				// If there are multiple detected ricochets, there is little gain from
@@ -437,16 +444,21 @@ namespace Tmpl8
 				{
 					if (new_mode & GROUND)
 					{
+						post_id = contact_points.at(GROUND);
 						is_safe_glow_needed = GetIsSafeGlowNeeded(BOTTOM);
 					}
 					else if (new_mode & WALL)
 					{
+						post_id = contact_points.at(WALL);
 						is_safe_glow_needed = GetIsSafeGlowNeeded(post_id);
-					}
+					}					
+					/*
+						No glow orb on ceiling hits.
 					else
 					{
+						post_id = contact_points.at(CEILING);
 						is_safe_glow_needed = GetIsSafeGlowNeeded(TOP);
-					}
+					}*/
 				}
 				 
 				// If safe glow orb needed, decrease life/opacity strength.
@@ -503,7 +515,8 @@ namespace Tmpl8
 				// Update glow socket.
 				if (new_mode & ~NONE)
 				{
-					m_glow_socket->SendMessage(GlowMessage{ GlowAction::MAKE_ORB, center, calculated_opacity, CollidableType::FULL_GLOW, is_safe_glow_needed });
+					bool is_on_dangerous_obstacle{ GetIsOnDangerousObstacle(post_id) };					
+					m_glow_socket->SendMessage(GlowMessage{ GlowAction::MAKE_ORB, center, calculated_opacity, CollidableType::FULL_GLOW, is_safe_glow_needed, is_on_dangerous_obstacle });
 				}
 				else if (is_ricochet_set)
 				{
@@ -564,6 +577,11 @@ namespace Tmpl8
 		return points[post_id].m_is_safe_glow_needed;
 	}
 
+
+	bool Player::GetIsOnDangerousObstacle(int post_id)
+	{
+		return post_id > -1 && points[post_id].m_is_on_dangerous_obstacle;
+	}
 
 	/*
 		This section covers actions while in the air (or about to collide).

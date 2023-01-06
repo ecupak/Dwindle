@@ -10,6 +10,7 @@ namespace Tmpl8
 	constexpr char VISIBLE_OBSTACLE_TILE{ 'S' };
 	constexpr char HIDDEN_OBSTACLE_TILE{ 'U' };
 	constexpr char UNREACHABLE_OBSTACLE_TILE{ 'X' };
+	constexpr char DANGEROUS_OBSTACLE_TILE{ 'W' };
 	constexpr char EASY_EXIT_TILE{ 'G' };
 	constexpr char HARD_EXIT_TILE{ 'R' };
 	constexpr char PICKUP_TILE{ '^' };	

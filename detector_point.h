@@ -64,6 +64,7 @@ namespace Tmpl8
 		vec2 velocity{ 0.0f, 0.0f };
 		int new_mode{ 0 };
 		bool m_is_safe_glow_needed{ false };
+		bool m_is_on_dangerous_obstacle{ false };
 		bool m_is_at_finish_line{ false };
 		bool m_is_on_pickup{ false };
 		bool isRicochetCollision{ false };
@@ -92,8 +93,9 @@ namespace Tmpl8
 		State m_state{ State::ALIVE };
 
 		std::vector<CollidableType> m_collidables_of_interest{
-			CollidableType::OBSTACLE,
-			CollidableType::PERM_GLOW,
+			CollidableType::OBSTACLE_HIDDEN,
+			CollidableType::OBSTACLE_VISIBLE,
+			CollidableType::OBSTACLE_DANGEROUS,
 			CollidableType::PICKUP,
 			CollidableType::FINISH_LINE,
 			CollidableType::SAFE_GLOW,			

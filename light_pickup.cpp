@@ -77,11 +77,7 @@ namespace Tmpl8
 
 	void LightPickup::Draw(Surface* viewable_layer, int c_left, int c_top, int in_left, int in_top, int in_right, int in_bottom)
 	{
-		// >>>>> from here
-		
-		// viewable_layer bounds are already clamped to window bounds and are ints.
-		// use unaltered results for h_pix math.
-		// v_pix needs to subtract v_left and v_top.
+		// All passed in_x values are within screen bounds. Find bounds of object to draw within these bounds.
 		int d_top = Max(top, in_top);
 		int d_bottom = Min(bottom, in_bottom);
 		int d_left = Max(left, in_left);
@@ -93,9 +89,8 @@ namespace Tmpl8
 		*/
 
 		Pixel* d_pix = viewable_layer->GetBuffer() + (d_left - c_left) + ((d_top - c_top) * viewable_layer->GetPitch());		
-
-		// <<<<< to here: make part of base class? not override. add another Draw() to derived class, that calls base class Draw first with parameters?
 		
+		// When drawing from isolated image to bigger surface, use this setup to get start position of source Pixel.
 		Pixel* s_pix = m_image.GetBuffer() + (d_left - left) + ((d_top - top) * m_image.GetPitch());
 
 		for (int y{ d_top }; y < d_bottom; y++)

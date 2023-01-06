@@ -7,11 +7,11 @@ namespace Tmpl8
 {
 	// Constants.
 	constexpr char NO_TILE{ '.' };
-	constexpr char SAFE_TILE{ 'S' };
-	constexpr char OBSTACLE_TILE{ 'U' };	
-	constexpr char UNREACHABLE_TILE{ 'X' };
-	constexpr char EXIT1_TILE{ 'G' };
-	constexpr char EXIT2_TILE{ 'R' };
+	constexpr char VISIBLE_OBSTACLE_TILE{ 'S' };
+	constexpr char HIDDEN_OBSTACLE_TILE{ 'U' };
+	constexpr char UNREACHABLE_OBSTACLE_TILE{ 'X' };
+	constexpr char EASY_EXIT_TILE{ 'G' };
+	constexpr char HARD_EXIT_TILE{ 'R' };
 	constexpr char PICKUP_TILE{ '^' };	
 	constexpr char START_TILE{ 'O' };
 	constexpr char FINISH_TILE{ '#' };

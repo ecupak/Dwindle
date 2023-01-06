@@ -204,6 +204,9 @@
     <ClInclude Include="message_enums.h">
       <Filter>Level Files\Message Box</Filter>
     </ClInclude>
+    <ClInclude Include="obstacle_consts.h">
+      <Filter>Level Files\Obstacle</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="template code">

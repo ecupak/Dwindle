@@ -4,11 +4,9 @@
 namespace Tmpl8
 {
 	FullGlowOrb::FullGlowOrb(vec2 position, float player_strength, Surface* source_layer, Socket<GlowMessage>* glow_socket, SafeGlowInfo& safe_glow_info) :
-		GlowOrb{ position, player_strength, CollidableType::GLOW_ORB_FULL, source_layer, 1 },
+		GlowOrb{ CollidableInfo{CollidableType::GLOW_ORB_FULL, CollisionLayer::CAMERA, CollisionMask::NONE, 1, position}, player_strength, source_layer },
 		m_glow_socket{ glow_socket }
 	{
-		SetCollidablesWantedBitflag(m_collidables_of_interest);
-
 		radius_max = 180.0f;
 		delay_max = 0.25f;
 		delay = delay_max;

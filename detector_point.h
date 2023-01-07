@@ -28,7 +28,7 @@ namespace Tmpl8
 	{
 	public:
 		DetectorPoint(int assigned_point);
-		void SetPosition(vec2& center, int radius);
+		void SetPosition(vec2& m_center, int radius);
 		void UpdatePosition(vec2& player_velocity, vec2& distance);
 		void UpdateCollisionBox();
 		
@@ -91,15 +91,6 @@ namespace Tmpl8
 
 		int collision_count{ 0 };
 		State m_state{ State::ALIVE };
-
-		std::vector<CollidableType> m_collidables_of_interest{
-			CollidableType::OBSTACLE_HIDDEN,
-			CollidableType::OBSTACLE_VISIBLE,
-			CollidableType::OBSTACLE_DANGEROUS,
-			CollidableType::PICKUP,
-			CollidableType::FINISH_LINE,
-			CollidableType::GLOW_ORB_SAFE,			
-		};
 	};
 };
 

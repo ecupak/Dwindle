@@ -4,72 +4,53 @@ namespace Tmpl8
 {
 	int Collidable::id_generator{ 0 };
 	
-	Collidable::Collidable(CollidableType object_type, int draw_order, vec2 _center) :
+	Collidable::Collidable(CollidableInfo collidable_info) :
 		m_id{ id_generator++ },
-		m_object_type{ object_type },
-		m_collision_id{ GetCollisionId(object_type) },
-		m_draw_order{ draw_order },
-		center{ _center }
+		m_object_type{ collidable_info.m_collidable_type },
+		m_collision_layer{ GetCollisionId(collidable_info.m_collision_layer) },
+		m_collision_mask{ GetCollisionId(collidable_info.m_collision_mask) },
+		m_draw_order{ collidable_info.m_draw_order },
+		m_center{ collidable_info.m_center }
 	{	}
 
 
-	Collidable::Collidable(int x, int y, int tile_size, CollidableType object_type, int draw_order, vec2 _center) :
+	Collidable::Collidable(CollidableInfo collidable_info, int x, int y, int TILE_SIZE) :
 		m_id{ id_generator++ },
-		m_object_type{ object_type },
-		m_collision_id{ GetCollisionId(object_type) },
-		m_draw_order{ draw_order },
-		center{ _center },
-		left{ x * tile_size },
-		right{ left + tile_size - 1 },
-		top{ y * tile_size },
-		bottom{ top + tile_size - 1 }
+		m_object_type{ collidable_info.m_collidable_type },
+		m_collision_layer{ GetCollisionId(collidable_info.m_collision_layer) },
+		m_collision_mask{ GetCollisionId(collidable_info.m_collision_mask) },
+		m_draw_order{ collidable_info.m_draw_order },
+		m_center{ vec2{ static_cast<float>(x * TILE_SIZE), static_cast<float>(y * TILE_SIZE) } },
+		left{ x * TILE_SIZE },
+		right{ left + TILE_SIZE - 1 },
+		top{ y * TILE_SIZE },
+		bottom{ top + TILE_SIZE - 1 }
 	{	}
 
-	
-	void Collidable::SetCollidablesWantedBitflag(std::vector<CollidableType>& collidables_of_interest)
-	{
-		m_collision_ids_wanted = GetCollisionId(collidables_of_interest);
-	}
 
-
-	int Collidable::GetCollisionId(std::vector<CollidableType>& collidables)
+	int Collidable::GetCollisionId(std::vector<CollisionType>& collision_types)
 	{
 		int bitflag{ 0 };
-		for (CollidableType& collidable : collidables)
+		for (CollisionType& collision_type : collision_types)
 		{
-			bitflag |= GetCollisionId(collidable);
+			bitflag |= GetCollisionId(collision_type);
 		}
 		return bitflag;
 	}
 
 
-	int Collidable::GetCollisionId(CollidableType& collidable)
+	int Collidable::GetCollisionId(CollisionType& collision_types)
 	{
-		switch (collidable)
+		switch (collision_types)
 		{
-		case CollidableType::PLAYER_POINT:
-			return 0x1;
-		case CollidableType::OBSTACLE_HIDDEN:
-		case CollidableType::OBSTACLE_VISIBLE:
-		case CollidableType::OBSTACLE_DANGEROUS:
+		case CollisionType::PLAYER:
+			return 0x01;
+		case CollisionType::CAMERA:
 			return 0x10;
-		case CollidableType::FINISH_LINE:
-			return 0x100;
-		case CollidableType::PICKUP:
-			return 0x1000;
-		case CollidableType::GLOW_ORB_FULL:
-		case CollidableType::GLOW_ORB_TEMP:		
-			return 0x10000;
-		case CollidableType::GLOW_ORB_SAFE:		
-		case CollidableType::GLOW_ORB_PICKUP:
-			return 0x100000;
-		case CollidableType::CAMERA:
-			return 0x1000000;
-		case CollidableType::PLAYER:
-			return 0x10000000;
+		case CollisionType::BOTH:
+			return 0x11;
 		default:
 			return 0;
 		}
 	}
-
 };

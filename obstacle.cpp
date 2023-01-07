@@ -8,13 +8,11 @@
 namespace Tmpl8
 {
 	Obstacle::Obstacle(int x, int y, int TILE_SIZE, int autotile_id, int tile_id, Sprite& sprite) :
-		Collidable{ x, y, TILE_SIZE, GetCollidableType(tile_id), 0 },
+		Collidable{ CollidableInfo{GetCollidableType(tile_id), CollisionLayer::PLAYER, CollisionMask::NONE, 0}, x, y, TILE_SIZE },
 		m_sprite{ sprite },
 		m_frame_id{ GetFrameId(autotile_id) },
 		m_autotile_id{ autotile_id }
-	{	
-		SetCollidablesWantedBitflag(m_collidables_of_interest);	
-	}
+	{	}
 
 	
 	void Obstacle::Draw(Surface* layer)

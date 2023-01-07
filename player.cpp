@@ -33,13 +33,11 @@ namespace Tmpl8
 
 	// Constructor.
 	Player::Player(KeyManager& key_manager) :
-		Collidable{ CollidableType::PLAYER, 10 },
-		m_sprite{ Sprite{new Surface("assets/ball.png"), 3, true} }, // player.png is 40px by 40px.
+		Collidable{ CollidableInfo{ CollidableType::PLAYER, CollisionLayer::CAMERA, CollisionMask::NONE, 10 } },
+		m_sprite{ Sprite{new Surface("assets/ball.png"), 3, true} },
 		m_key_manager{ key_manager },
 		m_player_echo{ m_sprite }
 	{
-		SetCollidablesWantedBitflag(m_collidables_of_interest);
-
 		// Create array of points that will go around circle.
 		for (int i{ 0 }; i < POINTS; i++)
 		{
@@ -182,7 +180,7 @@ namespace Tmpl8
 
 		for (DetectorPoint& point : points)
 		{
-			point.SetPosition(center, (m_sprite.GetWidth() * 0.5f) - 4);
+			point.SetPosition(m_center, (m_sprite.GetWidth() * 0.5f) - 4);
 		}
 	}
 
@@ -246,7 +244,7 @@ namespace Tmpl8
 
 	void Player::SetCenterAndBounds()
 	{
-		center = vec2(
+		m_center = vec2(
 			position.x + (m_sprite.GetWidth() * 0.5f),
 			position.y + (m_sprite.GetHeight() * 0.5f)
 		);
@@ -426,8 +424,7 @@ namespace Tmpl8
 			SetCenterAndBounds();
 			for (DetectorPoint& point : points)
 			{
-				point.ApplyDeltaPosition(delta_position);
-				point.ClearCollisions();
+				point.ApplyDeltaPosition(delta_position);				
 			}
 			//m_glow_socket->SendMessage(GlowMessage{ GlowAction::MOVE_PLAYER_ORB_POSITION, center });
 
@@ -515,11 +512,11 @@ namespace Tmpl8
 				if (new_mode & ~NONE)
 				{
 					bool is_on_dangerous_obstacle{ GetIsOnDangerousObstacle(post_id) };
-					m_glow_socket->SendMessage(GlowMessage{ GlowAction::MAKE_ORB, center, calculated_opacity, CollidableType::GLOW_ORB_FULL, SafeGlowInfo(is_safe_glow_needed, is_on_dangerous_obstacle) });
+					m_glow_socket->SendMessage(GlowMessage{ GlowAction::MAKE_ORB, m_center, calculated_opacity, CollidableType::GLOW_ORB_FULL, SafeGlowInfo(is_safe_glow_needed, is_on_dangerous_obstacle) });
 				}
 				else if (is_ricochet_set)
 				{
-					m_glow_socket->SendMessage(GlowMessage{ GlowAction::MAKE_ORB, center, calculated_opacity, CollidableType::GLOW_ORB_TEMP });
+					m_glow_socket->SendMessage(GlowMessage{ GlowAction::MAKE_ORB, m_center, calculated_opacity, CollidableType::GLOW_ORB_TEMP });
 				}
 
 				// Set next mode for player.
@@ -545,14 +542,12 @@ namespace Tmpl8
 				}
 			}
 		}
-		// If no collisions happened, remove collisions (overlaps with no line intersects) stored in points.
-		else // if (delta_position.x == 0.0f && delta_position.y == 0.0f)
+		
+		// Remove collisions (overlaps with no line intersects) stored in points.
+		for (DetectorPoint& point : points)
 		{
-			for (DetectorPoint & point : points)
-			{
-				point.ClearCollisions();
-			}
-		}
+			point.ClearCollisions();
+		}		
 	}
 
 
@@ -684,7 +679,7 @@ namespace Tmpl8
 		}
 
 		// Update camera focus.
-		m_camera_socket->SendMessage(CameraMessage{ center, Location::GROUND });
+		m_camera_socket->SendMessage(CameraMessage{ m_center, Location::GROUND });
 
 		// Set next mode.
 		mode = Mode::GROUND;
@@ -765,7 +760,7 @@ namespace Tmpl8
 				prepareForWallMode(Trigger::LEFT);
 
 			// Update camera focus.
-			m_camera_socket->SendMessage(CameraMessage{ center, Location::WALL });
+			m_camera_socket->SendMessage(CameraMessage{ m_center, Location::WALL });
 
 			// Set next mode.
 			mode = Mode::WALL;

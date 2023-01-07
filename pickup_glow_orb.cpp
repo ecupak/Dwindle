@@ -3,11 +3,10 @@
 namespace Tmpl8
 {
 	PickupGlowOrb::PickupGlowOrb(vec2 position, float player_strength, Surface* source_layer, int parent_id) :
-		GlowOrb{ position, player_strength, CollidableType::GLOW_ORB_PICKUP, source_layer, 1 }
+		GlowOrb{ CollidableInfo{CollidableType::GLOW_ORB_PICKUP, CollisionLayer::CAMERA, CollisionMask::NONE, 1, position}, player_strength, source_layer }
 	{
-		SetCollidablesWantedBitflag(m_collidables_of_interest);
-
 		m_parent_id = parent_id;
+
 		radius_max = 180.0f;
 		radius = radius_max;
 		phase = Phase::FULL;

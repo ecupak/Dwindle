@@ -2,21 +2,19 @@
 
 namespace Tmpl8
 {
-	LightPickup::LightPickup(int x, int y, int TILE_SIZE, CollidableType object_type, Surface& image, Socket<GlowMessage>* glow_socket) :
-		Collidable{ object_type, 3, GetCenter(x, y, TILE_SIZE) },
+	LightPickup::LightPickup(int x, int y, int TILE_SIZE, CollidableType collidable_type, Surface& image, Socket<GlowMessage>* glow_socket) :
+		Collidable{ CollidableInfo{collidable_type, CollisionLayer::BOTH, CollisionMask::NONE, 3, GetCenter(x, y, TILE_SIZE)} },
 		m_image{ image },
 		m_glow_socket{ glow_socket }
 	{
-		SetCollidablesWantedBitflag(m_collidables_of_interest);
-
 		m_half_height = static_cast<int>(m_image.GetHeight() * 0.5f);
 
-		left = static_cast<int>(floor(center.x - (m_image.GetWidth() / 2.0f)));
+		left = static_cast<int>(floor(m_center.x - (m_image.GetWidth() / 2.0f)));
 		right = left + m_image.GetWidth();
-		top = static_cast<int>(floor(center.y - m_half_height));
+		top = static_cast<int>(floor(m_center.y - m_half_height));
 		bottom = top + m_image.GetHeight();
 
-		m_glow_socket->SendMessage(GlowMessage{ GlowAction::MAKE_ORB, center, 1.0f, CollidableType::GLOW_ORB_PICKUP, m_id });
+		m_glow_socket->SendMessage(GlowMessage{ GlowAction::MAKE_ORB, m_center, 1.0f, CollidableType::GLOW_ORB_PICKUP, m_id });
 	}
 
 
@@ -50,7 +48,7 @@ namespace Tmpl8
 	void LightPickup::UpdateYPosition()
 	{
 		// Only y position changes.
-		top = static_cast<int>(floor(center.y - m_half_height - m_offset_y));
+		top = static_cast<int>(floor(m_center.y - m_half_height - m_offset_y));
 		bottom = top + (m_half_height * 2);
 	}
 

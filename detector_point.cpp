@@ -31,19 +31,17 @@ namespace Tmpl8
 
 
 	DetectorPoint::DetectorPoint(int assigned_post) :
-		Collidable{ CollidableType::PLAYER_POINT, 0 },
+		Collidable{ CollidableInfo{CollidableType::PLAYER_POINT, CollisionLayer::PLAYER, CollisionMask::PLAYER, 0} },
 		post_id{ assigned_post }
-	{	
-		SetCollidablesWantedBitflag(m_collidables_of_interest);
-	}
+	{	}
 
 
-	void DetectorPoint::SetPosition(vec2& center, int radius)
+	void DetectorPoint::SetPosition(vec2& m_center, int radius)
 	{
 		float deg45{ (2 * PI) / 8 };
 
-		position.x = center.x + radius * cos(deg45 * post_id);
-		position.y = center.y - radius * sin(deg45 * post_id);
+		position.x = m_center.x + radius * cos(deg45 * post_id);
+		position.y = m_center.y - radius * sin(deg45 * post_id);
 		prev_position = position;
 
 		UpdateCollisionBox();
@@ -521,10 +519,10 @@ namespace Tmpl8
 			// Visible obstacles act as a safe glow orb.
 			if (safe_orb->m_object_type == CollidableType::OBSTACLE_VISIBLE) return false;
 
-			float dist_x{ position.x - safe_orb->center.x };
-			float dist_y{ position.y - safe_orb->center.y };
+			float dist_x{ position.x - safe_orb->m_center.x };
+			float dist_y{ position.y - safe_orb->m_center.y };
 			float dist = (dist_x * dist_x) + (dist_y * dist_y);
-			float radius = safe_orb->center.x - safe_orb->left;
+			float radius = safe_orb->m_center.x - safe_orb->left;
 			if (dist <= radius * radius)
 			{
 				return false;

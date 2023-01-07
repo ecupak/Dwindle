@@ -230,7 +230,6 @@
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="collidable.cpp" />
     <ClCompile Include="detector_point.cpp" />
-    <ClCompile Include="finish_line.cpp" />
     <ClCompile Include="first_echo.cpp" />
     <ClCompile Include="game.cpp" />
     <ClCompile Include="glow_manager.cpp" />

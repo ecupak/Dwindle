@@ -7,11 +7,9 @@
 namespace Tmpl8
 {
 	Camera::Camera(Collidable& subject) :
-		Collidable{CollidableType::CAMERA, 0 },
+		Collidable{ CollidableInfo{CollidableType::CAMERA, CollisionLayer::CAMERA, CollisionMask::CAMERA, 0 } },
 		m_subject{ subject }
 	{
-		SetCollidablesWantedBitflag(m_collidables_of_interest);
-
 		m_offset.x = floor(ScreenWidth * 0.5f);
 		m_offset.y = floor(ScreenHeight * 0.5f);
 	}
@@ -19,8 +17,8 @@ namespace Tmpl8
 
 	void Camera::SetPosition(vec2 position)
 	{
-		center = position;
-		m_focus = center;
+		m_center = position;
+		m_focus = m_center;
 		UpdateBounds();
 		m_has_moved = true;
 	}
@@ -117,24 +115,24 @@ namespace Tmpl8
 		}
 		
 		// Always follow x position exactly.
-		m_focus.x = m_subject.center.x;
+		m_focus.x = m_subject.m_center.x;
 
 		// Only follow y position if we just went from ground to wall, ground to higher ground, from wall to anything, or have fallen below previous y position.
-		if (m_is_slow_following || m_subject.center.y > m_focus.y || m_subject_location == Location::WALL)
+		if (m_is_slow_following || m_subject.m_center.y > m_focus.y || m_subject_location == Location::WALL)
 		{
-			m_focus.y = m_subject.center.y;
+			m_focus.y = m_subject.m_center.y;
 		}
 
 		// Move to new focus.
 		m_has_moved = false;
 				
-		float dist_x{ m_focus.x - center.x };
-		float dist_y{ m_focus.y - center.y };
+		float dist_x{ m_focus.x - m_center.x };
+		float dist_y{ m_focus.y - m_center.y };
 		float distance_to_move = speed * deltaTime;
 
 		if (dist_x != 0.0f)
 		{
-			center.x = m_focus.x;
+			m_center.x = m_focus.x;
 			m_has_moved = true;
 		}
 		
@@ -143,11 +141,11 @@ namespace Tmpl8
 		{
 			if (m_is_slow_following && std::abs(dist_y) > distance_to_move)
 			{
-				center.y += GetSign(dist_y) * distance_to_move;
+				m_center.y += GetSign(dist_y) * distance_to_move;
 			}
 			else
 			{
-				center.y = m_focus.y;
+				m_center.y = m_focus.y;
 				if (m_is_slow_following)
 					m_is_slow_following = false;
 			}
@@ -169,9 +167,9 @@ namespace Tmpl8
 
 	void Camera::UpdateBounds()
 	{
-		left = center.x - m_offset.x;
+		left = m_center.x - m_offset.x;
 		right = left + (m_offset.x * 2);
-		top = center.y - m_offset.y;
+		top = m_center.y - m_offset.y;
 		bottom = top + (m_offset.y * 2);
 	}
 

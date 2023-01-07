@@ -70,10 +70,10 @@ namespace Tmpl8
 
 		std::vector<CollidableType> m_collidables_of_interest{
 			CollidableType::PICKUP,
-			CollidableType::FULL_GLOW,
-			CollidableType::TEMP_GLOW,
-			CollidableType::SAFE_GLOW,
-			CollidableType::PICKUP_GLOW,
+			CollidableType::GLOW_ORB_FULL,
+			CollidableType::GLOW_ORB_SAFE,
+			CollidableType::GLOW_ORB_TEMP,
+			CollidableType::GLOW_ORB_PICKUP,
 		};
 	};
 };

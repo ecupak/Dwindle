@@ -11,7 +11,7 @@ namespace Tmpl8
 	{
 	public:
 		// METHODS.		
-		FullGlowOrb(vec2 position, float player_strength, Surface* source_layer, Socket<GlowMessage>* glow_socket, bool is_safe_glow_needed, bool is_on_dangerous_tile);
+		FullGlowOrb(vec2 position, float player_strength, Surface* source_layer, Socket<GlowMessage>* glow_socket, SafeGlowInfo& safe_glow_info);
 
 	private:
 		// METHODS.

@@ -44,14 +44,14 @@ namespace Tmpl8
 
 		std::array<BlueprintData, 4> blueprint_data
 		{
-			BlueprintData{29, 38, // Tutorial: 1856 x 2432
+			BlueprintData{29, 47, // Tutorial: 1856 x 3008
 			"XXSSSSSSSSSSSSSSXSSSSSSSSSXXX"
 			"XXS............SXS.......SXXX"
 			"XXS............SXS.......SXXX"
 			"XXS......SSSSS.SXS.SSSSS.SXXX"
 			"XXS......SXXXS.SXS.SXXXS.SXXX"
 			"XXS......SXXXS.SXS.SXXXS.SXXX"
-			"XXS.O....SXXXS.SXS.SXXXS.SXXX"
+			"XXS......SXXXS.SXS.SXXXS.SXXX"
 			"XXS......SXXXS.SXS.SXXXS.SXXX"
 			"XXSSSSSSSSXXXS.SSS.SXXXS.SXXX"
 			"XXXXXXXXXXXXXS.....SXXXS.SXXX"
@@ -78,11 +78,21 @@ namespace Tmpl8
 			"S..UUUU.....UXXXXXXXXXXXXXXXX"
 			"U........UUUUXXXXXXXXXXXXXXXX"
 			"S........UXXXXXXXXXXXXXXXXXXX"
-			"U..UUUUUUUUUUUUUUUUUUUUUUUUUU"
-			"U......................G#...."
-			"U..............^........#...."
-			"UUUUUUUUUUUUUUUUUUUUUUUUSSSSS"
+			"U..UUUUUUUUUUUUUUUUUUUUUUUUUX"
+			"U..........................UX"
+			"U..............^...........UX"
+			"UUUUUUUUUUUUUUUUUUUUUUUU...UX"
+			"XXXXXXXXXXXXXXXXXXXXXXXU...UX"
+			"XXXXXXXXXXXXXXXXXXXXXXXU...UX"
+			"XXXXXXXXXXXXXXXXXXXXXXUU...UX"
+			"XXXXXXXXXUUUUUUUUUUUUUU....UX"
+			"UUUUUUUUUU...............O.UX"
+			".........#R................UX"
+			".........#..............SSSUX"
+			"SSSSSSSSSSUWWWWWWWWWWWSSSXXXX"
+			"XXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
 			"XXXXXXXXXXXXXXXXXXXXXXXXXXXXX"},
+
 
 			BlueprintData{28, 17, // Level 1: 1792 x 1088
 			"XXXXXXXXXXXXXUUUUUUUUUUUUXXX"

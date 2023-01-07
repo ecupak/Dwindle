@@ -3,14 +3,14 @@
 
 namespace Tmpl8
 {
-	SafeGlowOrb::SafeGlowOrb(vec2 position, float player_strength, Surface* source_layer, float delay_time) :
-		GlowOrb{ position, player_strength, CollidableType::SAFE_GLOW, source_layer, 2 },
-		m_is_on_dangerous_tile{ delay_time >= 0.0f }
+	SafeGlowOrb::SafeGlowOrb(vec2 position, float player_strength, Surface* source_layer, SafeGlowInfo safe_glow_info) :
+		GlowOrb{ position, player_strength, CollidableType::GLOW_ORB_SAFE, source_layer, 2 },
+		m_is_on_delay{ safe_glow_info.m_is_on_delay }
 	{
 		SetCollidablesWantedBitflag(m_collidables_of_interest);
 
 		phase = Phase::FULL;		
-		delay = delay_time;
+		delay = 1.0f;
 
 		radius_max = 30.0f;
 		radius = radius_max;		
@@ -20,7 +20,7 @@ namespace Tmpl8
 	
 	void SafeGlowOrb::UpdateFullPhase(float deltaTime)
 	{
-		if (m_is_on_dangerous_tile)
+		if (m_is_on_delay)
 		{
 			delay -= deltaTime;
 

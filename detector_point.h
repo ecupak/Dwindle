@@ -98,7 +98,7 @@ namespace Tmpl8
 			CollidableType::OBSTACLE_DANGEROUS,
 			CollidableType::PICKUP,
 			CollidableType::FINISH_LINE,
-			CollidableType::SAFE_GLOW,			
+			CollidableType::GLOW_ORB_SAFE,			
 		};
 	};
 };

@@ -4,7 +4,7 @@
 namespace Tmpl8
 {
 	TempGlowOrb::TempGlowOrb(vec2 position, float player_strength, Surface* source_layer) :
-		GlowOrb{ position, player_strength, CollidableType::TEMP_GLOW, source_layer, 1 }
+		GlowOrb{ position, player_strength, CollidableType::GLOW_ORB_TEMP, source_layer, 1 }
 	{
 		SetCollidablesWantedBitflag(m_collidables_of_interest);
 

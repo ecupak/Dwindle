@@ -16,7 +16,7 @@ namespace Tmpl8
 		top = static_cast<int>(floor(center.y - m_half_height));
 		bottom = top + m_image.GetHeight();
 
-		m_glow_socket->SendMessage(GlowMessage{ GlowAction::MAKE_ORB, center, 1.0f, CollidableType::PICKUP_GLOW, m_id });
+		m_glow_socket->SendMessage(GlowMessage{ GlowAction::MAKE_ORB, center, 1.0f, CollidableType::GLOW_ORB_PICKUP, m_id });
 	}
 
 

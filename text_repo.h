@@ -70,7 +70,7 @@ namespace Tmpl8
 				"When you touch a dark surface, it will glow and you will lose some light."
 			},
 			Entry{m_tutorial, vec2{7, 36}, 5,
-				"You can touch a glowing spot without losing more light."
+				"It's safe to touch a glowing surface! You will not lose light."
 			},
 			Entry{m_tutorial, vec2{13, 36}, 4,
 				"This is a Spark. It will restore some of your lost light."
@@ -78,7 +78,13 @@ namespace Tmpl8
 			Entry{m_tutorial, vec2{18, 36}, 5,
 				"If you touch a dark surface and have no light left, the level will restart."
 			},
-			Entry{m_tutorial, vec2{24, 36}, 5,
+			Entry{m_tutorial, vec2{22, 44}, 1,
+				"Run!"
+			},
+			Entry{m_tutorial, vec2{16, 44}, 4,
+				"Some surfaces will absorb the glow you make."
+			},			
+			Entry{m_tutorial, vec2{10, 44}, 5,
 				"Find an exit to each stage. Good luck!"
 			},
 			Entry{m_guide, vec2{9, 29}, 3,

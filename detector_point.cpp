@@ -163,7 +163,7 @@ namespace Tmpl8
 		case CollidableType::OBSTACLE_DANGEROUS:
 			m_obstacles.push_back(collision);
 			break;
-		case CollidableType::SAFE_GLOW:
+		case CollidableType::GLOW_ORB_SAFE:
 			m_glow_orbs.push_back(collision);
 			break;
 		case CollidableType::OBSTACLE_VISIBLE:
@@ -518,8 +518,8 @@ namespace Tmpl8
 		// If none of the safe glow orbs are overlapping the point, a new safe glow orb is needed.
 		for (Collidable*& safe_orb : m_glow_orbs)
 		{
-			// Permanent glow blocks act as a safe glow orb.
-			if (safe_orb->m_object_type == CollidableType::PERM_GLOW) return false;
+			// Visible obstacles act as a safe glow orb.
+			if (safe_orb->m_object_type == CollidableType::OBSTACLE_VISIBLE) return false;
 
 			float dist_x{ position.x - safe_orb->center.x };
 			float dist_y{ position.y - safe_orb->center.y };

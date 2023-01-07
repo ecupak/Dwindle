@@ -3,8 +3,8 @@
 
 namespace Tmpl8
 {
-	FullGlowOrb::FullGlowOrb(vec2 position, float player_strength, Surface* source_layer, Socket<GlowMessage>* glow_socket, bool is_safe_glow_needed, bool is_on_dangerous_tile) :
-		GlowOrb{ position, player_strength, CollidableType::FULL_GLOW, source_layer, 1 },
+	FullGlowOrb::FullGlowOrb(vec2 position, float player_strength, Surface* source_layer, Socket<GlowMessage>* glow_socket, SafeGlowInfo& safe_glow_info) :
+		GlowOrb{ position, player_strength, CollidableType::GLOW_ORB_FULL, source_layer, 1 },
 		m_glow_socket{ glow_socket }
 	{
 		SetCollidablesWantedBitflag(m_collidables_of_interest);
@@ -13,9 +13,9 @@ namespace Tmpl8
 		delay_max = 0.25f;
 		delay = delay_max;
 
-		if (is_safe_glow_needed)
+		if (safe_glow_info.m_is_safe_glow_needed)
 		{
-			m_glow_socket->SendMessage(GlowMessage{ GlowAction::MAKE_ORB, position, player_strength, CollidableType::SAFE_GLOW, (is_on_dangerous_tile ? 0.28f : -1.0f) });
+			m_glow_socket->SendMessage(GlowMessage{ GlowAction::MAKE_ORB, position, player_strength, CollidableType::GLOW_ORB_SAFE, safe_glow_info });
 		}
 	}
 

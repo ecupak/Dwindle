@@ -125,16 +125,16 @@ namespace Tmpl8
 		// Stored as shared pointer to avoid splicing. All derived classes need to be stored in a single vector.			
 		switch (message.m_glow_orb_type)
 		{
-		case CollidableType::FULL_GLOW:
-			m_orbs.push_back(std::make_shared<FullGlowOrb>(message.m_orb_position, message.m_player_strength, m_map_layer, &m_glow_hub, message.m_is_safe_glow_needed, message.m_is_on_dangerous_obstacle));
+		case CollidableType::GLOW_ORB_FULL:
+			m_orbs.push_back(std::make_shared<FullGlowOrb>(message.m_orb_position, message.m_player_strength, m_map_layer, &m_glow_hub, message.m_safe_glow_info));
 			break;
-		case CollidableType::TEMP_GLOW:
+		case CollidableType::GLOW_ORB_TEMP:
 			m_orbs.push_back(std::make_shared<TempGlowOrb>(message.m_orb_position, message.m_player_strength, m_map_layer));
 			break;
-		case CollidableType::SAFE_GLOW:
-			m_orbs.push_back(std::make_shared<SafeGlowOrb>(message.m_orb_position, message.m_player_strength, m_obstacle_layer, message.m_delay_time));
+		case CollidableType::GLOW_ORB_SAFE:
+			m_orbs.push_back(std::make_shared<SafeGlowOrb>(message.m_orb_position, message.m_player_strength, m_obstacle_layer, message.m_safe_glow_info));
 			break;
-		case CollidableType::PICKUP_GLOW:
+		case CollidableType::GLOW_ORB_PICKUP:
 			m_orbs.push_back(std::make_shared<PickupGlowOrb>(message.m_orb_position, message.m_player_strength, m_map_layer, message.m_parent_id));
 			break;
 		}
@@ -160,7 +160,7 @@ namespace Tmpl8
 		// Remove all safe glow orbs.
 		std::function<bool(std::shared_ptr<GlowOrb>& orb)> find_all{
 			[=](std::shared_ptr<GlowOrb>& orb) 
-			{return (*orb).m_object_type == CollidableType::SAFE_GLOW || (*orb).m_object_type == CollidableType::PICKUP_GLOW;}
+			{return (*orb).m_object_type == CollidableType::GLOW_ORB_SAFE || (*orb).m_object_type == CollidableType::GLOW_ORB_PICKUP;}
 		};			
 				
 		FindAndRemove(find_all);
@@ -187,7 +187,7 @@ namespace Tmpl8
 	{	
 		return (m_orbs.end() ==
 			std::find_if(m_orbs.begin(), m_orbs.end(), 
-				[=](std::shared_ptr<GlowOrb>& orb) {return (*orb).m_object_type == CollidableType::SAFE_GLOW;}
+				[=](std::shared_ptr<GlowOrb>& orb) {return (*orb).m_object_type == CollidableType::GLOW_ORB_SAFE;}
 			)
 		);
 	}

@@ -57,11 +57,11 @@ namespace Tmpl8
 			return 0x100;
 		case CollidableType::PICKUP:
 			return 0x1000;
-		case CollidableType::FULL_GLOW:
-		case CollidableType::TEMP_GLOW:		
+		case CollidableType::GLOW_ORB_FULL:
+		case CollidableType::GLOW_ORB_TEMP:		
 			return 0x10000;
-		case CollidableType::SAFE_GLOW:		
-		case CollidableType::PICKUP_GLOW:
+		case CollidableType::GLOW_ORB_SAFE:		
+		case CollidableType::GLOW_ORB_PICKUP:
 			return 0x100000;
 		case CollidableType::CAMERA:
 			return 0x1000000;

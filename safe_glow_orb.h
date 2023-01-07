@@ -10,7 +10,7 @@ namespace Tmpl8
 	{
 	public:
 		// METHODS.		
-		SafeGlowOrb(vec2 position, float player_strength, Surface* source_layer, float delay_time = -1.0f);
+		SafeGlowOrb(vec2 position, float player_strength, Surface* source_layer, SafeGlowInfo safe_glow_info);
 
 	private:
 		// METHODS.
@@ -20,7 +20,7 @@ namespace Tmpl8
 		void UpdateEveryPhase(float deltaTime) override;
 
 		unsigned int glow_color{ 0xFF00FF00 };
-		bool m_is_on_dangerous_tile{ false };
+		bool m_is_on_delay{ false };
 
 		std::vector<CollidableType> m_collidables_of_interest{
 			CollidableType::CAMERA,

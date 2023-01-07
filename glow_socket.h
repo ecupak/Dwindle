@@ -7,6 +7,23 @@
 
 namespace Tmpl8
 {
+	struct SafeGlowInfo
+	{
+		SafeGlowInfo() :
+			m_is_safe_glow_needed{ false },
+			m_is_on_delay{ false }
+		{	}			
+
+		SafeGlowInfo(bool is_safe_glow_needed, bool is_on_delay) :
+			m_is_safe_glow_needed{ is_safe_glow_needed },
+			m_is_on_delay{ is_on_delay }
+		{	}
+
+		bool m_is_safe_glow_needed{ false };
+		bool m_is_on_delay{ false };
+	};
+
+
 	enum class GlowAction
 	{	
 		LEVEL_RESET,
@@ -24,34 +41,33 @@ namespace Tmpl8
 		{	}
 
 
-		// make orb (temp/safe).
-		GlowMessage(GlowAction action, vec2& orb_position, float player_strength, CollidableType glow_orb_type) :
-			m_action{ action },
-			m_orb_position{ orb_position },
-			m_player_strength{ player_strength },
-			m_glow_orb_type{ glow_orb_type }
-		{	}
+		//// make orb (temp).
+		//GlowMessage(GlowAction action, vec2& orb_position, float player_strength, CollidableType glow_orb_type) :
+		//	m_action{ action },
+		//	m_orb_position{ orb_position },
+		//	m_player_strength{ player_strength },
+		//	m_glow_orb_type{ glow_orb_type }
+		//{	}
 
 
-		// make orb (safe).
-		GlowMessage(GlowAction action, vec2& orb_position, float player_strength, CollidableType glow_orb_type, float delay_time) :
-			m_action{ action },
-			m_orb_position{ orb_position },
-			m_player_strength{ player_strength },
-			m_glow_orb_type{ glow_orb_type },
-			m_delay_time{ delay_time }
-		{	}
-
-
-		// make orb (full).
-		GlowMessage(GlowAction action, vec2& orb_position, float player_strength, CollidableType glow_orb_type, bool is_safe_glow_needed, bool is_on_dangerous_obstacle) :
+		// make orb (full/safe).
+		GlowMessage(GlowAction action, vec2& orb_position, float player_strength, CollidableType glow_orb_type, SafeGlowInfo safe_glow_info = SafeGlowInfo{}) :
 			m_action{ action },
 			m_orb_position{ orb_position },
 			m_player_strength{ player_strength },
 			m_glow_orb_type{ glow_orb_type },
-			m_is_safe_glow_needed{ is_safe_glow_needed },
-			m_is_on_dangerous_obstacle{ is_on_dangerous_obstacle }
+			m_safe_glow_info{ safe_glow_info }
 		{	}
+
+
+		//// make orb (full).
+		//GlowMessage(GlowAction action, vec2& orb_position, float player_strength, CollidableType glow_orb_type, SafeGlowInfo& safe_glow_info) :
+		//	m_action{ action },
+		//	m_orb_position{ orb_position },
+		//	m_player_strength{ player_strength },
+		//	m_glow_orb_type{ glow_orb_type },
+		//	m_safe_glow_info{ m_safe_glow_info}
+		//{	}
 
 
 		// make orb (pickup).
@@ -75,9 +91,7 @@ namespace Tmpl8
 		vec2 m_orb_position{ 0.0f, 0.0f };
 		float m_player_strength{ 0.0f };
 		CollidableType m_glow_orb_type{ CollidableType::UNKNOWN };		
-		bool m_is_safe_glow_needed{ false };
-		bool m_is_on_dangerous_obstacle{ false };
+		SafeGlowInfo m_safe_glow_info;
 		int m_parent_id{ 0 };
-		float m_delay_time{ -1.0f };
 	};
 };

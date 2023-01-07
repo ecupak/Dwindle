@@ -29,7 +29,7 @@ namespace Tmpl8
 
 	void LightPickup::Update(float deltaTime, float opacity)
 	{		
-		m_elapsed_time += deltaTime * 0.4f * m_sign_of_direction;
+		m_elapsed_time += deltaTime * m_speed * m_sign_of_direction;
 
 		if (m_elapsed_time < 0.0f || m_elapsed_time > 1.0f)
 		{
@@ -55,7 +55,7 @@ namespace Tmpl8
 
 	void LightPickup::RegisterCollision(Collidable*& collision)
 	{
-		if (collision->m_object_type == CollidableType::PLAYER_POINT)
+		if (collision->m_collidable_type == CollidableType::PLAYER_POINT)
 		{
 			m_has_been_picked_up = true;
 		}

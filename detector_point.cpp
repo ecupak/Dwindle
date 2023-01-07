@@ -81,7 +81,7 @@ namespace Tmpl8
 
 	vec2& DetectorPoint::GetDeltaPosition()
 	{
-		return delta_position;
+		return m_delta_position;
 	}
 
 
@@ -145,20 +145,23 @@ namespace Tmpl8
 
 	void DetectorPoint::ResetValues()
 	{
-		delta_position.x = 0.0f;
-		delta_position.y = 0.0f;
+		m_delta_position.x = 0.0f;
+		m_delta_position.y = 0.0f;
 		m_is_collision_detected = false;
-		m_is_on_pickup = false;		
+		m_is_on_pickup = false;
+		m_is_tethered = false;
+		m_tethered_object = nullptr;
 		new_mode = NONE;
 	}
 
 
 	void DetectorPoint::RegisterCollision(Collidable*& collision)
 	{
-		switch (collision->m_object_type)
+		switch (collision->m_collidable_type)
 		{
 		case CollidableType::OBSTACLE_HIDDEN:
 		case CollidableType::OBSTACLE_DANGEROUS:
+		case CollidableType::OBSTACLE_MOVING:
 			m_obstacles.push_back(collision);
 			break;
 		case CollidableType::GLOW_ORB_SAFE:
@@ -319,17 +322,21 @@ namespace Tmpl8
 				Find the distance needed to move to collision point.
 				Then move 1 additional unit away from the edge to prevent another collision.
 			*/
-			delta_position.x = closest_intersection.m_intersection.x - i_pos_x;
-			delta_position.y = closest_intersection.m_intersection.y - i_pos_y;
-			delta_position += GetCollisionBuffer(closest_intersection.m_collision_edge_crossed);
+			m_delta_position.x = closest_intersection.m_intersection.x - i_pos_x;
+			m_delta_position.y = closest_intersection.m_intersection.y - i_pos_y;
+			m_delta_position += GetCollisionBuffer(closest_intersection.m_collision_edge_crossed);
 
 
 			switch (closest_intersection.m_type_of_collision_object)
 			{
+			case CollidableType::OBSTACLE_MOVING:
+				m_is_tethered = true;
+				m_tethered_object = closest_intersection.m_collision_object;
+				[[__fallthrough]]
 			case CollidableType::OBSTACLE_HIDDEN:
 			case CollidableType::OBSTACLE_VISIBLE:
 			case CollidableType::OBSTACLE_DANGEROUS:
-			case CollidableType::FINISH_LINE:
+			case CollidableType::FINISH_LINE: // Finish line "hardens" when you die - you can't dead bounce past it.
 				ResolveSmoothCollision(closest_intersection);
 				break;
 			default:
@@ -450,7 +457,7 @@ namespace Tmpl8
 		{
 			new_mode = GetNextMode();
 			m_is_safe_glow_needed = GetIsSafeGlowNeeded();
-			m_is_on_dangerous_obstacle = intersection_info.m_collision_object->m_object_type == CollidableType::OBSTACLE_DANGEROUS;
+			m_is_on_dangerous_obstacle = intersection_info.m_collision_object->m_collidable_type == CollidableType::OBSTACLE_DANGEROUS;
 		}
 	}
 
@@ -517,7 +524,7 @@ namespace Tmpl8
 		for (Collidable*& safe_orb : m_glow_orbs)
 		{
 			// Visible obstacles act as a safe glow orb.
-			if (safe_orb->m_object_type == CollidableType::OBSTACLE_VISIBLE) return false;
+			if (safe_orb->m_collidable_type == CollidableType::OBSTACLE_VISIBLE) return false;
 
 			float dist_x{ position.x - safe_orb->m_center.x };
 			float dist_y{ position.y - safe_orb->m_center.y };

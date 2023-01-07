@@ -67,10 +67,9 @@ namespace Tmpl8 {
 		void TransitionToPosition(vec2& new_position);
 
 		std::vector<DetectorPoint>& GetCollisionPoints();
+
 		void ResolveCollisions() override;
 		
-		// Point method test.
-		std::vector<DetectorPoint> points;
 		void UpdatePosition();
 
 		void RegisterGameSocket(Socket<GameMessage>* game_socket);
@@ -86,6 +85,8 @@ namespace Tmpl8 {
 		void SetIsTutorialMode(bool is_tutorial_mode) { m_is_tutorial_mode = is_tutorial_mode; }
 		void DisableCollisionChecking(bool is_disabled) { m_is_collision_state_disabled = is_disabled; }
 			
+		std::vector<DetectorPoint> points;
+
 
 	private:
 		/* METHODS */
@@ -117,8 +118,9 @@ namespace Tmpl8 {
 		void setEjectionSpeedY(BounceStrength& wall_bounce_y_power);
 		void setEjectionSpeedX(BounceStrength& wall_bounce_x_power);
 
-		void updateFreeFall();
+		void SetTether(int post_id);
 
+		void updateFreeFall();
 
 		// Sprite updates.
 		void updateFrameStretch2Normal();
@@ -140,7 +142,6 @@ namespace Tmpl8 {
 		
 		//CollisionProcessor m_collision_processor{ *this };
 		FirstEcho m_player_echo;
-		
 
 		Socket<GameMessage>* m_game_socket{ nullptr };
 		Socket<GlowMessage>* m_glow_socket{ nullptr };
@@ -148,6 +149,7 @@ namespace Tmpl8 {
 		Socket<LifeMessage>* m_life_socket{ nullptr };
 		Socket<CollisionMessage>* m_collision_socket{ nullptr };
 
+		Collidable* m_tethered_object{ nullptr };
 
 		/*
 			Strength = life and opacity of light flash.

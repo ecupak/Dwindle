@@ -31,12 +31,16 @@ namespace Tmpl8
 		Blueprints() {};
 		bool LoadBlueprintData(int level_id);
 		BlueprintCode GetNextBlueprintCode();
+
 		int GetAutotileId(int center_x, int center_y);
+		int GetDirectionId(int center_x, int center_y);
+
 		int GetBlueprintWidth();
 		int GetBlueprintHeight();
 
 	private:
 		bool GetIsWallAdjacent(char adjacent_value);
+		bool HasDirectionInfo(int& direction_id, int x, int y, int center_y);
 
 		bool is_iterator_set{ false };
 		std::string::iterator blueprint_it;
@@ -51,8 +55,8 @@ namespace Tmpl8
 			"XXS......SSSSS.SXS.SSSSS.SXXX"
 			"XXS......SXXXS.SXS.SXXXS.SXXX"
 			"XXS......SXXXS.SXS.SXXXS.SXXX"
-			"XXS......SXXXS.SXS.SXXXS.SXXX"
-			"XXS......SXXXS.SXS.SXXXS.SXXX"
+			"XXS.+4...SXXXS.SXS.SXXXS.SXXX"
+			"XXS.....OSXXXS.SXS.SXXXS.SXXX"
 			"XXSSSSSSSSXXXS.SSS.SXXXS.SXXX"
 			"XXXXXXXXXXXXXS.....SXXXS.SXXX"
 			"XXXXXXXXXXXXXS.....SXXXS.SXXX"
@@ -88,7 +92,7 @@ namespace Tmpl8
 			"XXXXXXXXXUUUUUUUUUUUUUU....UX"
 			"UUUUUUUUUU.................UX"
 			".........#R................UX"
-			".........#O.............SSSUX"
+			".........#..............SSSUX"
 			"SSSSSSSSSSUWWWWWWWWWWWSSSXXXX"
 			"XXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
 			"XXXXXXXXXXXXXXXXXXXXXXXXXXXXX"},

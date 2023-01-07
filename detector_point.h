@@ -7,6 +7,7 @@
 #include "intersection.h"
 #include "glow_orb.h"
 
+
 namespace Tmpl8
 {
 	enum class State // Player state based on life/hp.
@@ -54,8 +55,7 @@ namespace Tmpl8
 
 		vec2 i_position{ 0.0f, 0.0f };
 		vec2 i_prev_position{ 0.0f, 0.0f };
-
-		vec2 delta_position{ 0.0f, 0.0f };
+				
 		int post_id;
 
 		std::vector<Collidable*> m_obstacles;
@@ -68,6 +68,10 @@ namespace Tmpl8
 		bool m_is_at_finish_line{ false };
 		bool m_is_on_pickup{ false };
 		bool isRicochetCollision{ false };
+		
+		bool m_is_tethered{ false };
+		Collidable* m_tethered_object;
+
 
 		InteractionType m_interaction_type{ InteractionType::NONE };
 

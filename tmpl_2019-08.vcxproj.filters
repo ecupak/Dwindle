@@ -83,6 +83,9 @@
     <ClCompile Include="collision_manager.cpp">
       <Filter>Collision Files\Collision Manager</Filter>
     </ClCompile>
+    <ClCompile Include="moving_obstacle.cpp">
+      <Filter>Level Files\Moving Obstacle</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="surface.h">
@@ -204,6 +207,12 @@
     <ClInclude Include="obstacle_consts.h">
       <Filter>Level Files\Obstacle</Filter>
     </ClInclude>
+    <ClInclude Include="player_socket.h">
+      <Filter>Player Files</Filter>
+    </ClInclude>
+    <ClInclude Include="moving_obstacle.h">
+      <Filter>Level Files\Moving Obstacle</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="template code">
@@ -301,6 +310,9 @@
     </Filter>
     <Filter Include="Level Files\Finish Line">
       <UniqueIdentifier>{4bd13515-3ffc-455c-a7f5-4af4aad4fc9c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Level Files\Moving Obstacle">
+      <UniqueIdentifier>{7b62f9c3-6809-4e34-97fe-b14b2dd62846}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

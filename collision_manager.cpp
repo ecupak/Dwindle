@@ -207,7 +207,7 @@ namespace Tmpl8
 			{
 				for (std::size_t priorFoci{ 0 }; priorFoci < priorFocusList.size(); priorFoci++)	// Go through list of things to the left of the focus.
 				{
-					if (collidables[focus]->m_object_type == CollidableType::PLAYER_POINT)
+					if (collidables[focus]->m_collidable_type == CollidableType::OBSTACLE_MOVING)
 						int z = 3;
 
 					// If focus and prior focus don't overlap, erase prior focus.

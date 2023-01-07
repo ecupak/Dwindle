@@ -162,11 +162,11 @@ namespace Tmpl8
 		// Move camera (child of viewport) to follow player.
 		viewport.Update(deltaTime);
 		
-		// User input moves player - may be clipping an object at this point.
-		player.Update(deltaTime);
-		
 		// Update Level (basically powers the pickup animation).
 		level_manager.Update(deltaTime);
+
+		// User input moves player - may be clipping an object at this point.
+		player.Update(deltaTime);
 		
 		// Update GlowOrbs (destroy old, create new, update sizes, etc).
 		glow_manager.Update(deltaTime);

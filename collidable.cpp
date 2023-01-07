@@ -6,7 +6,7 @@ namespace Tmpl8
 	
 	Collidable::Collidable(CollidableInfo collidable_info) :
 		m_id{ id_generator++ },
-		m_object_type{ collidable_info.m_collidable_type },
+		m_collidable_type{ collidable_info.m_collidable_type },
 		m_collision_layer{ GetCollisionId(collidable_info.m_collision_layer) },
 		m_collision_mask{ GetCollisionId(collidable_info.m_collision_mask) },
 		m_draw_order{ collidable_info.m_draw_order },
@@ -16,11 +16,11 @@ namespace Tmpl8
 
 	Collidable::Collidable(CollidableInfo collidable_info, int x, int y, int TILE_SIZE) :
 		m_id{ id_generator++ },
-		m_object_type{ collidable_info.m_collidable_type },
+		m_collidable_type{ collidable_info.m_collidable_type },
 		m_collision_layer{ GetCollisionId(collidable_info.m_collision_layer) },
 		m_collision_mask{ GetCollisionId(collidable_info.m_collision_mask) },
 		m_draw_order{ collidable_info.m_draw_order },
-		m_center{ vec2{ static_cast<float>(x * TILE_SIZE), static_cast<float>(y * TILE_SIZE) } },
+		m_center{ vec2{ static_cast<float>((x * TILE_SIZE) + (TILE_SIZE / 2.0f)), static_cast<float>((y * TILE_SIZE) + (TILE_SIZE / 2.0f))} },
 		left{ x * TILE_SIZE },
 		right{ left + TILE_SIZE - 1 },
 		top{ y * TILE_SIZE },

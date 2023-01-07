@@ -238,6 +238,7 @@
     <ClCompile Include="life_hud.cpp" />
     <ClCompile Include="light_pickup.cpp" />
     <ClCompile Include="message_box.cpp" />
+    <ClCompile Include="moving_obstacle.cpp" />
     <ClCompile Include="obstacle.cpp" />
     <ClCompile Include="pickup_glow_orb.cpp" />
     <ClCompile Include="player.cpp" />
@@ -270,6 +271,8 @@
     <ClInclude Include="glow_orb.h" />
     <ClInclude Include="glow_socket.h" />
     <ClInclude Include="camera_socket.h" />
+    <ClInclude Include="player_socket.h" />
+    <ClInclude Include="moving_obstacle.h" />
     <ClInclude Include="obstacle_consts.h" />
     <ClInclude Include="message_enums.h" />
     <ClInclude Include="intersection.h" />

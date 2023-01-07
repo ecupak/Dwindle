@@ -10,6 +10,7 @@
 
 #include "collidable.h"
 #include "obstacle.h"
+#include "moving_obstacle.h"
 #include "obstacle_consts.h"
 
 #include "light_pickup.h"
@@ -63,6 +64,7 @@ namespace Tmpl8
 		void CreateCollidableLists();
 		void SendCollidableLists();
 
+		std::pair<MoveDirection, int> GetMoveDirection(int x, int y);
 		int GetAutotileId(int x, int y);
 		void CleanupAutotileId(int& autotile_id);
 		Sprite& GetTilemapSprite(int tile_id);
@@ -88,7 +90,8 @@ namespace Tmpl8
 		Surface m_light_pickup{ "assets/light-lg.png" };
 		//char* bg{ "assets/noise_robson_1280.png" }; // credit: https://robson.plus/white-noise-image-generator/	
 
-		std::vector<Obstacle> m_obstacles;		
+		std::vector<Obstacle> m_obstacles;
+		std::vector<MovingObstacle> m_moving_obstacles;
 		std::vector<FinishLine> m_finish_lines;
 		std::vector<LightPickup> m_pickups;
 		std::vector<Collidable*> m_obstacle_collidables;

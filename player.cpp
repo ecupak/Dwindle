@@ -208,17 +208,21 @@ namespace Tmpl8
 
 		distance.y = GetDistanceToMove(VectorIndex::Y, half_t2);
 
+		// Move same distance as object we are riding.
+		if (m_tethered_object != nullptr)
+		{
+			distance += m_tethered_object->m_delta_position;
+		}
+
 		position.x += distance.x;
 		position.y += distance.y;
- 
+
 		SetCenterAndBounds();
 
 		for (DetectorPoint& point : points)
 		{
 			point.UpdatePosition(velocity, distance);
 		}
-
-		//m_glow_socket->SendMessage(GlowMessage{ GlowAction::MOVE_PLAYER_ORB_POSITION, center });
 	}
 
 
@@ -326,7 +330,7 @@ namespace Tmpl8
 		int new_mode{ NONE };
 		bool is_ricochet_set{ false };
 		int post_id{ -1 };
-		vec2 delta_position{ 0.0f, 0.0f };
+		m_delta_position = vec2{ 0.0f, 0.0f };
 		vec2 ricochet_velocity{ 0.0f, 0.0f };
 		
 		std::map<int, int> contact_points;
@@ -334,14 +338,12 @@ namespace Tmpl8
 		// Get change in position after collision, and the new mode.
 		for (DetectorPoint& point : points)		
 		{	
-			//m_collision_processor.SetPointToProcess(point);
-			//m_collision_processor.CheckPointForCollisions();
-
 			// Check for finish line collision.
 			if (state == State::ALIVE && point.m_is_at_finish_line)
 			{
 				state = State::DEAD;
 				m_player_strength = 0;
+				m_tethered_object = nullptr;
 
 				// Ricochet velocitis will decrease while in dead bounce.
 				for (DetectorPoint& point : points)
@@ -371,8 +373,8 @@ namespace Tmpl8
 					Only keep the largest changes to x and y.
 				*/
 				vec2 point_delta_position{ point.GetDeltaPosition() };				
-				delta_position.x = GetAbsoluteMax(point_delta_position.x, delta_position.x);
-				delta_position.y = GetAbsoluteMax(point_delta_position.y, delta_position.y);
+				m_delta_position.x = GetAbsoluteMax(point_delta_position.x, m_delta_position.x);
+				m_delta_position.y = GetAbsoluteMax(point_delta_position.y, m_delta_position.y);
 
 				/*
 					Get new mode (hit a flat surface). If new mode is WALL,
@@ -400,34 +402,18 @@ namespace Tmpl8
 			}
 		}
 
-		//if (m_collision_processor.HasCollision)
-		//{
-		//	// Let this be done by enclosing class. CollisionProcessor should not direct the detector points (even tho it could).
-		//	for (DetectorPoint& point : points)
-		//	{
-		//		point.ApplyDeltaPosition(delta_position);
-		//	}
-		//}
-		//
-		//// Same deal. Detector points are only managed by the player class.
-		//for (DetectorPoint& point : points)
-		//{
-		//	point.ClearCollisions();
-		//}
-		//
-
 		// If at least 1 axis is not 0, there was a collision that needs to be handled.
-		if (delta_position.x != 0.0f || delta_position.y != 0.0f)
+		if (m_delta_position.x != 0.0f || m_delta_position.y != 0.0f)
 		{
 			// Apply the delta change in position (pushed out of obstacle).
-			position += delta_position;
+			position += m_delta_position;
 			SetCenterAndBounds();
 			for (DetectorPoint& point : points)
 			{
-				point.ApplyDeltaPosition(delta_position);				
+				point.ApplyDeltaPosition(m_delta_position);				
 			}
-			//m_glow_socket->SendMessage(GlowMessage{ GlowAction::MOVE_PLAYER_ORB_POSITION, center });
-
+			
+			
 			// Determine if safe glow orb will spawn.
 			// - Spawns if 'full contact' made with surface.
 			// - Spawns if safe glow orb does not already exist at location.
@@ -441,20 +427,15 @@ namespace Tmpl8
 					if (new_mode & GROUND)
 					{
 						post_id = contact_points.at(GROUND);
+						SetTether(post_id);
 						is_safe_glow_needed = GetIsSafeGlowNeeded(BOTTOM);
 					}
 					else if (new_mode & WALL)
 					{
 						post_id = contact_points.at(WALL);
+						SetTether(post_id);
 						is_safe_glow_needed = GetIsSafeGlowNeeded(post_id);
 					}					
-					/*
-						No glow orb on ceiling hits.
-					else
-					{
-						post_id = contact_points.at(CEILING);
-						is_safe_glow_needed = GetIsSafeGlowNeeded(TOP);
-					}*/
 				}
 				 
 				// If safe glow orb needed, decrease life/opacity strength.
@@ -541,6 +522,7 @@ namespace Tmpl8
 					velocity = ricochet_velocity;
 				}
 			}
+
 		}
 		
 		// Remove collisions (overlaps with no line intersects) stored in points.
@@ -563,6 +545,15 @@ namespace Tmpl8
 	template <typename T>
 	T Player::GetAbsoluteMax(T val1, T val2) {
 		return (abs(val1) > abs(val2) ? val1 : val2);
+	}
+
+
+	void Player::SetTether(int post_id)
+	{
+		if (points[post_id].m_is_tethered)
+		{
+			m_tethered_object = points[post_id].m_tethered_object;
+		}
 	}
 
 
@@ -852,6 +843,8 @@ namespace Tmpl8
 			// Otherwise bounce off ground (even while dead).
 			else
 			{
+				m_tethered_object = nullptr;
+
 				bounceOffGround();
 				setFrameSquash2Stretch();
 
@@ -928,6 +921,8 @@ namespace Tmpl8
 	{
 		/* Set velocity and if any direction lock, as well as next sprite. AIR mode
 			handles movement and collision. */
+
+		m_tethered_object = nullptr;
 
 		setEjectionSpeedY(wall_bounce_y_power);
 		setEjectionSpeedX(wall_bounce_x_power);

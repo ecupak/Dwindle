@@ -160,7 +160,7 @@ namespace Tmpl8
 		// Remove all safe glow orbs.
 		std::function<bool(std::shared_ptr<GlowOrb>& orb)> find_all{
 			[=](std::shared_ptr<GlowOrb>& orb) 
-			{return (*orb).m_object_type == CollidableType::GLOW_ORB_SAFE || (*orb).m_object_type == CollidableType::GLOW_ORB_PICKUP;}
+			{return (*orb).m_collidable_type == CollidableType::GLOW_ORB_SAFE || (*orb).m_collidable_type == CollidableType::GLOW_ORB_PICKUP;}
 		};			
 				
 		FindAndRemove(find_all);
@@ -187,7 +187,7 @@ namespace Tmpl8
 	{	
 		return (m_orbs.end() ==
 			std::find_if(m_orbs.begin(), m_orbs.end(), 
-				[=](std::shared_ptr<GlowOrb>& orb) {return (*orb).m_object_type == CollidableType::GLOW_ORB_SAFE;}
+				[=](std::shared_ptr<GlowOrb>& orb) {return (*orb).m_collidable_type == CollidableType::GLOW_ORB_SAFE;}
 			)
 		);
 	}

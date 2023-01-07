@@ -41,15 +41,6 @@ namespace Tmpl8
 		{	}
 
 
-		//// make orb (temp).
-		//GlowMessage(GlowAction action, vec2& orb_position, float player_strength, CollidableType glow_orb_type) :
-		//	m_action{ action },
-		//	m_orb_position{ orb_position },
-		//	m_player_strength{ player_strength },
-		//	m_glow_orb_type{ glow_orb_type }
-		//{	}
-
-
 		// make orb (full/safe).
 		GlowMessage(GlowAction action, vec2& orb_position, float player_strength, CollidableType glow_orb_type, SafeGlowInfo safe_glow_info = SafeGlowInfo{}) :
 			m_action{ action },
@@ -58,16 +49,6 @@ namespace Tmpl8
 			m_glow_orb_type{ glow_orb_type },
 			m_safe_glow_info{ safe_glow_info }
 		{	}
-
-
-		//// make orb (full).
-		//GlowMessage(GlowAction action, vec2& orb_position, float player_strength, CollidableType glow_orb_type, SafeGlowInfo& safe_glow_info) :
-		//	m_action{ action },
-		//	m_orb_position{ orb_position },
-		//	m_player_strength{ player_strength },
-		//	m_glow_orb_type{ glow_orb_type },
-		//	m_safe_glow_info{ m_safe_glow_info}
-		//{	}
 
 
 		// make orb (pickup).

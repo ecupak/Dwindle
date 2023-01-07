@@ -10,7 +10,7 @@ namespace Tmpl8
 		SetCollidablesWantedBitflag(m_collidables_of_interest);
 
 		phase = Phase::FULL;		
-		delay = 1.0f;
+		delay = 0.25f;
 
 		radius_max = 30.0f;
 		radius = radius_max;		

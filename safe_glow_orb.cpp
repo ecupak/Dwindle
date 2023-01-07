@@ -4,11 +4,9 @@
 namespace Tmpl8
 {
 	SafeGlowOrb::SafeGlowOrb(vec2 position, float player_strength, Surface* source_layer, SafeGlowInfo safe_glow_info) :
-		GlowOrb{ position, player_strength, CollidableType::GLOW_ORB_SAFE, source_layer, 2 },
+		GlowOrb{ CollidableInfo{CollidableType::GLOW_ORB_SAFE, CollisionLayer::BOTH, CollisionMask::NONE, 2, position}, player_strength, source_layer },
 		m_is_on_delay{ safe_glow_info.m_is_on_delay }
 	{
-		SetCollidablesWantedBitflag(m_collidables_of_interest);
-
 		phase = Phase::FULL;		
 		delay = 0.25f;
 

@@ -21,10 +21,5 @@ namespace Tmpl8
 
 		unsigned int glow_color{ 0xFF00FF00 };
 		bool m_is_on_delay{ false };
-
-		std::vector<CollidableType> m_collidables_of_interest{
-			CollidableType::CAMERA,
-			CollidableType::PLAYER_POINT,
-		};
 	};
 };

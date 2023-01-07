@@ -86,9 +86,9 @@ namespace Tmpl8
 			"XXXXXXXXXXXXXXXXXXXXXXXU...UX"
 			"XXXXXXXXXXXXXXXXXXXXXXUU...UX"
 			"XXXXXXXXXUUUUUUUUUUUUUU....UX"
-			"UUUUUUUUUU...............O.UX"
+			"UUUUUUUUUU.................UX"
 			".........#R................UX"
-			".........#..............SSSUX"
+			".........#O.............SSSUX"
 			"SSSSSSSSSSUWWWWWWWWWWWSSSXXXX"
 			"XXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
 			"XXXXXXXXXXXXXXXXXXXXXXXXXXXXX"},

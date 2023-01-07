@@ -80,9 +80,6 @@
     <ClCompile Include="obstacle.cpp">
       <Filter>Level Files\Obstacle</Filter>
     </ClCompile>
-    <ClCompile Include="finish_line.cpp">
-      <Filter>Level Files\Finish Line</Filter>
-    </ClCompile>
     <ClCompile Include="collision_manager.cpp">
       <Filter>Collision Files\Collision Manager</Filter>
     </ClCompile>

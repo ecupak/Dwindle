@@ -225,9 +225,5 @@ namespace Tmpl8 {
 		int m_life_restored_by_pickup{ 5 };
 
 		bool m_is_collision_state_disabled{ false };
-
-		std::vector<CollidableType> m_collidables_of_interest{
-			CollidableType::CAMERA
-		};
 	};
 }

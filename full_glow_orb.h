@@ -20,12 +20,7 @@ namespace Tmpl8
 		void UpdateWaningPhase(float deltaTime) override;
 		void UpdateEveryPhase(float deltaTime) override;
 		
-
 		// ATTRIBUTES.		
 		Socket<GlowMessage>* m_glow_socket;
-
-		std::vector<CollidableType> m_collidables_of_interest{
-			CollidableType::CAMERA,
-		};
 	};
 };

@@ -221,7 +221,8 @@ namespace Tmpl8
 						priorFoci--;
 					}
 					// Register overlap as long as collision id of priorFoci is in list of wanted collision ids of focus.
-					else if (collidables[focus]->m_collision_ids_wanted & priorFocusList[priorFoci]->m_collision_id)
+					else if ((collidables[focus]->m_collision_layer & priorFocusList[priorFoci]->m_collision_mask)
+						|| (collidables[focus]->m_collision_mask & priorFocusList[priorFoci]->m_collision_layer))
 					{
 						std::vector<Collidable*> collisionPair;
 						collisionPair.push_back(collidables[focus]);

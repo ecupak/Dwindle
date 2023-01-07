@@ -6,7 +6,7 @@
 #include "template.h"
 
 namespace Tmpl8
-{
+{	
 	enum class CollidableType
 	{
 		PLAYER,
@@ -26,16 +26,53 @@ namespace Tmpl8
 		NONE,
 	};
 
+	enum class CollisionType
+	{		
+		PLAYER,
+		CAMERA,
+		BOTH,
+		NONE,
+	};
+
+
+	struct CollidableInfo
+	{
+		CollidableInfo(CollidableType collidable_type, CollisionType collision_layer, CollisionType collision_mask, int draw_order, vec2 m_center = vec2{ 0.0f, 0.0f }) :
+			m_collidable_type{ collidable_type },
+			m_collision_layer{ collision_layer },
+			m_center{ m_center },
+			m_draw_order{ draw_order }
+		{	
+			m_collision_mask.push_back(collision_mask);
+		};
+
+		CollidableInfo(CollidableType collidable_type, CollisionType collision_layer, std::vector<CollisionType>& m_collision_mask, int draw_order, vec2 m_center = vec2{ 0.0f, 0.0f }) :
+			m_collidable_type{ collidable_type },
+			m_collision_layer{ collision_layer },
+			m_collision_mask{ m_collision_mask },
+			m_center{ m_center },
+			m_draw_order{ draw_order }
+		{	};
+
+		CollidableType m_collidable_type{ CollidableType::NONE };
+		CollisionType m_collision_layer{ CollisionType::NONE };
+		std::vector<CollisionType> m_collision_mask;
+		vec2 m_center{ 0.0f, 0.0f };
+		int m_draw_order{ 0 };
+	};
+
+
 	class Collidable
 	{
+		using CollisionLayer = CollisionType;
+		using CollisionMask = CollisionType;
+
 	public:
-		Collidable(CollidableType object_type, int draw_order, vec2 center = vec2{ 0.f, 0.f });
-		Collidable(int x, int y, int tile_size, CollidableType object_type, int draw_order, vec2 center = vec2{ 0.f, 0.f });
+		Collidable(CollidableInfo collidable_info);
+		Collidable(CollidableInfo collidable_info, int x, int y, int tile_size);
 
-		void SetCollidablesWantedBitflag(std::vector<CollidableType>& collidables_of_interest);
-
-		int GetCollisionId(std::vector<CollidableType>& collidables);
-		int GetCollisionId(CollidableType& collidable);
+		int GetCollisionId(std::vector<CollisionType>& collidables);
+		int GetCollisionId(CollisionType& collidable);
 
 		virtual void Draw(Surface* screen) {};
 		virtual void Draw(Surface* visible_layer, int c_left, int c_top, int in_left, int in_top, int in_right, int in_bottom) {};
@@ -43,16 +80,15 @@ namespace Tmpl8
 		virtual void ResolveCollisions() {};
 
 		// ATTRIBUTES
-		int left{ 0 }, right{ 0 }, top{ 0 }, bottom{ 0 };
-		vec2 center{ 0.0f, 0.0f };
 		int m_id{ 0 };
 		CollidableType m_object_type{ CollidableType::UNKNOWN };
-		bool m_is_active{ true };
-
-		int m_collision_id{ 0 };
-		int m_collision_ids_wanted{ 0 };
+		int m_collision_layer{ 0 };
+		int m_collision_mask{ 0 };
+		vec2 m_center{ 0.0f, 0.0f };
 		int m_draw_order{ 0 };
-
+		int left{ 0 }, right{ 0 }, top{ 0 }, bottom{ 0 };
+		bool m_is_active{ true };
+		
 	private:
 		static int id_generator;
 	};

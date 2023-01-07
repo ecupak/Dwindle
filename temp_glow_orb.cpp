@@ -4,10 +4,8 @@
 namespace Tmpl8
 {
 	TempGlowOrb::TempGlowOrb(vec2 position, float player_strength, Surface* source_layer) :
-		GlowOrb{ position, player_strength, CollidableType::GLOW_ORB_TEMP, source_layer, 1 }
+		GlowOrb{ CollidableInfo{CollidableType::GLOW_ORB_TEMP, CollisionLayer::CAMERA, CollisionMask::NONE, 1, position}, player_strength, source_layer }
 	{
-		SetCollidablesWantedBitflag(m_collidables_of_interest);
-
 		radius_max = 100.0f;
 		delay = delay_max;
 	}

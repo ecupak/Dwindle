@@ -28,11 +28,6 @@ namespace Tmpl8
 		int m_half_height{ 0 };
 		bool m_has_been_picked_up{ false };
 		float m_opacity{ 1.0f };
-
-		std::vector<CollidableType> m_collidables_of_interest{
-			CollidableType::PLAYER_POINT,
-			CollidableType::CAMERA,
-		};
 	};
 };
 

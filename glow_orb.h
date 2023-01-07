@@ -21,7 +21,7 @@ namespace Tmpl8
 	{
 	public:
 		// METHODS.		
-		GlowOrb(vec2 position, float player_strength, CollidableType object_type, Surface* source_layer, int draw_order);
+		GlowOrb(CollidableInfo collidable_info, float player_strength, Surface* source_layer);
 		
 		void Update(float deltaTime);
 		void Draw(Surface* viewable_layer, int c_left, int c_top, int in_left, int in_top, int in_right, int in_bottom) override;

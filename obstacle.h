@@ -24,10 +24,6 @@ namespace Tmpl8
 		Sprite& m_sprite;
 		int m_frame_id{ 0 };
 		int m_autotile_id{ 0 };
-
-		std::vector<CollidableType> m_collidables_of_interest{
-			CollidableType::PLAYER_POINT,
-		};
 	};
 
 };

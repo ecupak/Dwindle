@@ -18,9 +18,5 @@ namespace Tmpl8
 		void UpdateWaxingPhase(float deltaTime) override;
 		void UpdateWaningPhase(float deltaTime) override;
 		void UpdateEveryPhase(float deltaTime) override;
-
-		std::vector<CollidableType> m_collidables_of_interest{
-			CollidableType::CAMERA,
-		};
 	};
 };

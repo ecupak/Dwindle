@@ -6,8 +6,8 @@
 
 namespace Tmpl8
 {
-	GlowOrb::GlowOrb(vec2 position, float player_strength, CollidableType object_type, Surface* source_layer, int draw_order) :
-		Collidable{ object_type, draw_order, position },
+	GlowOrb::GlowOrb(CollidableInfo collidable_info, float player_strength, Surface* source_layer) :
+		Collidable{ collidable_info },
 		m_source_layer{ source_layer },
 		m_player_strength{ player_strength }
 	{	}
@@ -52,10 +52,10 @@ namespace Tmpl8
 
 	void GlowOrb::UpdateBounds()
 	{
-		top = static_cast<int>(floor(center.y - radius));
-		bottom = static_cast<int>(floor(center.y + radius));
-		left = static_cast<int>(floor(center.x - radius));
-		right = static_cast<int>(floor(center.x + radius));
+		top = static_cast<int>(floor(m_center.y - radius));
+		bottom = static_cast<int>(floor(m_center.y + radius));
+		left = static_cast<int>(floor(m_center.x - radius));
+		right = static_cast<int>(floor(m_center.x + radius));
 	}
 
 	
@@ -94,8 +94,8 @@ namespace Tmpl8
 			for (int x{ 0 }; x <= (d_right - d_left); x++)
 			{
 				// Only adjust pixels that fall within a circle based on center and radius.
-				int dist_x{ x + d_left - static_cast<int>(floor(center.x)) };
-				int dist_y{ y - static_cast<int>(floor(center.y)) };
+				int dist_x{ x + d_left - static_cast<int>(floor(m_center.x)) };
+				int dist_y{ y - static_cast<int>(floor(m_center.y)) };
 				int dist = (dist_x * dist_x) + (dist_y * dist_y);
 				if (dist <= radius_squared)
 				{

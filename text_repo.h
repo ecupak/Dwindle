@@ -108,13 +108,13 @@ namespace Tmpl8
 				"You always did like climbing."
 			},
 			Entry{m_guide, vec2{22, 9}, 2,
-				"Be careful."
+				"You're a natural."
 			},
 			Entry{m_guide, vec2{19, 5}, 2,
 				"Do you see it? Almost there."
 			},
-			Entry{m_guide, vec2{18, 2}, 2,
-				"Keep going. I'm by your side."
+			Entry{m_guide, vec2{18, 2}, 4,
+				"You're doing wonderful."
 			},
 		};
 	};

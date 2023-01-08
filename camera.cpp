@@ -15,9 +15,9 @@ namespace Tmpl8
 	}
 
 
-	void Camera::SetPosition(vec2 position)
+	void Camera::SetCenter(vec2 center)
 	{
-		m_center = position;
+		m_center = center;
 		m_focus = m_center;
 		UpdateBounds();
 		m_has_moved = true;
@@ -74,23 +74,16 @@ namespace Tmpl8
 	}
 
 
-	void Camera::FadeIntoView()
+	void Camera::FadeIntoView(float from_opacity)
 	{
-		m_opacity = 1.0f;
+		m_opacity = from_opacity;
 	}
 
 
 	void Camera::Update(float deltaTime)
 	{
 		// Fade revealed layer on level reset/end.
-		if (m_is_fading_out)
-		{
-			m_opacity -= opacity_delta * deltaTime;
-			opacity_delta += opacity_delta_delta * deltaTime;
-
-			m_opacity = Max(0.0f, m_opacity);
-			m_is_fading_out = (m_opacity > 0.0f);
-		}
+		FadeOpacity(deltaTime);		
 
 		// Find new focus.
 		if (m_camera_hub.HasNewMessage())
@@ -154,7 +147,28 @@ namespace Tmpl8
 
 		UpdateBounds();
 	}
+
 	
+	void Camera::FadeOpacity(float deltaTime)
+	{
+		if (m_is_fading_out)
+		{
+			if (m_opacity == 0.0f) return;
+
+			// Fade out.
+			m_opacity -= opacity_delta * deltaTime;
+			opacity_delta += opacity_delta_delta * deltaTime;
+			m_opacity = Max(0.0f, m_opacity);
+
+			// Check to reset.
+			if (m_opacity == 0.0f)
+			{
+				opacity_delta = 0.0f;
+				m_is_fading_out = false;
+			}
+		}
+	}
+
 
 	/*
 		Credit to user79785: https://stackoverflow.com/questions/1903954/is-there-a-standard-sign-function-signum-sgn-in-c-c
@@ -180,8 +194,8 @@ namespace Tmpl8
 		int inbound_left = Max(left, 0);
 		int inbound_right = Min(right, static_cast<int>(m_level_size.x) - 1);
 		int inbound_top = Max(top, 0);
-		int inbound_bottom = Min(bottom, static_cast<int>(m_level_size.y) - 1);
-				
+		int inbound_bottom = Min(bottom, static_cast<int>(m_level_size.y) - 1);		
+
 		// First, draw everything that is static (visible ground, visible text).
 		Draw(visible_layer, left, top, inbound_left, inbound_top, inbound_right, inbound_bottom);
 

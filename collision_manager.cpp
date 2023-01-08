@@ -85,9 +85,6 @@ namespace Tmpl8
 
 	void CollisionManager::UpdateCollidables()
 	{
-		if (m_obstacle_collidables[0]->m_id == 2132092753)
-			int x = 3;
-
 		if (m_has_static_list_changed)
 		{
 			RebuildStaticList();

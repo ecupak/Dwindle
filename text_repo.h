@@ -79,7 +79,7 @@ namespace Tmpl8
 				"If you touch a dark surface and have no light left, the level will restart."
 			},
 			Entry{m_tutorial, vec2{22, 44}, 1,
-				"Run!"
+				"Keep moving!"
 			},
 			Entry{m_tutorial, vec2{16, 44}, 4,
 				"Some surfaces will absorb the glow you make."
@@ -98,23 +98,28 @@ namespace Tmpl8
 			Entry{m_guide, vec2{5, 14}, 1,
 				"Hello, Dear."
 			},
-			Entry{m_guide, vec2{9, 12}, 3,
-				"...It's been a long time."
+			Entry{m_guide, vec2{9, 12}, 2,
+				"Don't be afraid."
 			},
 			Entry{m_guide, vec2{14, 14}, 3,
 				"We'll get through this together."
 			},
 			Entry{m_guide, vec2{22, 14}, 2,
-				"You always did like climbing."
-			},
-			Entry{m_guide, vec2{22, 9}, 2,
-				"You're a natural."
-			},
+				"Follow the light."
+			},			
 			Entry{m_guide, vec2{19, 5}, 2,
 				"Do you see it? Almost there."
 			},
 			Entry{m_guide, vec2{18, 2}, 4,
 				"You're doing wonderful."
+			},
+		};
+
+
+		std::vector<Entry> m_level_2_entries
+		{
+			Entry{m_guide, vec2{5, 14}, 1,
+				"Hello, Dear."
 			},
 		};
 	};

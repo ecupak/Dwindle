@@ -59,12 +59,11 @@ namespace Tmpl8 {
 		void SetPosition(vec2& start_position);
 		void Update(float deltaTime);
 		void Draw(Surface* viewable_layer, int c_left, int c_top, int in_left, int in_top, int in_right, int in_bottom) override;		
-				
-		//void SetMode(Mode new_mode);
-		//bool IsAtRest() { return mode == Mode::REST; }
-
-		void RestoreDefaults();
+		
+		void SetTitleScreenMode();
+		void SetGameScreenMode();
 		void TransitionToPosition(vec2& new_position);
+		void SetMode(Mode new_mode);
 
 		std::vector<DetectorPoint>& GetCollisionPoints();
 
@@ -88,7 +87,7 @@ namespace Tmpl8 {
 		void ToggleDebugMode();
 
 		std::vector<DetectorPoint> points;
-
+		
 
 	private:
 		/* METHODS */
@@ -162,7 +161,7 @@ namespace Tmpl8 {
 			- Is only decreased during death (no affect on user experience).
 		*/
 		int m_player_max_strength{ 20 };
-		int m_player_min_brightness_buffer{ 6 };
+		int m_player_min_brightness_buffer{ 10 };
 		int m_player_strength{ m_player_max_strength };
 		float m_player_brightness_buffer{ 1.0f * m_player_min_brightness_buffer };
 		
@@ -170,8 +169,8 @@ namespace Tmpl8 {
 		Sprite m_sprite;
 
 		// State change tracker.
-		Mode mode{ Mode::AIR };
-		State state{ State::ALIVE };
+		Mode mode{ Mode::FREE_FALL };
+		State state{ State::DEAD };
 
 		bool m_is_tutorial_mode{ false };
 

@@ -13,11 +13,12 @@ namespace Tmpl8
 	constexpr char DANGEROUS_OBSTACLE_TILE{ 'W' };
 	constexpr char VISIBLE_MOVING_OBSTACLE_TILE{ '+' };
 	constexpr char HIDDEN_MOVING_OBSTACLE_TILE{ '-' };
+	constexpr char TITLE_OBSTACLE_TILE{ '*' };
 	constexpr char EASY_EXIT_TILE{ 'G' };
 	constexpr char HARD_EXIT_TILE{ 'R' };
 	constexpr char PICKUP_TILE{ '^' };	
 	constexpr char START_TILE{ 'O' };
-	constexpr char FINISH_TILE{ '#' };
+	constexpr char FINISH_TILE{ '#' };	
 	constexpr char EOF_MARK{ '!' };
 	constexpr char UNKNOWN_MARK{ '?' };
 

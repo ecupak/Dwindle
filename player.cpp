@@ -57,7 +57,7 @@ namespace Tmpl8
 		/* Update position and draw sprite. */
 
 		// If dead, determine when free fall happens.
-		if (state == State::DEAD && mode != Mode::FREE_FALL)
+		if (state == State::DEAD && mode != Mode::FREE_FALL && mode != Mode::SUSPENDED)
 		{
 			m_dead_timer += deltaTime;
 
@@ -130,9 +130,30 @@ namespace Tmpl8
 		m_is_debug_mode_on = !m_is_debug_mode_on;
 	}
 
+	
+	void Player::SetMode(Mode new_mode)
+	{
+		mode = new_mode;
+	}
+
+
+	// Set mode for title screen use.
+	void Player::SetTitleScreenMode()
+	{
+		SetGameScreenMode();
+		mode = Mode::SUSPENDED;
+		state = State::DEAD;
+
+		// Adjust position so center is at given coordinates.
+		SetPosition(vec2{
+			position.x - (m_sprite.GetWidth() / 2),
+			position.y - (m_sprite.GetHeight() / 2)
+		});
+	}
+
 
 	// Prepare for start of level (current or new).
-	void Player::RestoreDefaults()
+	void Player::SetGameScreenMode()
 	{
 		// Restore defaults.
 		m_dead_timer = 0.0f;

@@ -14,7 +14,16 @@ namespace Tmpl8
 		m_autotile_id{ autotile_id }
 	{	}
 
+
+	Obstacle::Obstacle(CollidableInfo collidable_info, int x, int y, int TILE_SIZE, int autotile_id, int tile_id, Sprite& sprite) :
+		Collidable{ collidable_info, x, y, TILE_SIZE },
+		m_sprite{ sprite },
+		m_frame_id{ GetFrameId(autotile_id) },
+		m_autotile_id{ autotile_id }
+	{	}
+
 	
+
 	void Obstacle::Draw(Surface* layer)
 	{
 		m_sprite.SetFrame(m_frame_id);
@@ -26,7 +35,7 @@ namespace Tmpl8
 	{
 		// Extend bounding box into neighbor by 1 pixel.
 		// Solution to detector points sometimes "slipping" between obstacles.
-		if (m_object_type != CollidableType::OBSTACLE_UNREACHABLE)
+		if (m_collidable_type != CollidableType::OBSTACLE_UNREACHABLE)
 		{
 			if (m_autotile_id & LEFT)
 				--left;

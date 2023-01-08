@@ -15,6 +15,8 @@ namespace Tmpl8
 		OBSTACLE_VISIBLE,
 		OBSTACLE_HIDDEN,
 		OBSTACLE_DANGEROUS,
+		OBSTACLE_MOVING_VISIBLE,
+		OBSTACLE_MOVING_HIDDEN,
 		OBSTACLE_UNREACHABLE,
 		FINISH_LINE,
 		PICKUP,
@@ -81,10 +83,11 @@ namespace Tmpl8
 
 		// ATTRIBUTES
 		int m_id{ 0 };
-		CollidableType m_object_type{ CollidableType::UNKNOWN };
+		CollidableType m_collidable_type{ CollidableType::UNKNOWN };
 		int m_collision_layer{ 0 };
 		int m_collision_mask{ 0 };
 		vec2 m_center{ 0.0f, 0.0f };
+		vec2 m_delta_position{ 0.0f, 0.0f };
 		int m_draw_order{ 0 };
 		int left{ 0 }, right{ 0 }, top{ 0 }, bottom{ 0 };
 		bool m_is_active{ true };

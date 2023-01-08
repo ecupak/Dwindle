@@ -21,6 +21,8 @@ namespace Tmpl8
 
 		Surface& m_image;
 		Socket<GlowMessage>* m_glow_socket;
+
+		float m_speed{ 0.3f };
 		float m_elapsed_time{ 0.5f }; // start in middle of curve (normal center).
 		float m_offset_y{ 0 };
 		float m_magnitude_coefficient{ 20.0f };

@@ -30,7 +30,7 @@ namespace Tmpl8
 			m_collision_object{ collision_object },
 			m_intersection{ intersection },
 			m_collision_edge_crossed{ collision_edge_crossed },
-			m_type_of_collision_object{ collision_object->m_object_type },
+			m_type_of_collision_object{ collision_object->m_collidable_type },
 			m_penetration{ penetration }
 		{	}
 

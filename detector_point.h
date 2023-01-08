@@ -7,6 +7,7 @@
 #include "intersection.h"
 #include "glow_orb.h"
 
+
 namespace Tmpl8
 {
 	enum class State // Player state based on life/hp.
@@ -52,22 +53,25 @@ namespace Tmpl8
 		vec2 position;
 		vec2 prev_position;
 
-		vec2 i_position{ 0.0f, 0.0f };
-		vec2 i_prev_position{ 0.0f, 0.0f };
-
-		vec2 delta_position{ 0.0f, 0.0f };
+		//vec2 i_position{ 0.0f, 0.0f };
+		//vec2 i_prev_position{ 0.0f, 0.0f };
+				
 		int post_id;
 
 		std::vector<Collidable*> m_obstacles;
 		std::vector<Collidable*> m_glow_orbs;
 
 		vec2 velocity{ 0.0f, 0.0f };
-		int new_mode{ 0 };
+		int m_new_mode{ 0 };
 		bool m_is_safe_glow_needed{ false };
 		bool m_is_on_dangerous_obstacle{ false };
 		bool m_is_at_finish_line{ false };
 		bool m_is_on_pickup{ false };
-		bool isRicochetCollision{ false };
+		bool m_is_ricochet_collisions{ false };
+		
+		bool m_is_tethered{ false };
+		Collidable* m_tethered_object;
+
 
 		InteractionType m_interaction_type{ InteractionType::NONE };
 
@@ -78,8 +82,10 @@ namespace Tmpl8
 		vec2 GetIntersection(StandardForm& line1, StandardForm& line2);
 		bool GetIsIntersectionInBounds(vec2& intersection, Collidable*& collision_object);
 
-		int GetNextMode();
-		bool GetIsSafeGlowNeeded();
+		void DetermineNextMode();		
+		void DetermineIsSafeGlowNeeded();
+		void DetermineIsTethered(Intersection& intersection_info);
+		void DetermineIsOnDangerousObstacle(Intersection& intersection_info);
 
 		bool GetIsRicochetCollision(EdgeCrossed& collision_edge_crossed);
 

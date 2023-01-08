@@ -62,12 +62,25 @@ namespace Tmpl8
 		case VISIBLE_OBSTACLE_TILE:
 		case UNREACHABLE_OBSTACLE_TILE:
 		case DANGEROUS_OBSTACLE_TILE:
+		case VISIBLE_MOVING_OBSTACLE_TILE:
+		case HIDDEN_MOVING_OBSTACLE_TILE:
 		case START_TILE:
 		case PICKUP_TILE:
 		case EASY_EXIT_TILE:
 		case HARD_EXIT_TILE:
 		case FINISH_TILE:
 			blueprint_code.m_tile_id = *blueprint_it;
+			break;
+		// Numbers for moving obstacle.
+		case 49:
+		case 51:
+		case 52:
+		case 53:
+		case 54:
+		case 55:
+		case 56:
+		case 57:
+			blueprint_code.m_tile_id = NO_TILE;
 			break;
 		default:			
 			blueprint_code.m_tile_id = UNKNOWN_MARK;
@@ -116,7 +129,7 @@ namespace Tmpl8
 		return autotile_id;
 	}
 
-	
+
 	bool Blueprints::GetIsWallAdjacent(char adjacent_value)
 	{
 		switch (adjacent_value)
@@ -129,5 +142,62 @@ namespace Tmpl8
 		default:
 			return false;
 		}
+	}
+
+
+	int Blueprints::GetDirectionId(int center_x, int center_y)
+	{
+		/* Autotile mapping credit: Godot docs (https://docs.godotengine.org/en/stable/tutorials/2d/using_tilemaps.html)
+			Loop over the 8 adjacent tiles, starting in the upper-left to the lower-right.
+			If the tile is a wall, add the tile's value to the autotile id. Any tile that
+			is out of bounds is considered a wall (this prevents wall border lines being drawn
+			along the edge of the entire leve - the walls will appear to go beyond the visible level_manager).
+
+			Each tile has a bit value that increases by the power of 2 (b1, b10, b100, etc). This value
+			is added to the autotile id if the tile is a wall.
+		*/
+
+		if (m_loaded_blueprint_data.m_blueprint.size() == 0) return 0;
+
+		int direction_id{ 0 };
+
+		for (int y{ center_y - 1 }; y <= center_y + 1; y++)
+		{
+			for (int x{ center_x - 1 }; x <= center_x + 1; x++)
+			{
+				if (y != center_y || x != center_x) // Skip checking self.
+				{
+					bool out_of_bounds = (y < 0 || y >= m_loaded_blueprint_data.m_height || x < 0 || x >= m_loaded_blueprint_data.m_width);
+
+					if (!out_of_bounds && HasDirectionInfo(direction_id, x, y, center_y))
+						return direction_id;
+				}
+			}
+		}
+		return 0;
+	}
+
+	
+	
+
+	bool Blueprints::HasDirectionInfo(int& direction_id, int x, int y, int center_y)
+	{
+		char id = m_loaded_blueprint_data.m_blueprint[x + (y * m_loaded_blueprint_data.m_width)];
+
+		if (id >= 49 && id <= 57)
+		{
+			id -= 48; // Convert to range 1 to 9;
+
+			if (y != center_y)
+			{
+				id *= -1; // Negative value denotes on the vertical axis.
+			}
+
+			direction_id = id;
+
+			return true;
+		}
+
+		return false;
 	}
 };

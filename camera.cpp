@@ -176,15 +176,16 @@ namespace Tmpl8
 
 	void Camera::Draw(Surface* visible_layer)
 	{
-		// Set bounds constrained by screen boundary.
+		// Set bounds constrained by screen edges.
 		int inbound_left = Max(left, 0);
 		int inbound_right = Min(right, static_cast<int>(m_level_size.x) - 1);
 		int inbound_top = Max(top, 0);
 		int inbound_bottom = Min(bottom, static_cast<int>(m_level_size.y) - 1);
 				
+		// First, draw everything that is static (visible ground, visible text).
 		Draw(visible_layer, left, top, inbound_left, inbound_top, inbound_right, inbound_bottom);
 
-		// Draw any part of a collidable that overlaps with view.
+		// Second, draw dynamic objects that move (glow orbs, player, moving obstacles). 
 		for (Collidable*& collision : m_collisions)
 		{
 			collision->Draw(visible_layer, left, top, inbound_left, inbound_top, inbound_right, inbound_bottom);

@@ -81,13 +81,13 @@ namespace Tmpl8
 
 	vec2& DetectorPoint::GetDeltaPosition()
 	{
-		return delta_position;
+		return m_delta_position;
 	}
 
 
 	int DetectorPoint::GetNewMode()
 	{
-		return new_mode;
+		return m_new_mode;
 	}
 
 
@@ -145,26 +145,30 @@ namespace Tmpl8
 
 	void DetectorPoint::ResetValues()
 	{
-		delta_position.x = 0.0f;
-		delta_position.y = 0.0f;
+		m_delta_position.x = 0.0f;
+		m_delta_position.y = 0.0f;
 		m_is_collision_detected = false;
-		m_is_on_pickup = false;		
-		new_mode = NONE;
+		m_is_on_pickup = false;
+		m_is_tethered = false;
+		m_tethered_object = nullptr;
+		m_new_mode = NONE;
 	}
 
 
 	void DetectorPoint::RegisterCollision(Collidable*& collision)
 	{
-		switch (collision->m_object_type)
+		switch (collision->m_collidable_type)
 		{
 		case CollidableType::OBSTACLE_HIDDEN:
-		case CollidableType::OBSTACLE_DANGEROUS:
+		case CollidableType::OBSTACLE_DANGEROUS:		
+		case CollidableType::OBSTACLE_MOVING_HIDDEN:
 			m_obstacles.push_back(collision);
 			break;
 		case CollidableType::GLOW_ORB_SAFE:
 			m_glow_orbs.push_back(collision);
 			break;
 		case CollidableType::OBSTACLE_VISIBLE:
+		case CollidableType::OBSTACLE_MOVING_VISIBLE:
 			m_obstacles.push_back(collision);
 			m_glow_orbs.push_back(collision);
 			break;
@@ -276,7 +280,40 @@ namespace Tmpl8
 				if (i_pos_x >= obstacle->left && i_pos_x <= obstacle->right
 					&& i_pos_y >= obstacle->top && i_pos_y <= obstacle->bottom)
 				{
-					printf("Currently in object but not detected!");
+					// The moving obstacle has hit the player while the player had no movement on the x axis.
+					// The detector point cannot detect things on an axis it is not moving on.
+					// We will create an approximate interesection.
+					// The player always has y movement, so this is only an issue on the x axis.
+					if (obstacle->m_collidable_type == CollidableType::OBSTACLE_MOVING_VISIBLE
+						|| obstacle->m_collidable_type == CollidableType::OBSTACLE_MOVING_HIDDEN)
+					{
+						switch (post_id)
+						{
+						case LEFT: // Make an intersection on the right edge of the obstacle.
+							intersections.emplace_back(
+								obstacle,
+								vec2{ static_cast<float>(obstacle->right), position.y },
+								EdgeCrossed::RIGHT,
+								(obstacle->right - i_pos_x)
+							);
+							break;
+						case RIGHT: // Make an intersection on the left edge of the obstacle.
+							intersections.emplace_back(
+								obstacle,
+								vec2{ static_cast<float>(obstacle->left), position.y },
+								EdgeCrossed::LEFT,
+								(i_pos_x - obstacle->left)
+							);
+							break;
+						default:
+							printf("Currently in moving object but not detected!");
+							break;
+						}
+					}
+					else
+					{
+						printf("Currently in unknown object but not detected!");
+					}					
 				}
 			}
 		}
@@ -319,22 +356,11 @@ namespace Tmpl8
 				Find the distance needed to move to collision point.
 				Then move 1 additional unit away from the edge to prevent another collision.
 			*/
-			delta_position.x = closest_intersection.m_intersection.x - i_pos_x;
-			delta_position.y = closest_intersection.m_intersection.y - i_pos_y;
-			delta_position += GetCollisionBuffer(closest_intersection.m_collision_edge_crossed);
+			m_delta_position.x = closest_intersection.m_intersection.x - i_pos_x;
+			m_delta_position.y = closest_intersection.m_intersection.y - i_pos_y;
+			m_delta_position += GetCollisionBuffer(closest_intersection.m_collision_edge_crossed);
 
-
-			switch (closest_intersection.m_type_of_collision_object)
-			{
-			case CollidableType::OBSTACLE_HIDDEN:
-			case CollidableType::OBSTACLE_VISIBLE:
-			case CollidableType::OBSTACLE_DANGEROUS:
-			case CollidableType::FINISH_LINE:
-				ResolveSmoothCollision(closest_intersection);
-				break;
-			default:
-				break;
-			}
+			ResolveSmoothCollision(closest_intersection);
 
 			m_is_collision_detected = true;
 		}		
@@ -440,17 +466,18 @@ namespace Tmpl8
 			Get next mode or ricochet velocity (no mode if ricochet).
 		*/
 
-		isRicochetCollision = GetIsRicochetCollision(intersection_info.m_collision_edge_crossed);
+		m_is_ricochet_collisions = GetIsRicochetCollision(intersection_info.m_collision_edge_crossed);
 
-		if (isRicochetCollision)
+		if (m_is_ricochet_collisions)
 		{
 			SetRicochetSpeed(intersection_info);
 		}
 		else
 		{
-			new_mode = GetNextMode();
-			m_is_safe_glow_needed = GetIsSafeGlowNeeded();
-			m_is_on_dangerous_obstacle = intersection_info.m_collision_object->m_object_type == CollidableType::OBSTACLE_DANGEROUS;
+			DetermineNextMode();
+			DetermineIsSafeGlowNeeded();			
+			DetermineIsTethered(intersection_info);
+			DetermineIsOnDangerousObstacle(intersection_info);
 		}
 	}
 
@@ -489,49 +516,6 @@ namespace Tmpl8
 	}
 
 
-	int DetectorPoint::GetNextMode()
-	{
-		/*
-			Hits on the cardinal points will put the player in a new mode.
-		*/
-
-		switch (post_id)
-		{
-		case RIGHT:
-			return WALL;
-		case TOP:
-			return CEILING;
-		case LEFT:
-			return WALL;
-		case BOTTOM:
-			return GROUND;
-		default:
-			return NONE; // Shouldn't reach.
-		}
-	}
-
-
-	bool DetectorPoint::GetIsSafeGlowNeeded()
-	{
-		// If none of the safe glow orbs are overlapping the point, a new safe glow orb is needed.
-		for (Collidable*& safe_orb : m_glow_orbs)
-		{
-			// Visible obstacles act as a safe glow orb.
-			if (safe_orb->m_object_type == CollidableType::OBSTACLE_VISIBLE) return false;
-
-			float dist_x{ position.x - safe_orb->m_center.x };
-			float dist_y{ position.y - safe_orb->m_center.y };
-			float dist = (dist_x * dist_x) + (dist_y * dist_y);
-			float radius = safe_orb->m_center.x - safe_orb->left;
-			if (dist <= radius * radius)
-			{
-				return false;
-			}
-		}
-		return true;
-	}
-
-	
 	void DetectorPoint::SetRicochetSpeed(Intersection& intersection_info)
 	{
 		/*
@@ -549,7 +533,7 @@ namespace Tmpl8
 			velocity.y = m_state == State::ALIVE ? 3.0f : 1.0f;
 			break;
 		case EdgeCrossed::TOP:
-			velocity.x = (fabsf(velocity.x) + 15.0f);
+			velocity.x = 10.0f;
 			velocity.y = m_state == State::ALIVE ? -2.0f : -1.0f;
 			break;
 		case EdgeCrossed::BOTTOM:
@@ -559,6 +543,79 @@ namespace Tmpl8
 		}
 
 		velocity.x *= intersection_info.GetHorizontalRicochetDirection();
+	}
+
+
+	void DetectorPoint::DetermineNextMode()
+	{
+		/*
+			Hits on the cardinal points will put the player in a new mode.
+		*/
+
+		
+		switch (post_id)
+		{
+		case RIGHT:
+			m_new_mode = WALL;
+			break;
+		case TOP:
+			m_new_mode = CEILING;
+			break;
+		case LEFT:
+			m_new_mode = WALL;
+			break;
+		case BOTTOM:
+			m_new_mode = GROUND;
+			break;
+		default:
+			m_new_mode = NONE; // Shouldn't reach.
+			break;
+		}
+	}
+
+		
+	void DetectorPoint::DetermineIsSafeGlowNeeded()
+	{
+		// If none of the safe glow orbs are overlapping the point, a new safe glow orb is needed.
+		for (Collidable*& safe_orb : m_glow_orbs)
+		{
+			// Visible obstacles act as a safe glow orb.
+			if (safe_orb->m_collidable_type == CollidableType::OBSTACLE_VISIBLE
+				|| safe_orb->m_collidable_type == CollidableType::OBSTACLE_MOVING_VISIBLE)
+			{
+				m_is_safe_glow_needed = false;
+				return;
+			}
+
+			float dist_x{ position.x - safe_orb->m_center.x };
+			float dist_y{ position.y - safe_orb->m_center.y };
+			float dist = (dist_x * dist_x) + (dist_y * dist_y);
+			float radius = safe_orb->m_center.x - safe_orb->left;
+			if (dist <= radius * radius)
+			{
+				m_is_safe_glow_needed = false;
+				return;
+			}
+		}
+
+		m_is_safe_glow_needed = true;
+	}
+
+
+	void DetectorPoint::DetermineIsTethered(Intersection& intersection_info)
+	{
+		if (intersection_info.m_collision_object->m_collidable_type == CollidableType::OBSTACLE_MOVING_VISIBLE
+			|| intersection_info.m_collision_object->m_collidable_type == CollidableType::OBSTACLE_MOVING_HIDDEN)
+		{
+			m_is_tethered = true;
+			m_tethered_object = intersection_info.m_collision_object;
+		}
+	}
+
+
+	void DetectorPoint::DetermineIsOnDangerousObstacle(Intersection& intersection_info)
+	{
+		m_is_on_dangerous_obstacle = intersection_info.m_collision_object->m_collidable_type == CollidableType::OBSTACLE_DANGEROUS;
 	}
 
 

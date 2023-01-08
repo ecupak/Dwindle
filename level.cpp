@@ -46,6 +46,7 @@ namespace Tmpl8
 	{
 		m_message_boxes.clear();
 		m_obstacles.clear();
+		m_moving_obstacles.clear();
 		m_finish_lines.clear();
 		m_pickups.clear();
 
@@ -75,6 +76,11 @@ namespace Tmpl8
 			{
 				pickup.Update(deltaTime, m_opacity);
 			}
+		}
+
+		for (MovingObstacle& moving_obstacle : m_moving_obstacles)
+		{
+			moving_obstacle.Update(deltaTime);
 		}
 	}
 
@@ -180,6 +186,8 @@ namespace Tmpl8
 		case VISIBLE_OBSTACLE_TILE:
 		case UNREACHABLE_OBSTACLE_TILE:
 		case DANGEROUS_OBSTACLE_TILE:
+		case VISIBLE_MOVING_OBSTACLE_TILE:
+		case HIDDEN_MOVING_OBSTACLE_TILE:
 			CreateObstacle(x, y, blueprint_code.m_tile_id);
 			break;
 		case NO_TILE:
@@ -224,11 +232,34 @@ namespace Tmpl8
 
 	void Level::CreateObstacle(int x, int y, int tile_id)
 	{
-		//Surface* tilemap{ &m_tilemap_smooth }; //tile_id == OBSTACLE_TILE ? &m_tilemap_smooth : &m_tilemap_rough
-		//Obstacle obstacle{ x, y, TILE_SIZE, type, tilemap, AUTOTILE_MAP_FRAME_COUNT, frame_id, bitwise_overlap, tile_id == SAFE_TILE };
-		Obstacle obstacle{ x, y, TILE_SIZE, GetAutotileId(x, y), tile_id, GetTilemapSprite(tile_id) };
-				
-		m_obstacles.push_back(obstacle);
+		switch (tile_id)
+		{
+		case VISIBLE_MOVING_OBSTACLE_TILE:
+		case HIDDEN_MOVING_OBSTACLE_TILE:
+		{
+			//MovingObstacle obstacle{GetMoveDirection(x, y), x, y, TILE_SIZE, GetAutotileId(x, y), tile_id, GetTilemapSprite(tile_id), m_obstacle_layer, m_map_layer };
+			//m_moving_obstacles.push_back(obstacle);
+			m_moving_obstacles.emplace_back(GetMoveDirection(x, y), x, y, TILE_SIZE, GetAutotileId(x, y), tile_id, GetTilemapSprite(tile_id), m_obstacle_layer, m_map_layer);
+		}
+			break;
+		default:
+		{
+			Obstacle obstacle{ x, y, TILE_SIZE, GetAutotileId(x, y), tile_id, GetTilemapSprite(tile_id) };
+			m_obstacles.push_back(obstacle);
+		}
+			break;
+		}
+	}
+
+
+	std::pair<MoveDirection, int> Level::GetMoveDirection(int x, int y)
+	{
+		int direction_id = m_blueprints.GetDirectionId(x, y);
+
+		MoveDirection direction{ direction_id < 0 ? MoveDirection::VERTICAL : MoveDirection::HORIZONTAL };
+		int tile_span{ abs(direction_id) };
+
+		return std::pair<MoveDirection, int>(direction, tile_span);		
 	}
 
 
@@ -265,11 +296,16 @@ namespace Tmpl8
 		case VISIBLE_OBSTACLE_TILE:
 		case HIDDEN_OBSTACLE_TILE:
 		case UNREACHABLE_OBSTACLE_TILE:
+		case VISIBLE_MOVING_OBSTACLE_TILE:
+		case HIDDEN_MOVING_OBSTACLE_TILE:
 			return m_normal_obstacle_tilemap_sprite;
 		case DANGEROUS_OBSTACLE_TILE:
 			return m_dangerous_obstacle_tilemap_sprite;
+		default:
+			return m_normal_obstacle_tilemap_sprite;
 		}
 	}
+
 
 	void Level::CreatePickup(int x, int y)
 	{		
@@ -299,8 +335,13 @@ namespace Tmpl8
 		// Add obstacles that can interact with player to collidables list.
 		for (Obstacle& obstacle : m_obstacles)
 		{
-			if (obstacle.m_object_type != CollidableType::OBSTACLE_UNREACHABLE)
+			if (obstacle.m_collidable_type != CollidableType::OBSTACLE_UNREACHABLE)
 				m_obstacle_collidables.push_back(&obstacle);
+		}
+
+		for (MovingObstacle& moving_obstacle : m_moving_obstacles)
+		{
+			m_obstacle_collidables.push_back(&moving_obstacle);
 		}
 
 		for (LightPickup& pickup : m_pickups)
@@ -373,12 +414,15 @@ namespace Tmpl8
 		background_layer.Bar(0, 0, background_layer.GetWidth(), background_layer.GetHeight(), 0xFF000000, true, 0.5f);
 		background_layer.CopyTo(&m_map_layer, 0, 0);
 
-		//m_map_layer.Clear(0xFFFFFFFF);
 
 		// Add obstacles.
 		for (Obstacle& obstacle : m_obstacles)
 		{
-			obstacle.Draw(&m_map_layer);
+			if (obstacle.m_collidable_type != CollidableType::OBSTACLE_MOVING_VISIBLE
+				&& obstacle.m_collidable_type != CollidableType::OBSTACLE_MOVING_HIDDEN)
+			{
+				obstacle.Draw(&m_map_layer);
+			}
 		}
 
 		// Add message boxes.
@@ -396,7 +440,9 @@ namespace Tmpl8
 	{
 		for (Obstacle& obstacle : m_obstacles)
 		{
-			if (obstacle.m_object_type != CollidableType::OBSTACLE_VISIBLE)
+			if (obstacle.m_collidable_type != CollidableType::OBSTACLE_UNREACHABLE
+				&& obstacle.m_collidable_type != CollidableType::OBSTACLE_MOVING_VISIBLE
+				&& obstacle.m_collidable_type != CollidableType::OBSTACLE_MOVING_HIDDEN)
 			{
 				obstacle.Draw(&m_obstacle_layer);
 				obstacle.ApplyOverlap();
@@ -409,7 +455,8 @@ namespace Tmpl8
 	{
 		for (Obstacle& obstacle : m_obstacles)
 		{
-			if (obstacle.m_object_type == CollidableType::OBSTACLE_VISIBLE)
+			if (obstacle.m_collidable_type == CollidableType::OBSTACLE_MOVING_VISIBLE
+				|| obstacle.m_collidable_type == CollidableType::OBSTACLE_VISIBLE)
 			{
 				obstacle.Draw(&m_revealed_layer);
 				obstacle.ApplyOverlap();

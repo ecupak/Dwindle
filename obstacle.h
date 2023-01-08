@@ -13,16 +13,20 @@ namespace Tmpl8
 	{
 	public:
 		Obstacle(int x, int y, int TILE_SIZE, int autotile_id, int tile_id, Sprite& sprite);
-
+		Obstacle(CollidableInfo collidable_info, int x, int y, int TILE_SIZE, int autotile_id, int tile_id, Sprite& sprite);
+				
 		void Draw(Surface* screen) override;
+		
 		void ApplyOverlap();
 
-	private:		
-		CollidableType GetCollidableType(int tile_id);		
-		int GetFrameId(int autotile_id);
-
+	protected:
 		Sprite& m_sprite;
 		int m_frame_id{ 0 };
+
+	private:
+		CollidableType GetCollidableType(int tile_id);		
+		int GetFrameId(int autotile_id);
+		
 		int m_autotile_id{ 0 };
 	};
 

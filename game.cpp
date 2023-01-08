@@ -342,7 +342,7 @@ namespace Tmpl8
 		player.SetGameScreenMode();
 		player.TransitionToPosition(level_manager.GetPlayerStartPosition());
 		camera.SetCenter(level_manager.GetPlayerStartPosition());
-		camera.FadeIntoView(1.0f);
+		camera.RestoreView();
 		player.DisableCollisionChecking(false);
 	}
 

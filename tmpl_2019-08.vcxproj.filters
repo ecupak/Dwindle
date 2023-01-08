@@ -70,7 +70,6 @@
     <ClCompile Include="message_box.cpp">
       <Filter>Level Files\Message Box</Filter>
     </ClCompile>
-    <ClCompile Include="collision_processor.cpp" />
     <ClCompile Include="pickup_glow_orb.cpp">
       <Filter>Glow Files\Pickup Glow Orb</Filter>
     </ClCompile>
@@ -86,8 +85,10 @@
     <ClCompile Include="moving_obstacle.cpp">
       <Filter>Level Files\Moving Obstacle</Filter>
     </ClCompile>
-    <ClCompile Include="button.cpp" />
     <ClCompile Include="mouse_manager.cpp" />
+    <ClCompile Include="button.cpp">
+      <Filter>Viewport Files\Button</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="surface.h">
@@ -189,7 +190,6 @@
     <ClInclude Include="message_box.h">
       <Filter>Level Files\Message Box</Filter>
     </ClInclude>
-    <ClInclude Include="collision_processor.h" />
     <ClInclude Include="pickup_glow_orb.h">
       <Filter>Glow Files\Pickup Glow Orb</Filter>
     </ClInclude>
@@ -218,8 +218,10 @@
     <ClInclude Include="game_enums.h">
       <Filter>Game Files\Game</Filter>
     </ClInclude>
-    <ClInclude Include="button.h" />
     <ClInclude Include="mouse_manager.h" />
+    <ClInclude Include="button.h">
+      <Filter>Viewport Files\Button</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="template code">
@@ -320,6 +322,9 @@
     </Filter>
     <Filter Include="Level Files\Moving Obstacle">
       <UniqueIdentifier>{7b62f9c3-6809-4e34-97fe-b14b2dd62846}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Viewport Files\Button">
+      <UniqueIdentifier>{65fbe2a1-2352-4455-8c61-b424827d26d0}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

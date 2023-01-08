@@ -5,7 +5,6 @@
 #include "key_manager.h"
 #include "collidable.h"
 #include "detector_point.h"
-//#include "collision_processor.h" inner class for later.
 
 #include "game_socket.h"
 #include "glow_socket.h"

@@ -61,15 +61,15 @@ namespace Tmpl8
 			{
 				m_onclick_fn();
 				return true;
-			}
-			return false;
+			}			
 		}
 		else
 		{
-			m_draw_color = NORMAL;
-			return false;
+			m_draw_color = NORMAL;			
 		}
+		return false;
 	}
+
 
 	void Button::Draw(Surface* visible_layer)
 	{

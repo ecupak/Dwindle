@@ -74,9 +74,11 @@ namespace Tmpl8
 	}
 
 
-	void Camera::FadeIntoView(float from_opacity)
+	void Camera::RestoreView()
 	{
-		m_opacity = from_opacity;
+		m_is_fading_out = false;
+		m_opacity = 1.0f;
+		opacity_delta = 0.0f;
 	}
 
 
@@ -159,13 +161,6 @@ namespace Tmpl8
 			m_opacity -= opacity_delta * deltaTime;
 			opacity_delta += opacity_delta_delta * deltaTime;
 			m_opacity = Max(0.0f, m_opacity);
-
-			// Check to reset.
-			if (m_opacity == 0.0f)
-			{
-				opacity_delta = 0.0f;
-				m_is_fading_out = false;
-			}
 		}
 	}
 

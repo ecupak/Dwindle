@@ -30,7 +30,7 @@ namespace Tmpl8
 		void SetLevelBounds(vec2& level_bounds);
 		void SetRevealedLayer(Surface& revealed_layer);
 		void FadeToBlack();
-		void FadeIntoView(float from_opacity);
+		void RestoreView();
 
 	private:
 		void FadeOpacity(float deltaTime);

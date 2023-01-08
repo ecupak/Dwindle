@@ -49,6 +49,7 @@ namespace Tmpl8
 		key_manager.RegisterKey(SDLK_RIGHT);
 		key_manager.RegisterKey(SDLK_UP);
 		key_manager.RegisterKey(SDLK_DOWN);
+		key_manager.RegisterKey(SDLK_F1);
 	}
 
 
@@ -162,7 +163,7 @@ namespace Tmpl8
 		// Move camera (child of viewport) to follow player.
 		viewport.Update(deltaTime);
 		
-		// Update Level (basically powers the pickup animation).
+		// Update Level (pickup animation and moving obstacles).
 		level_manager.Update(deltaTime);
 
 		// User input moves player - may be clipping an object at this point.
@@ -357,6 +358,9 @@ namespace Tmpl8
 				break;
 			case SDLK_DOWN:
 				key_manager.GetKey(SDLK_UP).m_is_active = false;
+				break;
+			case SDLK_F1:
+				player.ToggleDebugMode();
 				break;
 			default:
 				break;

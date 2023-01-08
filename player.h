@@ -84,7 +84,9 @@ namespace Tmpl8 {
 		
 		void SetIsTutorialMode(bool is_tutorial_mode) { m_is_tutorial_mode = is_tutorial_mode; }
 		void DisableCollisionChecking(bool is_disabled) { m_is_collision_state_disabled = is_disabled; }
-			
+		
+		void ToggleDebugMode();
+
 		std::vector<DetectorPoint> points;
 
 
@@ -139,7 +141,8 @@ namespace Tmpl8 {
 
 		/* ATTRIBUTES */
 		int m_frame_id{ 0 };
-		
+		bool m_is_debug_mode_on{ false };
+
 		//CollisionProcessor m_collision_processor{ *this };
 		FirstEcho m_player_echo;
 
@@ -150,6 +153,8 @@ namespace Tmpl8 {
 		Socket<CollisionMessage>* m_collision_socket{ nullptr };
 
 		Collidable* m_tethered_object{ nullptr };
+		bool m_is_untethering{ false };
+		bool m_ignore_tether_collisions{ false };
 
 		/*
 			Strength = life and opacity of light flash.

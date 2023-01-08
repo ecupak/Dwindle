@@ -21,5 +21,6 @@ namespace Tmpl8
 
 		unsigned int glow_color{ 0xFF00FF00 };
 		bool m_is_on_delay{ false };
+		Collidable* m_moving_obstacle{ nullptr };
 	};
 };

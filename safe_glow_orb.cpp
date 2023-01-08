@@ -5,7 +5,8 @@ namespace Tmpl8
 {
 	SafeGlowOrb::SafeGlowOrb(vec2 position, float player_strength, Surface* source_layer, SafeGlowInfo safe_glow_info) :
 		GlowOrb{ CollidableInfo{CollidableType::GLOW_ORB_SAFE, CollisionLayer::BOTH, CollisionMask::NONE, 2, position}, player_strength, source_layer },
-		m_is_on_delay{ safe_glow_info.m_is_on_delay }
+		m_is_on_delay{ safe_glow_info.m_is_on_delay },
+		m_moving_obstacle{ safe_glow_info.m_moving_obstacle }
 	{
 		phase = Phase::FULL;		
 		delay = 0.25f;
@@ -41,6 +42,11 @@ namespace Tmpl8
 	{
 		opacity = Clamp(opacity, 0.0f, 235.0f); // Limited to less than full brightness so not drawn over perm orbs.
 		radius = Clamp(radius, 0.0f, radius_max);
+
+		if (m_moving_obstacle != nullptr)
+		{
+			m_center += m_moving_obstacle->m_delta_position;
+		}
 	}
 
 

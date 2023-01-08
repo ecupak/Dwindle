@@ -14,13 +14,15 @@ namespace Tmpl8
 			m_is_on_delay{ false }
 		{	}			
 
-		SafeGlowInfo(bool is_safe_glow_needed, bool is_on_delay) :
+		SafeGlowInfo(bool is_safe_glow_needed, bool is_on_delay, Collidable* moving_obstacle) :
 			m_is_safe_glow_needed{ is_safe_glow_needed },
-			m_is_on_delay{ is_on_delay }
+			m_is_on_delay{ is_on_delay },
+			m_moving_obstacle{ moving_obstacle }
 		{	}
 
 		bool m_is_safe_glow_needed{ false };
 		bool m_is_on_delay{ false };
+		Collidable* m_moving_obstacle{ nullptr };
 	};
 
 

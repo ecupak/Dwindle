@@ -186,7 +186,8 @@ namespace Tmpl8
 		case VISIBLE_OBSTACLE_TILE:
 		case UNREACHABLE_OBSTACLE_TILE:
 		case DANGEROUS_OBSTACLE_TILE:
-		case MOVING_OBSTACLE_TILE:
+		case VISIBLE_MOVING_OBSTACLE_TILE:
+		case HIDDEN_MOVING_OBSTACLE_TILE:
 			CreateObstacle(x, y, blueprint_code.m_tile_id);
 			break;
 		case NO_TILE:
@@ -233,10 +234,12 @@ namespace Tmpl8
 	{
 		switch (tile_id)
 		{
-		case MOVING_OBSTACLE_TILE:
+		case VISIBLE_MOVING_OBSTACLE_TILE:
+		case HIDDEN_MOVING_OBSTACLE_TILE:
 		{
-			MovingObstacle obstacle{GetMoveDirection(x, y), x, y, TILE_SIZE, GetAutotileId(x, y), tile_id, GetTilemapSprite(tile_id) };
-			m_moving_obstacles.push_back(obstacle);
+			//MovingObstacle obstacle{GetMoveDirection(x, y), x, y, TILE_SIZE, GetAutotileId(x, y), tile_id, GetTilemapSprite(tile_id), m_obstacle_layer, m_map_layer };
+			//m_moving_obstacles.push_back(obstacle);
+			m_moving_obstacles.emplace_back(GetMoveDirection(x, y), x, y, TILE_SIZE, GetAutotileId(x, y), tile_id, GetTilemapSprite(tile_id), m_obstacle_layer, m_map_layer);
 		}
 			break;
 		default:
@@ -246,8 +249,6 @@ namespace Tmpl8
 		}
 			break;
 		}
-				
-		
 	}
 
 
@@ -295,7 +296,8 @@ namespace Tmpl8
 		case VISIBLE_OBSTACLE_TILE:
 		case HIDDEN_OBSTACLE_TILE:
 		case UNREACHABLE_OBSTACLE_TILE:
-		case MOVING_OBSTACLE_TILE:
+		case VISIBLE_MOVING_OBSTACLE_TILE:
+		case HIDDEN_MOVING_OBSTACLE_TILE:
 			return m_normal_obstacle_tilemap_sprite;
 		case DANGEROUS_OBSTACLE_TILE:
 			return m_dangerous_obstacle_tilemap_sprite;
@@ -412,12 +414,15 @@ namespace Tmpl8
 		background_layer.Bar(0, 0, background_layer.GetWidth(), background_layer.GetHeight(), 0xFF000000, true, 0.5f);
 		background_layer.CopyTo(&m_map_layer, 0, 0);
 
-		//m_map_layer.Clear(0xFFFFFFFF);
 
 		// Add obstacles.
 		for (Obstacle& obstacle : m_obstacles)
 		{
-			obstacle.Draw(&m_map_layer);
+			if (obstacle.m_collidable_type != CollidableType::OBSTACLE_MOVING_VISIBLE
+				&& obstacle.m_collidable_type != CollidableType::OBSTACLE_MOVING_HIDDEN)
+			{
+				obstacle.Draw(&m_map_layer);
+			}
 		}
 
 		// Add message boxes.
@@ -435,7 +440,9 @@ namespace Tmpl8
 	{
 		for (Obstacle& obstacle : m_obstacles)
 		{
-			if (obstacle.m_collidable_type != CollidableType::OBSTACLE_VISIBLE)
+			if (obstacle.m_collidable_type != CollidableType::OBSTACLE_UNREACHABLE
+				&& obstacle.m_collidable_type != CollidableType::OBSTACLE_MOVING_VISIBLE
+				&& obstacle.m_collidable_type != CollidableType::OBSTACLE_MOVING_HIDDEN)
 			{
 				obstacle.Draw(&m_obstacle_layer);
 				obstacle.ApplyOverlap();
@@ -448,7 +455,8 @@ namespace Tmpl8
 	{
 		for (Obstacle& obstacle : m_obstacles)
 		{
-			if (obstacle.m_collidable_type == CollidableType::OBSTACLE_VISIBLE)
+			if (obstacle.m_collidable_type == CollidableType::OBSTACLE_MOVING_VISIBLE
+				|| obstacle.m_collidable_type == CollidableType::OBSTACLE_VISIBLE)
 			{
 				obstacle.Draw(&m_revealed_layer);
 				obstacle.ApplyOverlap();

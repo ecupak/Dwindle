@@ -100,26 +100,34 @@ namespace Tmpl8
 
 	void Player::Draw(Surface* viewable_layer, int c_left, int c_top, int in_left, int in_top, int in_right, int in_bottom)
 	{
-		/*
-		for (DetectorPoint& point : points)
+		if (m_is_debug_mode_on)
 		{
-			viewable_layer->Box(point.left - c_left, point.top - c_top, point.right - c_left, point.bottom - c_top, 0xFFFFFFFF);
+			for (DetectorPoint& point : points)
+			{
+				viewable_layer->Box(point.left - c_left, point.top - c_top, point.right - c_left, point.bottom - c_top, 0xFFFFFFFF);
+			}
 		}
-		*/
-		
-		// Draw over that with echoes.
-		m_player_echo.Draw(viewable_layer, c_left, c_top);
+		else
+		{
+			// Draw over that with echoes.
+			m_player_echo.Draw(viewable_layer, c_left, c_top);
 
-		// Finally draw player on top of all.
-		m_sprite.SetFrame(m_frame_id);
-		m_sprite.Draw(viewable_layer, position.x - c_left, position.y - c_top);
-		
+			// Finally draw player on top of all.
+			m_sprite.SetFrame(m_frame_id);
+			m_sprite.Draw(viewable_layer, position.x - c_left, position.y - c_top);
+		}		
 	}
 
 
 	int Player::GetStartingLife()
 	{
 		return m_player_strength;
+	}
+
+
+	void Player::ToggleDebugMode()
+	{
+		m_is_debug_mode_on = !m_is_debug_mode_on;
 	}
 
 
@@ -208,10 +216,18 @@ namespace Tmpl8
 
 		distance.y = GetDistanceToMove(VectorIndex::Y, half_t2);
 
-		// Move same distance as object we are riding.
+		// Move same distance as moving object we are riding.
 		if (m_tethered_object != nullptr)
 		{
 			distance += m_tethered_object->m_delta_position;
+
+			if (m_is_untethering)
+			{
+				//distance += m_tethered_object->m_delta_position;
+				m_ignore_tether_collisions = true;
+				m_tethered_object = nullptr;
+				
+			}
 		}
 
 		position.x += distance.x;
@@ -318,12 +334,15 @@ namespace Tmpl8
 
 	void Player::ResolveCollisions()
 	{
-		if (m_is_collision_state_disabled)
+		if (m_is_collision_state_disabled || m_ignore_tether_collisions)
 		{
 			for (DetectorPoint& point : points)
 			{
 				point.ClearCollisions();
 			}
+			
+			m_ignore_tether_collisions = false;
+
 			return;
 		}
 
@@ -394,7 +413,7 @@ namespace Tmpl8
 				// trying to determine which is the more correct one to use, which is 
 				// a difficult process. There is no situation in which something bad will
 				// happen by taking the first one and ignoring the rest.
-				if (point.isRicochetCollision && !is_ricochet_set)
+				if (point.m_is_ricochet_collisions && !is_ricochet_set)
 				{
 					ricochet_velocity = point.GetNewVelocity();
 					is_ricochet_set = true;
@@ -493,7 +512,7 @@ namespace Tmpl8
 				if (new_mode & ~NONE)
 				{
 					bool is_on_dangerous_obstacle{ GetIsOnDangerousObstacle(post_id) };
-					m_glow_socket->SendMessage(GlowMessage{ GlowAction::MAKE_ORB, m_center, calculated_opacity, CollidableType::GLOW_ORB_FULL, SafeGlowInfo(is_safe_glow_needed, is_on_dangerous_obstacle) });
+					m_glow_socket->SendMessage(GlowMessage{ GlowAction::MAKE_ORB, m_center, calculated_opacity, CollidableType::GLOW_ORB_FULL, SafeGlowInfo(is_safe_glow_needed, is_on_dangerous_obstacle, m_tethered_object) });
 				}
 				else if (is_ricochet_set)
 				{
@@ -553,6 +572,7 @@ namespace Tmpl8
 		if (points[post_id].m_is_tethered)
 		{
 			m_tethered_object = points[post_id].m_tethered_object;
+			m_is_untethering = false;
 		}
 	}
 
@@ -843,7 +863,7 @@ namespace Tmpl8
 			// Otherwise bounce off ground (even while dead).
 			else
 			{
-				m_tethered_object = nullptr;
+				m_is_untethering = true;
 
 				bounceOffGround();
 				setFrameSquash2Stretch();
@@ -922,7 +942,7 @@ namespace Tmpl8
 		/* Set velocity and if any direction lock, as well as next sprite. AIR mode
 			handles movement and collision. */
 
-		m_tethered_object = nullptr;
+		m_is_untethering = true;
 
 		setEjectionSpeedY(wall_bounce_y_power);
 		setEjectionSpeedX(wall_bounce_x_power);

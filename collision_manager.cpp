@@ -85,6 +85,9 @@ namespace Tmpl8
 
 	void CollisionManager::UpdateCollidables()
 	{
+		if (m_obstacle_collidables[0]->m_id == 2132092753)
+			int x = 3;
+
 		if (m_has_static_list_changed)
 		{
 			RebuildStaticList();
@@ -206,10 +209,7 @@ namespace Tmpl8
 			if (collidables[focus]->m_is_active)
 			{
 				for (std::size_t priorFoci{ 0 }; priorFoci < priorFocusList.size(); priorFoci++)	// Go through list of things to the left of the focus.
-				{
-					if (collidables[focus]->m_collidable_type == CollidableType::OBSTACLE_MOVING)
-						int z = 3;
-
+				{					
 					// If focus and prior focus don't overlap, erase prior focus.
 					if (collidables[focus]->left > priorFocusList[priorFoci]->right)
 					{

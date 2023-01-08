@@ -31,13 +31,6 @@ namespace Tmpl8
 	}
 
 
-	void Obstacle::Draw(Surface* visible_layer, int c_left, int c_top, int in_left, int in_top, int in_right, int in_bottom)
-	{
-		m_sprite.SetFrame(m_frame_id);
-		m_sprite.Draw(visible_layer, left - c_left, top - c_top);
-	}
-
-
 	void Obstacle::ApplyOverlap()
 	{
 		// Extend bounding box into neighbor by 1 pixel.

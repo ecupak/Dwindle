@@ -227,6 +227,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="blueprints.cpp" />
+    <ClCompile Include="button.cpp" />
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="collidable.cpp" />
     <ClCompile Include="detector_point.cpp" />
@@ -238,6 +239,7 @@
     <ClCompile Include="life_hud.cpp" />
     <ClCompile Include="light_pickup.cpp" />
     <ClCompile Include="message_box.cpp" />
+    <ClCompile Include="mouse_manager.cpp" />
     <ClCompile Include="moving_obstacle.cpp" />
     <ClCompile Include="obstacle.cpp" />
     <ClCompile Include="pickup_glow_orb.cpp" />
@@ -258,6 +260,7 @@
   <ItemGroup>
     <ClInclude Include="blueprints.h" />
     <ClInclude Include="blueprint_code.h" />
+    <ClInclude Include="button.h" />
     <ClInclude Include="camera.h" />
     <ClInclude Include="collision_manager.h" />
     <ClInclude Include="collidable.h" />
@@ -266,11 +269,13 @@
     <ClInclude Include="finish_line.h" />
     <ClInclude Include="first_echo.h" />
     <ClInclude Include="game.h" />
+    <ClInclude Include="game_enums.h" />
     <ClInclude Include="game_socket.h" />
     <ClInclude Include="glow_manager.h" />
     <ClInclude Include="glow_orb.h" />
     <ClInclude Include="glow_socket.h" />
     <ClInclude Include="camera_socket.h" />
+    <ClInclude Include="mouse_manager.h" />
     <ClInclude Include="player_socket.h" />
     <ClInclude Include="moving_obstacle.h" />
     <ClInclude Include="obstacle_consts.h" />

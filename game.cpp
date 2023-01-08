@@ -2,6 +2,7 @@
 #include <vector>
 
 #include "game.h"
+#include <SDL2-2.0.3/include/SDL_mouse.h>
 
 
 namespace Tmpl8
@@ -9,23 +10,23 @@ namespace Tmpl8
 	// -----------------------------------------------------------
 	// Constant
 	// -----------------------------------------------------------
-	
+
 
 	// -----------------------------------------------------------
 	// Constructor
 	// -----------------------------------------------------------
-	Game::Game(Surface* surface) :		
+	Game::Game(Surface* surface) :
 		collision_manager{ },
 		level_manager{ text_repo },
 		player{ key_manager },
 		camera{ player },
 		screen{ surface },
-		viewport{ surface, camera }		
+		viewport{ surface, camera, game_mode, mouse_manager }
 	{	}
 
 	// -----------------------------------------------------------
 	// Initialize the application
-	// -----------------------------------------------------------
+	// -----------------------------------------------------------	
 	void Game::Init()
 	{
 		RegisterKeys();
@@ -35,13 +36,16 @@ namespace Tmpl8
 		InitPlayer();
 		InitCamera();
 		InitCollisionManager();
+		InitViewport();
 
 		PrepareForNextLevel();
 
-		player.RestoreDefaults();
+		camera.SetCenter(vec2{ ScreenWidth / 2, ScreenHeight / 2 });
 		player.SetPosition(level_manager.GetPlayerStartPosition());
+		player.SetTitleScreenMode();
+		//camera.FadeIntoView(0.0f);
 	}
-	
+
 
 	void Game::RegisterKeys()
 	{
@@ -58,7 +62,6 @@ namespace Tmpl8
 		m_collision_socket = collision_manager.GetCollisionSocket();
 		m_glow_socket = glow_manager.GetGlowSocket();
 		m_camera_socket = camera.GetCameraSocket();
-		m_viewport_socket = viewport.GetViewportSocket();
 		m_life_socket = viewport.GetLifeHUDSocket();
 	}
 
@@ -75,7 +78,7 @@ namespace Tmpl8
 		glow_manager.RegisterGameSocket(&m_game_hub);
 		glow_manager.RegisterCollisionSocket(m_collision_socket);
 	}
-	
+
 
 	void Game::InitPlayer()
 	{
@@ -98,22 +101,28 @@ namespace Tmpl8
 		camera.RegisterWithCollisionManager();
 	}
 
+	void Game::InitViewport()
+	{
+		viewport.SetGameSocket(&m_game_hub);
+		viewport.CreateButtons();
+	}
+
 	// -----------------------------------------------------------
 	// Set up the next level
 	// -----------------------------------------------------------
 
 	void Game::PrepareForNextLevel()
 	{
-		PrepareLevel();		
+		PrepareLevel();
 		PrepareGlowManager();
 		PreparePlayer();
 		PrepareCollisionManager();
-		PrepareCamera();		
+		PrepareCamera();
 	}
 
-		
+
 	void Game::PrepareLevel()
-	{		
+	{
 		level_manager.CreateLevel(level_id); // starts at 0 = tutorial.		
 	}
 
@@ -132,7 +141,7 @@ namespace Tmpl8
 
 
 	void Game::PrepareCollisionManager()
-	{	
+	{
 		collision_manager.PopulateLists();
 	}
 
@@ -157,24 +166,26 @@ namespace Tmpl8
 	{
 		deltaTime = Clamp(deltaTime * 0.001f, 0.0f, 0.033f);
 
+		mouse_manager.Update(m_mouse_packet);
+
 		// See if anything has sent a message to game (player death or level completion).
 		CheckSocketForNewMessages();
 
 		// Move camera (child of viewport) to follow player.
 		viewport.Update(deltaTime);
-		
+
 		// Update Level (pickup animation and moving obstacles).
 		level_manager.Update(deltaTime);
 
 		// User input moves player - may be clipping an object at this point.
 		player.Update(deltaTime);
-		
+
 		// Update GlowOrbs (destroy old, create new, update sizes, etc).
 		glow_manager.Update(deltaTime);
 
 		// Do collisions in one pass. This will get player out of walls and figure out what the camera can see / will draw.
 		collision_manager.RunCollisionCycle();
-		
+
 		// Render whatever the camera has collided with based on its new position.
 		viewport.Draw(deltaTime);
 	}
@@ -206,6 +217,10 @@ namespace Tmpl8
 			{
 				CheckLevelAdvancementProgress(message);
 			}
+			else if (m_is_in_title_screen)
+			{
+				CheckTitleScreenProgress(message);
+			}
 			else
 			{
 				CheckMessage(message);
@@ -217,7 +232,7 @@ namespace Tmpl8
 	void Game::CheckLevelResetProgress(GameMessage& message)
 	{
 		switch (message.m_action)
-		{		
+		{
 		case GameAction::ORBS_REMOVED:
 			++m_level_action_tracker;
 			DisablePlayerCollisions();
@@ -226,15 +241,15 @@ namespace Tmpl8
 			++m_level_action_tracker;
 			DisablePlayerCollisions();
 			break;
-		case GameAction::PLAYER_SUSPENDED:			
-			ResetPlayerPosition();
+		case GameAction::PLAYER_SUSPENDED:
+			ReadyNextLevel();
 			m_is_in_level_reset = false;
 			m_level_action_tracker = 0;
 			break;
 		}
 	}
 
-	
+
 	void Game::CheckLevelAdvancementProgress(GameMessage& message)
 	{
 		switch (message.m_action)
@@ -246,15 +261,33 @@ namespace Tmpl8
 		case GameAction::PLAYER_IN_FREE_FALL:
 			++m_level_action_tracker;
 			DisablePlayerCollisions();
-			break;		
+			break;
 		case GameAction::PLAYER_SUSPENDED:
-			// Display transition message.
-			// See core memory.
-			// Award new powers.
-			// - There would be a new GameMessage/Action after these are complete.
-			// - Would move ReadyNextLevel() to happen after that trigger.
-			ReadyNextLevel();			
+			AdvanceLevel();
+			ReadyNextLevel();
 			m_is_in_level_advancement = false;
+			m_level_action_tracker = 0;
+			break;
+		}
+	}
+
+
+	void Game::CheckTitleScreenProgress(GameMessage& message)
+	{
+		switch (message.m_action)
+		{
+		case GameAction::START_TUTORIAL:
+			++m_level_action_tracker;
+			LeaveTitleToLevel(0);
+			break;
+		case GameAction::START_GAME:
+			++m_level_action_tracker;
+			LeaveTitleToLevel(1);
+			break;
+		case GameAction::PLAYER_SUSPENDED:
+			game_mode = GameMode::GAME_SCREEN;
+			ReadyNextLevel();
+			m_is_in_title_screen = false;
 			m_level_action_tracker = 0;
 			break;
 		}
@@ -264,12 +297,14 @@ namespace Tmpl8
 	void Game::CheckMessage(GameMessage& message)
 	{
 		switch (message.m_action)
-		{
+		{		
 		case GameAction::PLAYER_DEATH:
+			m_level_action_tracker = 0;
 			m_is_in_level_reset = true;
 			FadeToBlack();
 			break;
 		case GameAction::LEVEL_COMPLETE:
+			m_level_action_tracker = 0;
 			m_is_in_level_advancement = true;
 			FadeToBlack();
 			break;
@@ -280,7 +315,7 @@ namespace Tmpl8
 	// -----------------------------------------------------------
 	// Reset Level
 	// -----------------------------------------------------------
-	
+
 	// Remove all safe glow orbs. Screen should be completely black during transition.
 	void Game::FadeToBlack()
 	{
@@ -288,7 +323,7 @@ namespace Tmpl8
 		camera.FadeToBlack();
 		level_manager.FadeToBlack();
 	}
-	
+
 
 	// Let player begine falling as part of transition.
 	void Game::DisablePlayerCollisions()
@@ -304,10 +339,10 @@ namespace Tmpl8
 	// Place player at level start. It will appear as if player landed there directly from where they fell off from earlier.
 	void Game::ResetPlayerPosition()
 	{
-		player.RestoreDefaults();
+		player.SetGameScreenMode();
 		player.TransitionToPosition(level_manager.GetPlayerStartPosition());
-		camera.SetPosition(level_manager.GetPlayerStartPosition());
-		camera.FadeIntoView();
+		camera.SetCenter(level_manager.GetPlayerStartPosition());
+		camera.FadeIntoView(1.0f);
 		player.DisableCollisionChecking(false);
 	}
 
@@ -315,19 +350,54 @@ namespace Tmpl8
 	// -----------------------------------------------------------
 	// Go to next level
 	// -----------------------------------------------------------
-
-	void Game::ReadyNextLevel()
+	void Game::AdvanceLevel()
 	{
-		if (++level_id > 3)
+		++level_id;
+	}
+	
+	void Game::ReadyNextLevel()
+	{			
+		PrepareForNextLevel();
+		ResetPlayerPosition();
+	}
+
+	// -----------------------------------------------------------
+	// Title Screen
+	// -----------------------------------------------------------	
+	void Game::LeaveTitleToLevel(int starting_level_id)
+	{
+		if (m_level_action_tracker == 1)
 		{
-			// Game completed.
-		}
-		else
-		{
-			PrepareForNextLevel();
-			ResetPlayerPosition();
+			level_id = starting_level_id;
+			player.SetMode(Mode::FREE_FALL);
 		}
 	}
+
+	// -----------------------------------------------------------
+	// Mouse events
+	// -----------------------------------------------------------
+	void Game::MouseUp(int button)
+	{
+		if (button == SDL_BUTTON_LEFT)
+		{
+			m_mouse_packet.m_was_pressed = true;
+		}
+	}
+
+	void Game::MouseDown(int button)
+	{
+		if (button == SDL_BUTTON_LEFT)
+		{
+			m_mouse_packet.m_was_pressed = false;
+		}
+	}
+
+	void Game::MouseMove(int x, int y)
+	{
+		m_mouse_packet.m_x = x;
+		m_mouse_packet.m_y = y;
+	}
+
 
 	// -----------------------------------------------------------
 	// Keyboard events

@@ -86,6 +86,8 @@
     <ClCompile Include="moving_obstacle.cpp">
       <Filter>Level Files\Moving Obstacle</Filter>
     </ClCompile>
+    <ClCompile Include="button.cpp" />
+    <ClCompile Include="mouse_manager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="surface.h">
@@ -213,6 +215,11 @@
     <ClInclude Include="moving_obstacle.h">
       <Filter>Level Files\Moving Obstacle</Filter>
     </ClInclude>
+    <ClInclude Include="game_enums.h">
+      <Filter>Game Files\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="button.h" />
+    <ClInclude Include="mouse_manager.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="template code">

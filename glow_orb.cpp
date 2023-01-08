@@ -91,7 +91,7 @@ namespace Tmpl8
 
 		for (int y{ d_top }; y < d_bottom; y++)
 		{
-			for (int x{ 0 }; x <= (d_right - d_left); x++)
+			for (int x{ 0 }; x < (d_right - d_left); x++)
 			{
 				// Only adjust pixels that fall within a circle based on center and radius.
 				int dist_x{ x + d_left - static_cast<int>(floor(m_center.x)) };

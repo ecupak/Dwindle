@@ -21,9 +21,9 @@ namespace Tmpl8
 	// Constructor.
 	Level::Level(TextRepo& text_repo) :
 		m_text_repo{ &text_repo },
-		m_obstacle_layer{ 1, 1 },
-		m_map_layer{ 1, 1 },
-		m_revealed_layer{ 1, 1 }
+		m_obstacle_layer{ ScreenWidth, ScreenHeight },
+		m_map_layer{ ScreenWidth, ScreenHeight },
+		m_revealed_layer{ ScreenWidth, ScreenHeight }
 	{	}
 			
 
@@ -34,11 +34,20 @@ namespace Tmpl8
 
 		m_level_id = level_id;
 
-		CreateComponents();
-		CreateCollidableLists();
-		SendCollidableLists();
-		CreateMessageBoxes();
-		CreateLayers();
+		if (level_id >= 0)
+		{
+			CreateComponents();
+			CreateCollidableLists();
+			SendCollidableLists();
+			CreateMessageBoxes();
+			CreateLayers();
+		}
+		else
+		{
+			ClearSurfaces();
+			//PrepareMapLayer();
+			m_title.CopyTo(&m_revealed_layer, 494, 355);
+		}
 	}
 	
 	
@@ -56,6 +65,15 @@ namespace Tmpl8
 
 		m_is_fading_out = false;
 		m_opacity = 1.0f;
+	}
+
+
+	void Level::SetPlayerTitlePosition()
+	{
+		m_player_start_position = vec2{
+			static_cast<float>(ScreenWidth / 2),
+			static_cast<float>(ScreenHeight / 2)
+		};
 	}
 
 
@@ -144,8 +162,14 @@ namespace Tmpl8
 			m_blueprint_height = m_blueprints.GetBlueprintHeight();
 
 			ResizeSurfaces();
+			ClearSurfaces();
 
 			CreateComponentsFromBlueprint();
+		}
+		else
+		{			
+			ClearSurfaces();
+			//CreateTitleObstacle();
 		}
 	}
 
@@ -153,12 +177,15 @@ namespace Tmpl8
 	void Level::ResizeSurfaces()
 	{
 		m_map_layer = Surface{ m_blueprint_width * TILE_SIZE, m_blueprint_height * TILE_SIZE };
-		m_map_layer.Clear(0x00000000);
-
 		m_obstacle_layer = Surface{ m_blueprint_width * TILE_SIZE, m_blueprint_height * TILE_SIZE };
-		m_obstacle_layer.Clear(0x00000000);
-
 		m_revealed_layer = Surface{ m_blueprint_width * TILE_SIZE, m_blueprint_height * TILE_SIZE };
+	}
+
+
+	void Level::ClearSurfaces()
+	{
+		m_map_layer.Clear(0x00000000);
+		m_obstacle_layer.Clear(0x00000000);
 		m_revealed_layer.Clear(0x00000000);
 	}
 
@@ -236,16 +263,15 @@ namespace Tmpl8
 		{
 		case VISIBLE_MOVING_OBSTACLE_TILE:
 		case HIDDEN_MOVING_OBSTACLE_TILE:
-		{
-			//MovingObstacle obstacle{GetMoveDirection(x, y), x, y, TILE_SIZE, GetAutotileId(x, y), tile_id, GetTilemapSprite(tile_id), m_obstacle_layer, m_map_layer };
-			//m_moving_obstacles.push_back(obstacle);
+		{			
 			m_moving_obstacles.emplace_back(GetMoveDirection(x, y), x, y, TILE_SIZE, GetAutotileId(x, y), tile_id, GetTilemapSprite(tile_id), m_obstacle_layer, m_map_layer);
 		}
 			break;
 		default:
 		{
-			Obstacle obstacle{ x, y, TILE_SIZE, GetAutotileId(x, y), tile_id, GetTilemapSprite(tile_id) };
-			m_obstacles.push_back(obstacle);
+			//Obstacle obstacle{ x, y, TILE_SIZE, GetAutotileId(x, y), tile_id, GetTilemapSprite(tile_id) };
+			//m_obstacles.push_back(obstacle);
+			m_obstacles.emplace_back(x, y, TILE_SIZE, GetAutotileId(x, y), tile_id, GetTilemapSprite(tile_id));
 		}
 			break;
 		}
@@ -370,8 +396,6 @@ namespace Tmpl8
 
 		for (Entry& entry : entries)
 		{
-			//std::unique_ptr<Sprite> text_sprite{ m_tsmaker.GetTextSprite(entry.m_span, entry.m_text, 0xFFAAAAAA) };
-			//m_message_boxes.emplace_back(message_type, std::move(text_sprite), entry.m_position, TILE_SIZE);
 			m_message_boxes.emplace_back(entry, TILE_SIZE, 0xFFAAAAAA);
 		}
 	}
@@ -399,11 +423,17 @@ namespace Tmpl8
 		char* asset_path;
 		switch (m_level_id)
 		{
+		case -1:
+			asset_path = "assets/backgrounds/title.png"; // Justin Prno at https://dribbble.com/hi_jmp
+			break;
 		case 0:
 			asset_path = "assets/backgrounds/tutorial.png"; // Justin Prno at https://dribbble.com/hi_jmp
 			break;
 		case 1:
 			asset_path = "assets/backgrounds/L01.png"; // Justin Prno at https://dribbble.com/hi_jmp
+			break;
+		case 2:
+			asset_path = "assets/backgrounds/L02.png"; // Justin Prno at https://dribbble.com/hi_jmp
 			break;
 		default:
 			asset_path = "assets/backgrounds/tutorial.png"; // Justin Prno at https://dribbble.com/hi_jmp

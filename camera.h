@@ -25,14 +25,15 @@ namespace Tmpl8
 		void RegisterCollisionSocket(Socket<CollisionMessage>* collision_socket);
 		void RegisterWithCollisionManager();
 
-		void SetPosition(vec2 position);
+		void SetCenter(vec2 center);
 		void ProcessCollisions() {};
 		void SetLevelBounds(vec2& level_bounds);
 		void SetRevealedLayer(Surface& revealed_layer);
 		void FadeToBlack();
-		void FadeIntoView();
+		void FadeIntoView(float from_opacity);
 
 	private:
+		void FadeOpacity(float deltaTime);
 		void UpdateBounds();
 
 		float speed{ 150.0f };

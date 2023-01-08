@@ -44,7 +44,6 @@ namespace Tmpl8
 
 		void RegisterCollisionSocket(Socket<CollisionMessage>* collision_socket);
 		void RegisterGlowSocket(Socket<GlowMessage>* glow_socket);
-		//void RegisterViewportSocket(Socket<ViewportMessage>* viewport_socket);
 		
 		Surface& GetMapLayer();
 		Surface& GetObstacleLayer();
@@ -57,6 +56,8 @@ namespace Tmpl8
 		void CreateLayers();
 		void ResetLevel();
 		void ResizeSurfaces();
+		void ClearSurfaces();
+		void SetPlayerTitlePosition();
 
 		void CreateComponents();
 		void CreateComponentsFromBlueprint();
@@ -85,10 +86,8 @@ namespace Tmpl8
 		void PrepareRevealedLayer();
 
 		// ATTRIBUTES
-		//Surface m_tilemap_smooth{"assets/tilemap_smooth_64x.png"};
-		//Surface m_tilemap_rough{ "assets/tilemap_rough.png" };		
 		Surface m_light_pickup{ "assets/light-lg.png" };
-		//char* bg{ "assets/noise_robson_1280.png" }; // credit: https://robson.plus/white-noise-image-generator/	
+		Surface m_title{ "assets/title.png" };
 
 		std::vector<Obstacle> m_obstacles;
 		std::vector<MovingObstacle> m_moving_obstacles;
@@ -98,17 +97,14 @@ namespace Tmpl8
 		std::vector<Collidable*> m_finish_line_collidables;
 		std::vector<Collidable*> m_pickup_collidables;
 		std::vector<MessageBox> m_message_boxes;
-
-		//level_blueprint m_current_level_blueprint{ 0, 0, 10, 10 };
-		
+				
 		int m_level_id{ 0 };
 		int m_blueprint_width{ 0 };
 		int m_blueprint_height{ 0 };
 
-		vec2 m_player_start_position{ 0.0f, 0.0f };
+		vec2 m_player_start_position{ ScreenWidth / 2.0f, ScreenHeight / 2.0f };
 
 		Socket<CollisionMessage>* m_collision_socket{ nullptr };
-		// Socket<ViewportMessage>* m_viewport_socket{ nullptr };
 		Socket<GlowMessage>* m_glow_socket{ nullptr };
 
 		//Surface m_background_layer;

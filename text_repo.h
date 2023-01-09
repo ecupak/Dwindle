@@ -119,8 +119,8 @@ namespace Tmpl8
 
 		std::vector<Entry> m_level_2_entries
 		{
-			Entry{m_guide, vec2{5, 14}, 1,
-				"Hello, Dear."
+			Entry{m_guide, vec2{6, 14}, 1,
+				"Placeholder."
 			},
 		};
 
@@ -128,7 +128,7 @@ namespace Tmpl8
 		std::vector<Entry> m_level_3_entries
 		{
 			Entry{m_guide, vec2{5, 14}, 1,
-				"Hello, Dear."
+				"Placeholder."
 			},
 		};
 

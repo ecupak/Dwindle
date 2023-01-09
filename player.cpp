@@ -171,6 +171,7 @@ namespace Tmpl8
 		m_is_echo_update_enabled = true;
 
 		m_player_strength = m_player_max_strength;
+		m_player_brightness_buffer = static_cast<float>(m_player_min_brightness_buffer);
 		m_ground_bounce_power = m_max_ground_bounce_power;
 		
 		// Set life display to max strength/life.

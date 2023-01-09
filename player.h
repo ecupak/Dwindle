@@ -169,7 +169,7 @@ namespace Tmpl8 {
 		int m_player_max_strength{ 20 };
 		int m_player_min_brightness_buffer{ 10 };
 		int m_player_strength{ m_player_max_strength };
-		float m_player_brightness_buffer{ 1.0f * m_player_min_brightness_buffer };
+		float m_player_brightness_buffer{ static_cast<float>(m_player_min_brightness_buffer) };
 		
 		// Player sprite.
 		Sprite m_sprite;

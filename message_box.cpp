@@ -32,7 +32,7 @@ namespace Tmpl8
 
 		// Text in a white border.		
 		m_sprite->DrawScaled(left, top, scaled_width, scaled_height, layer);
-		if (m_message_type == MessageType::GUIDE)
+		if (m_message_type == MessageType::GUIDE || m_message_type == MessageType::ENDING)
 		{
 			layer->Box(left, top, right, bottom, 0xFFFFFFFF);
 		}

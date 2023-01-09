@@ -26,14 +26,17 @@ namespace Tmpl8
 		void RegisterWithCollisionManager();
 
 		void SetCenter(vec2 center);
+		void MoveToCenter();
 		void ProcessCollisions() {};
 		void SetLevelBounds(vec2& level_bounds);
 		void SetRevealedLayer(Surface& revealed_layer);
 		void FadeToBlack();
-		void RestoreView();
+		void FadeIn(float from_opacity);
+		void FreezeView();
 
 	private:
 		void FadeOpacity(float deltaTime);
+		void FollowFocus(float deltaTime);
 		void UpdateBounds();
 
 		float speed{ 150.0f };
@@ -68,14 +71,7 @@ namespace Tmpl8
 		float opacity_delta{ 0.0f };
 		float opacity_delta_delta{ 0.2f };
 		bool m_is_fading_out{ false };
-
-		std::vector<CollidableType> m_collidables_of_interest{
-			CollidableType::PICKUP,
-			CollidableType::GLOW_ORB_FULL,
-			CollidableType::GLOW_ORB_SAFE,
-			CollidableType::GLOW_ORB_TEMP,
-			CollidableType::GLOW_ORB_PICKUP,
-		};
+		bool m_is_following_focus{ true };
 	};
 };
 

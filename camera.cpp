@@ -23,7 +23,15 @@ namespace Tmpl8
 		m_has_moved = true;
 	}
 
-		
+
+	void Camera::MoveToCenter()
+	{
+		m_center.x = m_level_size.x / 2.0f;
+		m_center.y = m_level_size.y / 2.0f;
+		UpdateBounds();
+	}
+
+
 	Socket<CameraMessage>* Camera::GetCameraSocket()
 	{
 		return &m_camera_hub;
@@ -68,25 +76,42 @@ namespace Tmpl8
 	}
 
 
-	void Camera::FadeToBlack()
+	void Camera::FreezeView()
 	{
-		m_is_fading_out = true;
+		m_is_following_focus = false;
 	}
 
 
-	void Camera::RestoreView()
+	void Camera::FadeToBlack()
+	{
+		m_is_fading_out = true;
+		opacity_delta_delta = 0.2f;
+	}
+
+
+	void Camera::FadeIn(float from_opacity)
 	{
 		m_is_fading_out = false;
-		m_opacity = 1.0f;
+		m_opacity = from_opacity;
 		opacity_delta = 0.0f;
+		opacity_delta_delta = 0.2f;
 	}
 
 
 	void Camera::Update(float deltaTime)
 	{
 		// Fade revealed layer on level reset/end.
-		FadeOpacity(deltaTime);		
+		FadeOpacity(deltaTime);
 
+		if (m_is_following_focus)
+		{
+			FollowFocus(deltaTime);
+		}
+	}
+
+
+	void Camera::FollowFocus(float deltaTime)
+	{
 		// Find new focus.
 		if (m_camera_hub.HasNewMessage())
 		{
@@ -162,6 +187,14 @@ namespace Tmpl8
 			opacity_delta += opacity_delta_delta * deltaTime;
 			m_opacity = Max(0.0f, m_opacity);
 		}
+		else {
+			if (m_opacity == 1.0f) return;
+
+			// Fade in.
+			m_opacity += opacity_delta * deltaTime;
+			opacity_delta += opacity_delta_delta * deltaTime;
+			m_opacity = Min(1.0f, m_opacity);
+		}
 	}
 
 
@@ -200,6 +233,11 @@ namespace Tmpl8
 			collision->Draw(visible_layer, left, top, inbound_left, inbound_top, inbound_right, inbound_bottom, m_opacity);
 		}
 		m_collisions.clear();
+
+		if (!m_is_following_focus)
+		{
+			m_subject.Draw(visible_layer, left, top, inbound_left, inbound_top, inbound_right, inbound_bottom, m_opacity);
+		}
 	}
 
 

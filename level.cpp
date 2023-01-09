@@ -34,7 +34,7 @@ namespace Tmpl8
 	{
 		ResetLevel();
 
-		m_level_id = 3; //level_id;
+		m_level_id = level_id;
 
 		if (level_id >= 0)
 		{
@@ -48,7 +48,7 @@ namespace Tmpl8
 		else
 		{
 			ClearSurfaces();
-			m_title.CopyTo(&m_revealed_layer, 494, 355);
+			m_title.CopyTo(&m_revealed_layer, 514, 375);
 		}
 	}
 	
@@ -523,7 +523,7 @@ namespace Tmpl8
 
 		for (MessageBox& message_box : m_message_boxes)
 		{
-			if (message_box.m_message_type == MessageType::TUTORIAL)
+			if (message_box.m_message_type != MessageType::GUIDE)
 			{
 				message_box.Draw(&m_revealed_layer, 2.0f);
 			}

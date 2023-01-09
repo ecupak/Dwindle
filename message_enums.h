@@ -6,5 +6,6 @@ namespace Tmpl8
 	{
 		GUIDE,
 		TUTORIAL,
+		ENDING,
 	};
 };

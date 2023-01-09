@@ -2,7 +2,9 @@
 
 #include <memory>
 
-#include "key_manager.h"
+//#include "key_manager.h"
+#include "keyboard_manager2.h"
+
 #include "collidable.h"
 #include "detector_point.h"
 
@@ -45,6 +47,7 @@ namespace Tmpl8 {
 		CEILING,
 		SUSPENDED,
 		FREE_FALL,
+		GAMEOVER,
 		NONE,
 	};
 	
@@ -53,7 +56,7 @@ namespace Tmpl8 {
 	public:
 		// Methods.
 		// Structor.
-		Player(KeyManager& key_manager);
+		Player(keyboard_manager2& keyboard_manager);
 		
 		void SetPosition(vec2& start_position);
 		void Update(float deltaTime);
@@ -83,15 +86,17 @@ namespace Tmpl8 {
 		
 		void SetIsTutorialMode(bool is_tutorial_mode) { m_is_tutorial_mode = is_tutorial_mode; }
 		void DisableCollisionChecking(bool is_disabled) { m_is_collision_state_disabled = is_disabled; }
-		
+		void KeepFalling(bool is_set_to_keep_falling);
 		void ToggleDebugMode();
 
 		std::vector<DetectorPoint> points;
 		
 
 	private:
-		/* METHODS */
 		void UpdateCollisionBox();
+		bool IsCollisionHandlingDisabled();
+		void SetTether(int post_id);
+		void SetDeadState();
 
 		// While in air.
 		void updateAir();
@@ -106,8 +111,7 @@ namespace Tmpl8 {
 		void prepareForWallMode(Trigger trigger);
 		void handleCeilingCollision();
 		void prepareForCeilingMode();
-
-		void updateCeiling();
+		
 
 		// While on ground.
 		void updateGround();
@@ -119,14 +123,16 @@ namespace Tmpl8 {
 		void setEjectionSpeedY(BounceStrength& wall_bounce_y_power);
 		void setEjectionSpeedX(BounceStrength& wall_bounce_x_power);
 
-		void SetTether(int post_id);
+		// While on ceiling.
+		void updateCeiling();
 
+		// Special modes.
 		void updateFreeFall();
+		void updateGameOver();
 
 		// Sprite updates.
-		void updateFrameStretch2Normal();
 		void setFrameNormal2Squash();
-		void setFrameSquash2Stretch();
+		void setFrameSquash2Normal();
 
 		void SetCenterAndBounds();
 		float GetDistanceToMove(VectorIndex vector_index, float pre_calculated_t2);
@@ -174,12 +180,16 @@ namespace Tmpl8 {
 
 		bool m_is_tutorial_mode{ false };
 
-		KeyManager& m_key_manager;
+		keyboard_manager2& m_keyboard_manager;
 
 		float m_delta_time{ 0.0f };
 		float m_dead_timer{ 0.0f };
 		float m_dead_time_limit{ 3.0f };
+		bool m_is_dead_timer_enabled{ false };
 		int m_free_fall_frame_count{ 0 };
+
+		float m_game_over_timer{ 0.0f };
+		float m_game_over_timer_limit{ 0.5f };
 
 		bool m_allow_horizontal_movement{ true };
 		float m_horizontal_dead_zone{ 0.3f };
@@ -231,5 +241,6 @@ namespace Tmpl8 {
 		int m_life_restored_by_pickup{ 5 };
 
 		bool m_is_collision_state_disabled{ false };
+		bool m_is_set_to_keep_falling{ false };
 	};
 }

@@ -52,12 +52,12 @@ namespace Tmpl8
 
 	bool Button::Update()
 	{
-		if (m_mouse_manager.m_mouse_x > m_button_left && m_mouse_manager.m_mouse_x < m_button_right
-			&& m_mouse_manager.m_mouse_y > m_button_top && m_mouse_manager.m_mouse_y < m_button_bottom)
+		if (m_mouse_manager.GetPosition().x > m_button_left && m_mouse_manager.GetPosition().x < m_button_right
+			&& m_mouse_manager.GetPosition().y > m_button_top && m_mouse_manager.GetPosition().y < m_button_bottom)
 		{
 			m_draw_color = HOVER;
 
-			if (m_mouse_manager.m_is_just_pressed)
+			if (m_mouse_manager.IsJustPressed())
 			{
 				m_onclick_fn();
 				return true;

@@ -137,6 +137,7 @@ namespace Tmpl8
 	void Game::PreparePlayer()
 	{
 		player.SetIsTutorialMode(level_id == 0);
+		player.SetStartingLife(level_manager.GetPlayerStartingLife());
 	}
 
 

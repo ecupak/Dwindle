@@ -73,7 +73,7 @@ namespace Tmpl8
 	}
 
 
-	void LightPickup::Draw(Surface* viewable_layer, int c_left, int c_top, int in_left, int in_top, int in_right, int in_bottom)
+	void LightPickup::Draw(Surface* viewable_layer, int c_left, int c_top, int in_left, int in_top, int in_right, int in_bottom, float opacity)
 	{
 		// All passed in_x values are within screen bounds. Find bounds of object to draw within these bounds.
 		int d_top = Max(top, in_top);

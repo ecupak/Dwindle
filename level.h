@@ -40,6 +40,8 @@ namespace Tmpl8
 		void CreateLevel(int level_id);
 		
 		vec2& GetPlayerStartPosition();
+		int GetPlayerStartingLife();
+
 		vec2 GetBounds();
 
 		void RegisterCollisionSocket(Socket<CollisionMessage>* collision_socket);
@@ -85,6 +87,8 @@ namespace Tmpl8
 		void PrepareObstacleLayer();
 		void PrepareRevealedLayer();
 
+		void SetPlayerStartingHealth();
+
 		// ATTRIBUTES
 		Surface m_light_pickup{ "assets/light-lg.png" };
 		Surface m_title{ "assets/title.png" };
@@ -103,6 +107,7 @@ namespace Tmpl8
 		int m_blueprint_height{ 0 };
 
 		vec2 m_player_start_position{ ScreenWidth / 2.0f, ScreenHeight / 2.0f };
+		int m_player_life{ 0 };
 
 		Socket<CollisionMessage>* m_collision_socket{ nullptr };
 		Socket<GlowMessage>* m_glow_socket{ nullptr };

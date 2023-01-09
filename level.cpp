@@ -32,7 +32,7 @@ namespace Tmpl8
 	{
 		ResetLevel();
 
-		m_level_id = level_id;
+		m_level_id = 2; //level_id;
 
 		if (level_id >= 0)
 		{
@@ -41,6 +41,7 @@ namespace Tmpl8
 			SendCollidableLists();
 			CreateMessageBoxes();
 			CreateLayers();
+			SetPlayerStartingHealth();
 		}
 		else
 		{
@@ -493,14 +494,39 @@ namespace Tmpl8
 			}
 		}
 
-		int counter = 0;
 		for (MessageBox& message_box : m_message_boxes)
 		{
 			if (message_box.m_message_type == MessageType::TUTORIAL)
 			{
 				message_box.Draw(&m_revealed_layer, 2.0f);
-				++counter;
 			}
+		}
+	}
+
+	int Level::GetPlayerStartingLife()
+	{
+		return m_player_life;
+	}
+
+	void Level::SetPlayerStartingHealth()
+	{
+		switch (m_level_id)
+		{
+		case 0:
+			m_player_life = 20;
+			break;
+		case 1:
+			m_player_life = 20;
+			break;
+		case 2:
+			m_player_life = 17;
+			break;
+		case 3:
+			m_player_life = 20;
+			break;
+		default:
+			m_player_life = 20;
+			break;
 		}
 	}
 };

@@ -11,7 +11,7 @@ namespace Tmpl8
 		LightPickup(int x, int y, int TILE_SIZE, CollidableType object_type, Surface& image, Socket<GlowMessage>* glow_socket);
 
 		void Update(float deltaTime, float opacity);
-		void Draw(Surface* viewable_layer, int c_left, int c_top, int in_left, int in_top, int in_right, int in_bottom) override;		
+		void Draw(Surface* visible_layer, int c_left, int c_top, int in_left, int in_top, int in_right, int in_bottom, float opacity = 1.0f) override;
 		void RegisterCollision(Collidable*& collision) override;
 		void ResolveCollisions() override;
 

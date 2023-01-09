@@ -13,7 +13,7 @@ namespace Tmpl8
 
 		radius_max = 30.0f;
 		radius = radius_max;		
-		opacity = 235.0f;
+		m_opacity = 235.0f;
 	}
 
 	
@@ -33,14 +33,14 @@ namespace Tmpl8
 
 	void SafeGlowOrb::UpdateWaningPhase(float deltaTime)
 	{
-		opacity -= opacity_delta * deltaTime;
+		m_opacity -= opacity_delta * deltaTime;
 		opacity_delta += opacity_delta_delta * deltaTime;
 	}
 
 	
 	void SafeGlowOrb::UpdateEveryPhase(float deltaTime)
 	{
-		opacity = Clamp(opacity, 0.0f, 235.0f); // Limited to less than full brightness so not drawn over perm orbs.
+		m_opacity = Clamp(m_opacity, 0.0f, 235.0f); // Limited to less than full brightness so not drawn over perm orbs.
 		radius = Clamp(radius, 0.0f, radius_max);
 
 		if (m_moving_obstacle != nullptr)

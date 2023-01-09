@@ -67,21 +67,13 @@ namespace Tmpl8
 	}
 
 
-	//// Draw called by level to draw static 
-	//void MovingObstacle::Draw(Surface* layer)
-	//{
-	//	m_sprite.SetFrame(m_frame_id);
-	//	m_sprite.Draw(layer, left, top);
-	//}
-
-
-	void MovingObstacle::Draw(Surface* visible_layer, int c_left, int c_top, int in_left, int in_top, int in_right, int in_bottom)
+	void MovingObstacle::Draw(Surface* visible_layer, int c_left, int c_top, int in_left, int in_top, int in_right, int in_bottom, float opacity)
 	{
 		m_sprite.SetFrame(m_frame_id);
 
 		if (m_collidable_type == CollidableType::OBSTACLE_MOVING_VISIBLE)
 		{
-			m_sprite.Draw(visible_layer, left - c_left, top - c_top);
+			m_sprite.Draw(visible_layer, left - c_left, top - c_top, true, opacity);
 		}
 		else
 		{
@@ -103,19 +95,6 @@ namespace Tmpl8
 		{
 			m_clipboard.CopyTo(&m_map_layer, prev_left, prev_top);
 		}
-
-		//Pixel* map_pix = m_map_layer.GetBuffer() + left + (top * m_map_layer.GetPitch());
-		//Pixel* clip_pix = m_clipboard.GetBuffer();
-
-		//for (int y{ 0 }; y < m_clipboard.GetHeight(); ++y)
-		//{
-		//	for (int x{ 0 }; x < m_clipboard.GetWidth(); ++x)
-		//	{
-		//		map_pix[x] = clip_pix[x];
-		//	}
-		//	map_pix += m_map_layer.GetPitch();
-		//	clip_pix += m_clipboard.GetPitch();
-		//}
 	}
 
 	

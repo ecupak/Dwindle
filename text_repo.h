@@ -107,10 +107,10 @@ namespace Tmpl8
 			Entry{m_guide, vec2{22, 14}, 2,
 				"Follow the light."
 			},			
-			Entry{m_guide, vec2{19, 5}, 2,
-				"Do you see it? Almost there."
+			Entry{m_guide, vec2{17, 8}, 3,
+				"Mind the gap. Our memories are full of them."
 			},
-			Entry{m_guide, vec2{18, 2}, 4,
+			Entry{m_guide, vec2{19, 2}, 4,
 				"You're doing wonderful."
 			},
 		};

@@ -27,7 +27,7 @@ namespace Tmpl8
 		else
 		{
 			radius += radius_delta * deltaTime;
-			opacity = (radius / radius_max) * 255 * m_player_strength;
+			m_opacity = (radius / radius_max) * 255 * m_player_strength;
 		}
 	}
 	
@@ -45,14 +45,14 @@ namespace Tmpl8
 	
 	void FullGlowOrb::UpdateWaningPhase(float deltaTime)
 	{
-		opacity -= opacity_delta * deltaTime;
+		m_opacity -= opacity_delta * deltaTime;
 		opacity_delta += opacity_delta_delta * deltaTime;
 	}
 
 
 	void FullGlowOrb::UpdateEveryPhase(float deltaTime)
 	{
-		opacity = Clamp(opacity, 0.0f, 230.0f); // Limited to less than full brightness so not drawn over safe/perm orbs.
+		m_opacity = Clamp(m_opacity, 0.0f, 230.0f); // Limited to less than full brightness so not drawn over safe/perm orbs.
 		radius = Clamp(radius, 0.0f, radius_max);
 	}
 };

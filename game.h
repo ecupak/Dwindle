@@ -4,7 +4,7 @@
 #include "surface.h"
 
 #include "mouse_manager.h"
-#include "keyboard_manager2.h"
+#include "keyboard_manager.h"
 
 
 #include "player.h"
@@ -37,7 +37,6 @@ namespace Tmpl8
 
 	private:
 		void PrepareGame();
-		void RegisterKeys();
 		void RegisterSockets();
 		void InitLevelManager();
 		void InitGlowManager();
@@ -84,7 +83,7 @@ namespace Tmpl8
 		CollisionManager collision_manager;
 		TextRepo text_repo{};
 		Level level_manager;		
-		keyboard_manager2 m_keyboard_manager;
+		KeyboardManager m_keyboard_manager;
 		MouseManager m_mouse_manager;
 		Player player;
 		Camera camera;
@@ -111,8 +110,5 @@ namespace Tmpl8
 		bool m_is_in_title_screen{ true };
 		bool m_is_in_game_over{ false };
 		bool m_is_in_return_to_title{ false };
-
-		int mouse_x{ 0 };
-		int mouse_y{ 0 };
 	};
 };

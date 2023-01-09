@@ -89,7 +89,7 @@
     <ClCompile Include="button.cpp">
       <Filter>Viewport Files\Button</Filter>
     </ClCompile>
-    <ClCompile Include="keyboard_manager2.cpp" />
+    <ClCompile Include="keyboard_manager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="surface.h">
@@ -219,7 +219,7 @@
     <ClInclude Include="button.h">
       <Filter>Viewport Files\Button</Filter>
     </ClInclude>
-    <ClInclude Include="keyboard_manager2.h" />
+    <ClInclude Include="keyboard_manager.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="template code">

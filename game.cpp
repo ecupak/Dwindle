@@ -29,7 +29,6 @@ namespace Tmpl8
 	// -----------------------------------------------------------	
 	void Game::Init()
 	{
-		RegisterKeys();
 		RegisterSockets();
 		InitLevelManager();
 		InitGlowManager();
@@ -43,20 +42,9 @@ namespace Tmpl8
 		camera.SetCenter(vec2{ ScreenWidth / 2, ScreenHeight / 2 });
 		player.SetPosition(level_manager.GetPlayerStartPosition());
 		player.SetTitleScreenMode();
-		//camera.FadeIntoView(0.0f);
 	}
 
-
-	void Game::RegisterKeys()
-	{
-		/*key_manager.RegisterKey(SDLK_LEFT);
-		key_manager.RegisterKey(SDLK_RIGHT);
-		key_manager.RegisterKey(SDLK_UP);
-		key_manager.RegisterKey(SDLK_DOWN);
-		key_manager.RegisterKey(SDLK_F1);*/
-	}
-
-
+	
 	void Game::RegisterSockets()
 	{
 		m_collision_socket = collision_manager.GetCollisionSocket();
@@ -295,7 +283,7 @@ namespace Tmpl8
 			break;
 		case GameAction::START_GAME:
 			++m_level_action_tracker;
-			LeaveTitleToLevel(3);
+			LeaveTitleToLevel(1);
 			break;
 		case GameAction::PLAYER_SUSPENDED:
 			game_mode = GameMode::GAME_SCREEN;
@@ -350,6 +338,7 @@ namespace Tmpl8
 			++m_level_action_tracker;
 			DisplayTitleScreen();
 			m_is_in_return_to_title = false;
+			m_is_in_title_screen = true;
 			m_level_action_tracker = 0;
 			break;
 		}
@@ -418,9 +407,17 @@ namespace Tmpl8
 	// -----------------------------------------------------------
 	void Game::AdvanceLevel()
 	{
-		if (++level_id > 3)
+		++level_id;
+
+		// Completed last level.
+		if (level_id > 3)
 		{			
 			m_is_in_game_over = true;
+		}
+		// Completed tutorial.
+		else if (level_id == 1)
+		{
+			m_is_in_return_to_title = true;
 		}
 		else
 		{
@@ -451,19 +448,15 @@ namespace Tmpl8
 
 	void Game::DisplayTitleScreen()
 	{
-		/*
-			freeze player			
-			recenter (camera follows)
-			turn on echoes (keep velocity 0)
-
-			fade title and buttons into view
-			done?
-		*/
-
-		level_id = -1; // Title.
-
-
-
+		level_id = -1; // Title screen.
+		PrepareForNextLevel();
+		
+		player.TransitionToPosition(level_manager.GetPlayerStartPosition());
+		camera.SetCenter(level_manager.GetPlayerStartPosition());
+		player.SetTitleScreenMode();
+		viewport.ResetButtons();
+		camera.FadeIn(1.0f);
+		game_mode = GameMode::TITLE_SCREEN;
 	}
 
 

@@ -27,6 +27,7 @@ namespace Tmpl8
 		
 		void SetGameSocket(Socket<GameMessage>* game_socket);
 		void CreateButtons();
+		void ResetButtons();
 
 		void Update(float deltaTime);
 		void Draw(float detlaTime);

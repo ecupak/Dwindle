@@ -156,6 +156,8 @@ namespace Tmpl8
 	}
 
 
+	// Credit to YulyaLesheva at https://github.com/YulyaLesheva/Sweep-And-Prune-algorithm
+	// for the entire basis for the collision system used here.
 	void CollisionManager::CheckForCollisions()
 	{
 		/*

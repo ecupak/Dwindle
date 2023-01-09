@@ -24,7 +24,7 @@ namespace Tmpl8
 		GlowOrb(CollidableInfo collidable_info, float player_strength, Surface* source_layer);
 		
 		void Update(float deltaTime);
-		void Draw(Surface* viewable_layer, int c_left, int c_top, int in_left, int in_top, int in_right, int in_bottom) override;
+		void Draw(Surface* visible_layer, int c_left, int c_top, int in_left, int in_top, int in_right, int in_bottom, float opacity = 1.0f) override;
 		virtual void SetPhase(Phase new_phase);
 
 		int m_parent_id{ 0 };
@@ -40,7 +40,7 @@ namespace Tmpl8
 		virtual void DrawStep(int x_pos, Pixel*& destination_pix, Pixel*& source_pix, int new_opacity, float intensity);
 
 		Phase phase{ Phase::WAXING };
-		float opacity{ 1.0f };
+		float m_opacity{ 1.0f };
 		float radius{ 1.0f };
 		
 		float m_player_strength{ 1.0f };

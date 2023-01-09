@@ -17,7 +17,7 @@ namespace Tmpl8
 	{
 		UpdateByPhase(deltaTime);
 		UpdateBounds();
-		m_is_active = (opacity > 0.0f);
+		m_is_active = (m_opacity > 0.0f);
 	}
 
 
@@ -59,7 +59,7 @@ namespace Tmpl8
 	}
 
 	
-	void GlowOrb::Draw(Surface* viewable_layer, int c_left, int c_top, int in_left, int in_top, int in_right, int in_bottom)
+	void GlowOrb::Draw(Surface* viewable_layer, int c_left, int c_top, int in_left, int in_top, int in_right, int in_bottom, float x_opacity)
 	{
 		if (in_bottom - c_top != 720)
 			int z = 3;
@@ -86,7 +86,7 @@ namespace Tmpl8
 
 
 		// Precalculate values to be reused each loop. 
-		int new_opacity = static_cast<int>(floor(opacity));
+		int new_opacity = static_cast<int>(floor(m_opacity));
 		int radius_squared = radius * radius;
 
 		for (int y{ d_top }; y < d_bottom; y++)

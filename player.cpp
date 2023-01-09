@@ -98,7 +98,7 @@ namespace Tmpl8
 	}
 
 
-	void Player::Draw(Surface* viewable_layer, int c_left, int c_top, int in_left, int in_top, int in_right, int in_bottom)
+	void Player::Draw(Surface* viewable_layer, int c_left, int c_top, int in_left, int in_top, int in_right, int in_bottom, float opacity)
 	{
 		if (m_is_debug_mode_on)
 		{
@@ -151,6 +151,10 @@ namespace Tmpl8
 		});
 	}
 
+	void Player::SetStartingLife(int starting_life)
+	{
+		m_player_max_strength = starting_life;
+	}
 
 	// Prepare for start of level (current or new).
 	void Player::SetGameScreenMode()

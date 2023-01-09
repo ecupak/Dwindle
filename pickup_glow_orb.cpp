@@ -7,23 +7,23 @@ namespace Tmpl8
 	{
 		m_parent_id = parent_id;
 
-		radius_max = 180.0f;
+		radius_max = 110.0f;
 		radius = radius_max;
 		phase = Phase::FULL;
-		opacity = 230.0f;
+		m_opacity = 230.0f;
 	}
 
 
 	void PickupGlowOrb::UpdateWaningPhase(float deltaTime)
 	{
-		opacity -= opacity_delta * deltaTime;
+		m_opacity -= opacity_delta * deltaTime;
 		opacity_delta += opacity_delta_delta * deltaTime;
 	}
 
 
 	void PickupGlowOrb::UpdateEveryPhase(float deltaTime)
 	{
-		opacity = Clamp(opacity, 0.0f, 230.0f); // Limited to less than full brightness so not drawn over perm orbs.
+		m_opacity = Clamp(m_opacity, 0.0f, 230.0f); // Limited to less than full brightness so not drawn over perm orbs.
 		radius = Clamp(radius, 0.0f, radius_max);
 	}
 };

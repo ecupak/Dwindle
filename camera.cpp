@@ -197,13 +197,13 @@ namespace Tmpl8
 		// Second, draw dynamic objects that move (glow orbs, player, moving obstacles). 
 		for (Collidable*& collision : m_collisions)
 		{
-			collision->Draw(visible_layer, left, top, inbound_left, inbound_top, inbound_right, inbound_bottom);
+			collision->Draw(visible_layer, left, top, inbound_left, inbound_top, inbound_right, inbound_bottom, m_opacity);
 		}
 		m_collisions.clear();
 	}
 
 
-	void Camera::Draw(Surface* visible_layer, int c_left, int c_top, int in_left, int in_top, int in_right, int in_bottom)
+	void Camera::Draw(Surface* visible_layer, int c_left, int c_top, int in_left, int in_top, int in_right, int in_bottom, float opacity)
 	{
 		Pixel* destination_pix{ visible_layer->GetBuffer() + (in_left - left) + ((in_top - top) * visible_layer->GetPitch()) };
 		Pixel* source_pix{ m_revealed_layer->GetBuffer() + in_left + (in_top * m_revealed_layer->GetPitch()) };

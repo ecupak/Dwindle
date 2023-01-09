@@ -23,7 +23,7 @@ namespace Tmpl8
 		void GetReady();
 		void Update(float deltaTime);
 		//void Draw(Surface* screen) override;
-		void Draw(Surface* visible_layer, int c_left, int c_top, int in_left, int in_top, int in_right, int in_bottom) override;
+		void Draw(Surface* visible_layer, int c_left, int c_top, int in_left, int in_top, int in_right, int in_bottom, float opacity = 1.0f) override;
 
 	private:
 		CollidableType GetCollidableType(int tile_id);

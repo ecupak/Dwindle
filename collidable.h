@@ -90,6 +90,7 @@ namespace Tmpl8
 		vec2 m_delta_position{ 0.0f, 0.0f };
 		int m_draw_order{ 0 };
 		int left{ 0 }, right{ 0 }, top{ 0 }, bottom{ 0 };
+		int m_neighbors{ 0 };
 		bool m_is_active{ true };
 		
 	private:

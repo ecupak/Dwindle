@@ -38,16 +38,28 @@ namespace Tmpl8
 		if (m_collidable_type != CollidableType::OBSTACLE_UNREACHABLE)
 		{
 			if (m_autotile_id & LEFT)
+			{
 				--left;
+				m_neighbors |= 0x0010;
+			}
 
 			if (m_autotile_id & RIGHT)
+			{
 				++right;
+				m_neighbors |= 0x0100;
+			}
 
 			if (m_autotile_id & TOP)
+			{
 				--top;
+				m_neighbors |= 0x0001;
+			}
 
 			if (m_autotile_id & BOTTOM)
+			{
 				++bottom;
+				m_neighbors |= 0x1000;
+			}
 		}
 	}
 

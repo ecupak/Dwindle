@@ -359,9 +359,11 @@ namespace Tmpl8
 
 	void Level::CreateCollidableLists()
 	{
-		// Add obstacles that can interact with player to collidables list.
+		// Populate obstacle collidables.		
+		m_obstacle_collidables.reserve(GetObstacleReserveSize());
 		for (Obstacle& obstacle : m_obstacles)
 		{
+			// Only add obstacles that can interact with player to collidables list.
 			if (obstacle.m_collidable_type != CollidableType::OBSTACLE_UNREACHABLE)
 				m_obstacle_collidables.push_back(&obstacle);
 		}
@@ -371,15 +373,38 @@ namespace Tmpl8
 			m_obstacle_collidables.push_back(&moving_obstacle);
 		}
 
+		// Populate pickup collidables.
+		m_pickup_collidables.reserve(m_pickups.size());
 		for (LightPickup& pickup : m_pickups)
 		{
 			m_pickup_collidables.push_back(&pickup);
 		}
 
+		// Populate finish line collidables.
+		m_finish_line_collidables.reserve(m_finish_lines.size());
 		for (Collidable& finish_line : m_finish_lines)
 		{
 			m_finish_line_collidables.push_back(&finish_line);
 		}
+	}
+
+
+	int Level::GetObstacleReserveSize()
+	{
+		int obstacles_size{ 0 };
+		
+		for (Obstacle& obstacle : m_obstacles)
+		{
+			if (obstacle.m_collidable_type != CollidableType::OBSTACLE_UNREACHABLE)
+				++obstacles_size;
+		}
+
+		for (MovingObstacle& moving_obstacle : m_moving_obstacles)
+		{
+			++obstacles_size;
+		}
+
+		return obstacles_size;
 	}
 
 

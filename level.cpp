@@ -25,7 +25,7 @@ namespace Tmpl8
 		m_map_layer{ ScreenWidth, ScreenHeight },
 		m_revealed_layer{ ScreenWidth, ScreenHeight }
 	{	
-		m_moving_obstacles.reserve(9);
+		m_moving_obstacles.reserve(10);
 	}
 			
 
@@ -175,7 +175,6 @@ namespace Tmpl8
 		else
 		{			
 			ClearSurfaces();
-			//CreateTitleObstacle();
 		}
 	}
 

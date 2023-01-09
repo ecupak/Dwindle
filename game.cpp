@@ -283,7 +283,7 @@ namespace Tmpl8
 			break;
 		case GameAction::START_GAME:
 			++m_level_action_tracker;
-			LeaveTitleToLevel(1);
+			LeaveTitleToLevel(3);
 			break;
 		case GameAction::PLAYER_SUSPENDED:
 			game_mode = GameMode::GAME_SCREEN;

@@ -151,24 +151,27 @@ namespace Tmpl8
 			"XXXXXXXXXXXXXXXXXXXXXXXXXXXX"},
 
 
-			BlueprintData{28, 30, // Level 3: 1792 x 1920
+			BlueprintData{28, 34, // Level 3: 1792 x 2112
 			"UUUUUUUUUUUUUUUUUUUUUUUUUUUU"	
 			"..#R.....................UXX"
 			"..#....................^.UXX"
 			"SSSUU.-5.......5-.-5....UUXX"
 			"XXUU....................UXXX"
+			"XXU.....................UXXX"
 			"XXU...^.................UXXX"
 			"XXU..UU.+5....WWWWWWW.S.UXXX"
 			"XXU.....................UUUU"
-			"XXU............^...........U"
-			"XXUU.-8.......UUUUU.......^U"
+			"XXU.....................UUUU"
+			"XXU.............^O.........U"
+			"XXUU.-4.....4-.UUUU.......^U"
 			"XXU...............UUU.S.U..U"
+			"XXU...............UXU.U.U..U"
 			"XXU...............UXU.U.U..U"
 			"XXU.UU.+6.....UU..UUU.U.U..U"
 			"XXU............U...........U"
-			"XXU............U...........U"
-			"XXUUUUUU..UW..WU.........UUU"
-			"XXXXXXXU..UW.^WUS.-6....G#.."
+			"XXU.^..........U...........U"
+			"XXUUUUUU..UW..WUS.-6.....UUU"
+			"XXXXXXXU..UW.^WUW.......G#.."
 			"XXXXXXXU..UW..WUW........#.."
 			"XXUUUUUU..UW..WUW.....WUUSSS"
 			"XXU.......UW..WUW.....WXXXXX"
@@ -176,10 +179,11 @@ namespace Tmpl8
 			"XXU..UUUUUUW..WUUUUUUUUUUXXX"
 			"XXU.....................UUXX"
 			"XXU......................UXX"
-			"XXU....^.....^.....^.....UXX"
-			"XXUU.-4...UWWWWW.+4...U..UXX"
+			"XXU....^...........^.....UXX"
+			"XXUS.-4...UWWWWW.+4...U..UXX"
 			"XXU......................UXX"
-			"XXU..O...................UXX"
+			"XXU......................UXX"
+			"XXU......................UXX"
 			"XXUUSSSUUUUUUUUUUUUUUUUUUUXX"
 			"XXXXXXXXXXXXXXXXXXXXXXXXXXXX"},
 

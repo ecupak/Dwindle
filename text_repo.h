@@ -166,44 +166,32 @@ namespace Tmpl8
 
 		std::vector<Entry> m_level_3_entries
 		{
-			Entry{m_guide, vec2{10, 26}, 5,
+			Entry{m_guide, vec2{10, 30}, 5,
 				"I always wondered what happened to that piano."
 			},
-			Entry{m_guide, vec2{19, 26}, 4,
-				"And those racoons from the storm."
+			Entry{m_guide, vec2{19, 30}, 4,
+				"And to those racoons from the storm."
 			},
-			Entry{m_guide, vec2{22, 23}, 2,
+			Entry{m_guide, vec2{23, 28}, 2,
 				"They were adorable."
 			},
-			Entry{m_guide, vec2{11, 23}, 4,
+			Entry{m_guide, vec2{11, 26}, 4,
 				"You'll have to tell me everything I missed."
-			},
-			Entry{m_guide, vec2{18, 19}, 2,
-				"I've mostly missed you."
-			},
-			Entry{m_guide, vec2{9, 13}, 4,
-				"I remember this summer. Not great."
-			},
-			Entry{m_guide, vec2{4, 10}, 4,
+			},					
+			Entry{m_guide, vec2{4, 13}, 2,
 				"Oh. This is when I..."
 			},
-			Entry{m_guide, vec2{16, 14}, 1,
-				"Safe, again."
-			},
-			Entry{m_guide, vec2{25, 13}, 2,
+			Entry{m_guide, vec2{25, 14}, 2,
 				"You got some cats?"
 			},
-			Entry{m_guide, vec2{21, 8}, 3,
+			Entry{m_guide, vec2{21, 10}, 3,
 				"A lot of cats!"
 			},
-			Entry{m_guide, vec2{10, 7}, 2,
-				"Oh, the quilt!"
-			},			
-			Entry{m_guide, vec2{8, 4}, 3,
+			Entry{m_guide, vec2{5, 5}, 2,
 				"That's too many cats."
 			},			
 			Entry{m_guide, vec2{16, 1}, 3,
-				"Down to 1. Sorry, my love."
+				"Sorry, my love."
 			},
 			Entry{m_guide, vec2{4, 1}, 2,
 				"Here we are..."

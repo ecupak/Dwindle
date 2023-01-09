@@ -114,13 +114,52 @@ namespace Tmpl8
 			Entry{m_guide, vec2{19, 2}, 4,
 				"You're doing wonderful."
 			},
+			Entry{m_guide, vec2{13, 6}, 2,
+				"Curious as ever."
+			},
+			Entry{m_guide, vec2{8, 4}, 3,
+				"I miss watching the clouds with you."
+			},
+			Entry{m_guide, vec2{4, 7}, 2,
+				"You can do this."
+			},
 		};
 
 
 		std::vector<Entry> m_level_2_entries
 		{
-			Entry{m_guide, vec2{6, 14}, 1,
-				"Placeholder."
+			Entry{m_guide, vec2{4, 9}, 3,
+				"I'm not fond of these memories ahead."
+			},
+			Entry{m_guide, vec2{4, 15}, 3,
+				"They had you so busy."
+			},
+			Entry{m_guide, vec2{11, 15}, 2,
+				"...all the time."
+			},
+			Entry{m_guide, vec2{10, 11}, 2,
+				"But we found our time."
+			},			
+			Entry{m_guide, vec2{10, 1}, 3,
+				"This is our moutain climb, isn't it?"
+			},
+			Entry{m_guide, vec2{21, 1}, 3,
+				"Fall down. I'll catch you. You're almost there."
+			},
+			Entry{m_guide, vec2{22, 8}, 1,
+				"Safe!"
+			},
+			Entry{m_guide, vec2{15, 15}, 3,
+				"You were always working on something new."
+			},
+			Entry{m_guide, vec2{21, 15}, 3,
+				"Did you do everthing you wanted to?"
+			},
+			Entry{m_guide, vec2{22, 25}, 3,
+				"Ahead.. is not a good memory."
+			},
+			Entry{m_guide, vec2{4, 23}, 2,
+				"It wasn't your fault."
 			},
 		};
 
@@ -143,7 +182,7 @@ namespace Tmpl8
 			},
 			Entry{m_ending, vec2{2, 5}, 6,
 				"Rest now. Come watch the clouds with me."
-			},
+			},			
 			Entry{m_tutorial, vec2{4, 8}, 2,
 				"-End-"
 			},

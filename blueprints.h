@@ -46,7 +46,7 @@ namespace Tmpl8
 		std::string::iterator blueprint_it;
 		BlueprintData m_loaded_blueprint_data;
 
-		std::array<BlueprintData, 4> blueprint_data
+		std::array<BlueprintData, 5> blueprint_data
 		{
 			BlueprintData{29, 47, // Tutorial: 1856 x 3008
 			"XXSSSSSSSSSSSSSSXSSSSSSSSSXXX"
@@ -100,9 +100,9 @@ namespace Tmpl8
 
 			BlueprintData{28, 17, // Level 1: 1792 x 1088
 			"XXXXXXXXXXXXXUUUUUUUUUUUUXXX"
-			"XXXXXXXXXXXXXU..........UUUU"
+			"XXXXXXXXXXXXXU...........UUU"
 			"XXXXXXXXXXXXXU..........G#.."
-			"XXXXXXXUUUUUUU.UU........#.."
+			"XXXXXXXUUUUUUU.UU.....O..#.."
 			"XXXXXXXU...UXU.U...UUUUUUSSS"
 			"UUUUUUXU...UUU.U..UU....UXXX"
 			"..#R.UUU.U.....U..UU...^UXXX"
@@ -114,8 +114,9 @@ namespace Tmpl8
 			"XXXU.............U.UXU..UXXX"
 			"XXXU.............U.UUU..UXXX"
 			"XXXU.....UU.............UXXX"
-			"XXXU.O.UUUUUU...........UXXX"
+			"XXXU...UUUUUU...........UXXX"
 			"XXXUSSSUXXXXUUUUUUUUUUUUUXXX"},
+
 
 			BlueprintData{28, 30, // Level 2: 1792 x  1920
 			"XXXXXXXXXUUUUUUUUUUUUUUUUXXX"
@@ -128,7 +129,7 @@ namespace Tmpl8
 			"XXXXXXXXXU..............UXXX"
 			"XUUUUUUUUU..UUU.........UXXX"
 			"XU......UU...UU.........UXXX"
-			"XU.O....UU.UUUU..U.UU.SSUXXX"
+			"XU......UU.UUUU..U.UU.SSUXXX"
 			"XUSSSS..UU...UU..U.UU.UXXXXX"
 			"XU......UU.^.UU..U.UU.UXXXXX"
 			"XU......UU...UU..UWUUWUXXXXX"
@@ -142,7 +143,7 @@ namespace Tmpl8
 			"XXUU.............UXU.....UXX"
 			"UUU..............UUUUUUU.UXX"
 			"..#R...................U.UXX"
-			"..#........^.....O.....U.UXX"
+			"..#.O......^...........U.UXX"
 			"SSSUUU........9+.UUU.....UXX"
 			"XXXU.............UXU.....UXX"
 			"XXXU.............UXUUUUUUUXX"
@@ -153,9 +154,9 @@ namespace Tmpl8
 			BlueprintData{28, 30, // Level 3: 1792 x 1920
 			"UUUUUUUUUUUUUUUUUUUUUUUUUUUU"	
 			"..#R.......................U"
-			"..#....................^...U"
+			"..#.O..................^...U"
 			"SSSUU.-5.......5-.-5....UUUU"
-			"XXU.....................UXXX"
+			"XXUU....................UXXX"
 			"XXU...^.................UXXX"
 			"XXU..UU.+5....WWWWWWW.S.UXXX"
 			"XXU.UU..................UUUU"
@@ -178,9 +179,22 @@ namespace Tmpl8
 			"XXU....^...........^.....UXX"
 			"XXUU.-4...UWWWWW.+4...U..UXX"
 			"XXU......................UXX"
-			"XXU.O....................UXX"
+			"XXU......................UXX"
 			"XXUUUUUUUUUUUUUUUUUUUUUUUUXX"
-			"XXXXXXXXXXXXXXXXXXXXXXXXXXXX"}
+			"XXXXXXXXXXXXXXXXXXXXXXXXXXXX"},
+
+
+			BlueprintData{ 10, 10, // GameOver Screen: 640 x 640.
+			".........."
+			".........."
+			".........."
+			".........."
+			".........."
+			".........."
+			".........."
+			".........."
+			".........."
+			".........." }
 		};
 	};
 };

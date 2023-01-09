@@ -89,6 +89,7 @@
     <ClCompile Include="button.cpp">
       <Filter>Viewport Files\Button</Filter>
     </ClCompile>
+    <ClCompile Include="keyboard_manager2.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="surface.h">
@@ -202,15 +203,11 @@
     <ClInclude Include="collision_manager.h">
       <Filter>Collision Files\Collision Manager</Filter>
     </ClInclude>
-    <ClInclude Include="key_manager.h" />
     <ClInclude Include="message_enums.h">
       <Filter>Level Files\Message Box</Filter>
     </ClInclude>
     <ClInclude Include="obstacle_consts.h">
       <Filter>Level Files\Obstacle</Filter>
-    </ClInclude>
-    <ClInclude Include="player_socket.h">
-      <Filter>Player Files</Filter>
     </ClInclude>
     <ClInclude Include="moving_obstacle.h">
       <Filter>Level Files\Moving Obstacle</Filter>
@@ -222,6 +219,7 @@
     <ClInclude Include="button.h">
       <Filter>Viewport Files\Button</Filter>
     </ClInclude>
+    <ClInclude Include="keyboard_manager2.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="template code">

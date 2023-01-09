@@ -68,6 +68,7 @@ namespace Tmpl8
 		}
 	}
 
+
 	Camera& Viewport::GetCamera()
 	{
 		return m_camera;
@@ -88,7 +89,7 @@ namespace Tmpl8
 		{			
 			m_life_hud.Update(deltaTime);
 		}
-		else
+		else if (m_game_mode == GameMode::TITLE_SCREEN)
 		{
 			for (Button& button : m_buttons)
 			{				
@@ -110,7 +111,7 @@ namespace Tmpl8
 			m_camera.Draw(m_visible_layer);
 			m_life_hud.Draw(m_visible_layer);
 		}
-		else
+		else if (m_game_mode == GameMode::TITLE_SCREEN)
 		{
 			if (!m_is_selection_made)
 			{
@@ -119,6 +120,10 @@ namespace Tmpl8
 					button.Draw(m_visible_layer);
 				}
 			}
+			m_camera.Draw(m_visible_layer);
+		}
+		else if (m_game_mode == GameMode::GAME_OVER)
+		{
 			m_camera.Draw(m_visible_layer);
 		}
 	}

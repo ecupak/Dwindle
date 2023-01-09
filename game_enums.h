@@ -6,6 +6,6 @@ namespace Tmpl8
 	{
 		TITLE_SCREEN,
 		GAME_SCREEN,
+		GAME_OVER,
 	};
-
 }

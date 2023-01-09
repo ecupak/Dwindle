@@ -16,6 +16,8 @@ namespace Tmpl8
 			return m_level_2_entries;
 		case 3:
 			return m_level_3_entries;
+		case 4:
+			return m_game_over_entries;
 		default:
 			break;
 		}

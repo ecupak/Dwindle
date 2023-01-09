@@ -36,6 +36,7 @@ namespace Tmpl8
 	private:
 		MessageType m_tutorial{ MessageType::TUTORIAL };
 		MessageType m_guide{ MessageType::GUIDE };
+		MessageType m_ending{ MessageType::ENDING };
 
 		std::vector<Entry> m_level_0_entries
 		{
@@ -129,6 +130,24 @@ namespace Tmpl8
 			Entry{m_guide, vec2{5, 14}, 1,
 				"Hello, Dear."
 			},
+		};
+
+
+		std::vector<Entry> m_game_over_entries
+		{
+			Entry{m_ending, vec2{3, 1}, 4,
+				"Hello, Dear."
+			},
+			Entry{m_ending, vec2{3, 3}, 4,
+				"It's been a while."
+			},
+			Entry{m_ending, vec2{2, 5}, 6,
+				"Rest now. Come watch the clouds with me."
+			},
+			Entry{m_tutorial, vec2{4, 8}, 2,
+				"-End-"
+			},
+
 		};
 	};
 };

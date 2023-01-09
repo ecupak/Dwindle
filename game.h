@@ -4,7 +4,8 @@
 #include "surface.h"
 
 #include "mouse_manager.h"
-#include "key_manager.h"
+#include "keyboard_manager2.h"
+
 
 #include "player.h"
 #include "level.h"
@@ -16,6 +17,7 @@
 
 #include "game_enums.h"
 #include "game_socket.h"
+
 
 namespace Tmpl8
 {
@@ -54,19 +56,23 @@ namespace Tmpl8
 
 		void CheckSocketForNewMessages();
 		void ProcessMessages();
-		void CheckLevelResetProgress(GameMessage& messages);
-		void CheckLevelAdvancementProgress(GameMessage& messages);
-		void CheckMessage(GameMessage& messages);
-		void CheckTitleScreenProgress(GameMessage& messages);;
-		void LeaveTitleToLevel(int starting_level_id);
-		void ShowTitleScreen();
-
+		void CheckLevelResetProgress(GameMessage& message);
+		void CheckLevelAdvancementProgress(GameMessage& message);		
+		void CheckGameOverProgress(GameMessage& message);
+		void CheckTitleScreenProgress(GameMessage& message);
+		void CheckReturnToTitleProgress(GameMessage& message);
+		void CheckMessage(GameMessage& message);
+		
 		void FadeToBlack();
 		void DisablePlayerCollisions();
 		void ResetPlayerPosition();
-
 		void ReadyNextLevel();
 
+		void DisplayTitleScreen();
+		void LeaveTitleToLevel(int starting_level_id);
+		
+		void PrepareForEnding();
+		void DisplayEnding();
 
 		// ATTRIBUTES
 		/* 
@@ -77,9 +83,9 @@ namespace Tmpl8
 
 		CollisionManager collision_manager;
 		TextRepo text_repo{};
-		Level level_manager;
-		KeyManager key_manager;
-		MouseManager mouse_manager;
+		Level level_manager;		
+		keyboard_manager2 m_keyboard_manager;
+		MouseManager m_mouse_manager;
 		Player player;
 		Camera camera;
 		Surface* screen{ nullptr };
@@ -103,8 +109,8 @@ namespace Tmpl8
 		bool m_is_in_level_reset{ false };
 		bool m_is_in_level_advancement{ false };
 		bool m_is_in_title_screen{ true };
-
-		MousePacket m_mouse_packet;
+		bool m_is_in_game_over{ false };
+		bool m_is_in_return_to_title{ false };
 
 		int mouse_x{ 0 };
 		int mouse_y{ 0 };

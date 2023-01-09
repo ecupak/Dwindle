@@ -32,10 +32,10 @@ namespace Tmpl8
 
 
 	// Constructor.
-	Player::Player(KeyManager& key_manager) :
+	Player::Player(keyboard_manager2& keyboard_manager) :
 		Collidable{ CollidableInfo{ CollidableType::PLAYER, CollisionLayer::CAMERA, CollisionMask::NONE, 10 } },
 		m_sprite{ Sprite{new Surface("assets/ball.png"), 3, true} },
-		m_key_manager{ key_manager },
+		m_keyboard_manager{ keyboard_manager },
 		m_player_echo{ m_sprite }
 	{
 		// Create array of points that will go around circle.
@@ -46,18 +46,14 @@ namespace Tmpl8
 	}
 
 
-	// -----------------------------------------------------------
-	// Public methods.
-	// -----------------------------------------------------------
-
 	void Player::Update(float deltaTime)
 	{
 		m_delta_time = deltaTime;
 
-		/* Update position and draw sprite. */
 
 		// If dead, determine when free fall happens.
-		if (state == State::DEAD && mode != Mode::FREE_FALL && mode != Mode::SUSPENDED)
+		//if (state == State::DEAD && mode != Mode::FREE_FALL && mode != Mode::SUSPENDED)
+		if (m_is_dead_timer_enabled)
 		{
 			m_dead_timer += deltaTime;
 
@@ -66,8 +62,10 @@ namespace Tmpl8
 			{
 				m_game_socket->SendMessage(GameMessage{ GameAction::PLAYER_IN_FREE_FALL });
 				mode = Mode::FREE_FALL;
+				m_is_dead_timer_enabled = false;
 			}
 		}
+
 
 		switch (mode)
 		{
@@ -87,6 +85,9 @@ namespace Tmpl8
 			break;
 		case Mode::FREE_FALL:
 			updateFreeFall();
+			break;
+		case Mode::GAMEOVER:
+			updateGameOver();
 			break;
 		case Mode::NONE:
 		default:
@@ -145,10 +146,10 @@ namespace Tmpl8
 		state = State::DEAD;
 
 		// Adjust position so center is at given coordinates.
-		SetPosition(vec2{
+		/*SetPosition(vec2{
 			position.x - (m_sprite.GetWidth() / 2),
 			position.y - (m_sprite.GetHeight() / 2)
-		});
+		});*/
 	}
 
 	
@@ -204,6 +205,12 @@ namespace Tmpl8
 
 		// Set new position and bounds for player and detector points.
 		SetPosition(new_position);
+	}
+
+
+	void Player::KeepFalling(bool is_set_to_keep_falling)
+	{
+		m_is_set_to_keep_falling = is_set_to_keep_falling;
 	}
 
 
@@ -352,24 +359,13 @@ namespace Tmpl8
 
 	void Player::ResolveCollisions()
 	{
-		if (m_is_collision_state_disabled || m_ignore_tether_collisions)
-		{
-			for (DetectorPoint& point : points)
-			{
-				point.ClearCollisions();
-			}
-			
-			m_ignore_tether_collisions = false;
-
-			return;
-		}
+		if (IsCollisionHandlingDisabled()) return;		
 
 		int new_mode{ NONE };
 		bool is_ricochet_set{ false };
 		int post_id{ -1 };
 		m_delta_position = vec2{ 0.0f, 0.0f };
-		vec2 ricochet_velocity{ 0.0f, 0.0f };
-		
+		vec2 ricochet_velocity{ 0.0f, 0.0f };		
 		std::map<int, int> contact_points;
 
 		// Get change in position after collision, and the new mode.
@@ -378,17 +374,16 @@ namespace Tmpl8
 			// Check for finish line collision.
 			if (state == State::ALIVE && point.m_is_at_finish_line)
 			{
-				state = State::DEAD;
-				m_player_strength = 0;
-				m_tethered_object = nullptr;
+				SetDeadState();				
 
-				// Ricochet velocitis will decrease while in dead bounce.
+				// Update all points to know finish line was crossed.
+				// Otherwise, trying to cross while dead will ricochet.
 				for (DetectorPoint& point : points)
 				{
-					point.UpdateState(state);
 					point.m_is_at_finish_line = true;
 				}
 
+				// Allow velocity.x to start decreasing immediately. Faster ending then when life reaches 0.
 				m_is_vertical_at_rest = true;
 
 				// Tell game that level is completed.
@@ -494,13 +489,7 @@ namespace Tmpl8
 				// If player is now dead, update state.
 				if (m_player_strength < 0)
 				{
-					state = State::DEAD;
-
-					// Ricochet velocitis will decrease while in dead bounce.
-					for (DetectorPoint& point : points)
-					{
-						point.UpdateState(state);
-					}
+					SetDeadState();
 
 					// Do not place a safe glow orb at location.
 					is_safe_glow_needed = false;
@@ -570,6 +559,38 @@ namespace Tmpl8
 	}
 
 
+	bool Player::IsCollisionHandlingDisabled()
+	{
+		if (m_is_collision_state_disabled || m_ignore_tether_collisions)
+		{
+			for (DetectorPoint& point : points)
+			{
+				point.ClearCollisions();
+			}
+
+			m_ignore_tether_collisions = false;
+
+			return true;
+		}
+		return false;
+	}
+
+
+	void Player::SetDeadState()
+	{
+		state = State::DEAD;
+		m_player_strength = 0;
+		m_tethered_object = nullptr;
+		m_is_dead_timer_enabled = true;
+
+		// Ricochet velocitis will decrease while in dead bounce.
+		for (DetectorPoint& point : points)
+		{
+			point.UpdateState(state);
+		}
+	}
+
+
 	/*
 		Credit to user79785: https://stackoverflow.com/questions/1903954/is-there-a-standard-sign-function-signum-sgn-in-c-c
 	*/
@@ -626,7 +647,7 @@ namespace Tmpl8
 			immediate result of squashed/GROUND state. Update vertical movement
 			and velocity.y, keeping within bounds. */
 
-		updateFrameStretch2Normal();
+		// updateFrameStretch2Normal();
 
 		// V.final = V.initial + (acceleration * time);
 		velocity.y += acceleration.y * m_delta_time;
@@ -641,7 +662,7 @@ namespace Tmpl8
 		// Only take input while player is alive.
 		if (state == State::ALIVE)
 		{
-			direction.x = -(m_key_manager.GetKey(SDLK_LEFT).m_is_active) + (m_key_manager.GetKey(SDLK_RIGHT).m_is_active);
+			direction.x = -(m_keyboard_manager.IsPressed(SDL_SCANCODE_LEFT)) + (m_keyboard_manager.IsPressed(SDL_SCANCODE_RIGHT));
 		}
 		else
 		{
@@ -678,21 +699,13 @@ namespace Tmpl8
 				// But if still moving after a few seconds post-death, pump the brakes.
 				velocity.x += direction.x * acceleration.x * m_delta_time * (m_dead_timer < m_dead_time_limit ? m_acceleration_x_dead_dampening : 1);
 
-				// Dead bouncing doens't lose velocity.x until velocity.y has stopped (no bounce, only roll).
+				// Dead bouncing doesn't lose velocity.x until velocity.y has stopped (then becomes no bounce, only roll).
 				if (m_is_vertical_at_rest && fabsf(velocity.x) < m_horizontal_dead_zone)
 				{
 					velocity.x = 0.0f;
 					m_is_horizontal_at_rest = true;
 				}
 			}
-
-			/*
-			if (m_is_vertical_at_rest && fabsf(velocity.x) < m_horizontal_dead_zone)
-			{
-				velocity.x = 0.0f;
-				m_is_horizontal_at_rest = true;
-			}
-			*/
 		}
 	}
 
@@ -807,10 +820,10 @@ namespace Tmpl8
 		/* Reposition ball just off of wall and lose all velocity. Register trigger and
 			set trigger duration. Update the sprite. WALL mode sticks ball on wall. */
 
-		m_key_manager.GetKey(SDLK_LEFT).m_is_active = false;
-		m_key_manager.GetKey(SDLK_RIGHT).m_is_active = false;
-		m_key_manager.GetKey(SDLK_UP).m_is_active = false;
-		m_key_manager.GetKey(SDLK_DOWN).m_is_active = false;
+		//m_key_manager.GetKey(SDLK_LEFT).m_is_active = false;
+		//m_key_manager.GetKey(SDLK_RIGHT).m_is_active = false;
+		//m_key_manager.GetKey(SDLK_UP).m_is_active = false;
+		//m_key_manager.GetKey(SDLK_DOWN).m_is_active = false;
 
 		wallBounceTrigger = trigger;
 		
@@ -884,7 +897,7 @@ namespace Tmpl8
 				m_is_untethering = true;
 
 				bounceOffGround();
-				setFrameSquash2Stretch();
+				setFrameSquash2Normal();
 
 				m_allow_horizontal_movement = true;
 				max_velocity.x = maxSpeedNormalX;
@@ -928,7 +941,7 @@ namespace Tmpl8
 			Otherwise it has more powerful bounce. */
 				
 		// Press down - soft release.
-		if (m_key_manager.GetKey(SDLK_DOWN).m_is_active)
+		if (m_keyboard_manager.IsJustPressed(SDL_SCANCODE_DOWN))
 		{
 			BounceStrength wall_bounce_x_power{ BounceStrength::WEAK };
 			BounceStrength wall_bounce_y_power{ BounceStrength::NONE };
@@ -936,7 +949,7 @@ namespace Tmpl8
 			bounceOffWall(wall_bounce_x_power, wall_bounce_y_power);
 		}
 		// Press up - high vertical jump, less horizontal movement.
-		else if (m_key_manager.GetKey(SDLK_UP).m_is_active)
+		else if (m_keyboard_manager.IsJustPressed(SDL_SCANCODE_UP))
 		{
 			BounceStrength wall_bounce_x_power{ BounceStrength::WEAK };
 			BounceStrength wall_bounce_y_power{ BounceStrength::STRONG };
@@ -944,8 +957,8 @@ namespace Tmpl8
 			bounceOffWall(wall_bounce_x_power, wall_bounce_y_power);
 		}
 		// Press left/right (away from wall) - good horizontal movement, less vertical jump.
-		else if(wallBounceTrigger == Trigger::LEFT && m_key_manager.GetKey(SDLK_LEFT).m_is_active
-			|| wallBounceTrigger == Trigger::RIGHT && m_key_manager.GetKey(SDLK_RIGHT).m_is_active)
+		else if(wallBounceTrigger == Trigger::LEFT && m_keyboard_manager.IsJustPressed(SDL_SCANCODE_LEFT)
+			|| wallBounceTrigger == Trigger::RIGHT && m_keyboard_manager.IsJustPressed(SDL_SCANCODE_RIGHT))
 		{			
 			BounceStrength wall_bounce_x_power{ BounceStrength::STRONG };
 			BounceStrength wall_bounce_y_power{ BounceStrength::WEAK };
@@ -1015,11 +1028,6 @@ namespace Tmpl8
 	}
 
 
-	/*
-		This section covers when the ball hits the ceiling.
-	*/
-
-
 	void Player::updateCeiling()
 	{
 		/* "Freeze" ball in squash mode for squash frame count. AIR mode 
@@ -1029,7 +1037,7 @@ namespace Tmpl8
 
 		if (m_squash_frame_seconds <= 0)
 		{
-			setFrameSquash2Stretch();
+			//setFrameSquash2Stretch();
 
 			max_velocity.x = maxSpeedNormalX;
 
@@ -1046,10 +1054,18 @@ namespace Tmpl8
 			++m_free_fall_frame_count;
 			if (m_free_fall_frame_count >= 30)
 			{
-				velocity.y = 0.0f;
-				m_is_echo_update_enabled = false;
-				mode = Mode::SUSPENDED;
-				m_game_socket->SendMessage(GameMessage{ GameAction::PLAYER_SUSPENDED });
+				if (m_is_set_to_keep_falling)
+				{
+					m_game_socket->SendMessage(GameMessage{ GameAction::PLAYER_AT_MAX_FALL });
+					mode = Mode::GAMEOVER;
+				}
+				else
+				{					
+					velocity.y = 0.0f;
+					m_is_echo_update_enabled = false;
+					mode = Mode::SUSPENDED;
+					m_game_socket->SendMessage(GameMessage{ GameAction::PLAYER_SUSPENDED });
+				}
 			}
 		}
 		else // keep falling until max velocity reached.
@@ -1062,29 +1078,22 @@ namespace Tmpl8
 	}
 
 
-	/*
-		This section deals with changing the sprite image / frame.
-	*/
-
-
-	void Player::updateFrameStretch2Normal()
+	void Player::updateGameOver()
 	{
-		/* Countdown until switching from stretched image to normal image. Must
-			also not be direction locked from a weak wall bounce. */
-		
-		stretchFrameCount -= m_delta_time;
-
-		if (stretchFrameCount <= 0)
+		m_game_over_timer += m_delta_time;
+		if (m_game_over_timer > m_game_over_timer_limit)
 		{
-			m_frame_id = 0;
+			velocity.y = 0.0f;
+			m_is_echo_update_enabled = false;
+			mode = Mode::SUSPENDED;
+			m_game_socket->SendMessage(GameMessage{ GameAction::PLAYER_SUSPENDED });
 		}
+
 	}
 
 
 	void Player::setFrameNormal2Squash()
 	{
-		/* If velocity was fast enough to generate a frame of squash, change image. */
-
 		if (state == State::ALIVE)
 		{
 			if (m_squash_frame_seconds > 0.0f)
@@ -1095,15 +1104,11 @@ namespace Tmpl8
 	}
 
 
-	void Player::setFrameSquash2Stretch()
+	void Player::setFrameSquash2Normal()
 	{
 		if (state == State::ALIVE)
 		{
-			// Set mode to stretch.
-			if (stretchFrameCount > 0.0f)
-			{
-				m_frame_id = 2;
-			}
+			m_frame_id = 0;
 		}
 	}
 };

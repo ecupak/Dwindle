@@ -2,7 +2,7 @@
 #include <vector>
 
 #include "game.h"
-#include <SDL2-2.0.3/include/SDL_mouse.h>
+
 
 
 namespace Tmpl8
@@ -18,10 +18,10 @@ namespace Tmpl8
 	Game::Game(Surface* surface) :
 		collision_manager{ },
 		level_manager{ text_repo },
-		player{ key_manager },
+		player{ m_keyboard_manager },
 		camera{ player },
 		screen{ surface },
-		viewport{ surface, camera, game_mode, mouse_manager }
+		viewport{ surface, camera, game_mode, m_mouse_manager }
 	{	}
 
 	// -----------------------------------------------------------
@@ -49,11 +49,11 @@ namespace Tmpl8
 
 	void Game::RegisterKeys()
 	{
-		key_manager.RegisterKey(SDLK_LEFT);
+		/*key_manager.RegisterKey(SDLK_LEFT);
 		key_manager.RegisterKey(SDLK_RIGHT);
 		key_manager.RegisterKey(SDLK_UP);
 		key_manager.RegisterKey(SDLK_DOWN);
-		key_manager.RegisterKey(SDLK_F1);
+		key_manager.RegisterKey(SDLK_F1);*/
 	}
 
 
@@ -123,7 +123,11 @@ namespace Tmpl8
 
 	void Game::PrepareLevel()
 	{
-		level_manager.CreateLevel(level_id); // starts at 0 = tutorial.		
+		// -1 = title
+		// 0 = tutorial
+		// 1 - 3 = levels
+		// 4 = end
+		level_manager.CreateLevel(level_id);
 	}
 
 
@@ -167,7 +171,8 @@ namespace Tmpl8
 	{
 		deltaTime = Clamp(deltaTime * 0.001f, 0.0f, 0.033f);
 
-		mouse_manager.Update(m_mouse_packet);
+		m_mouse_manager.Update();
+		m_keyboard_manager.Update();
 
 		// See if anything has sent a message to game (player death or level completion).
 		CheckSocketForNewMessages();
@@ -222,6 +227,14 @@ namespace Tmpl8
 			{
 				CheckTitleScreenProgress(message);
 			}
+			else if (m_is_in_game_over)
+			{
+				CheckGameOverProgress(message);
+			}
+			else if (m_is_in_return_to_title)
+			{
+				CheckReturnToTitleProgress(message);
+			}
 			else
 			{
 				CheckMessage(message);
@@ -264,7 +277,6 @@ namespace Tmpl8
 			DisablePlayerCollisions();
 			break;
 		case GameAction::PLAYER_SUSPENDED:
-			AdvanceLevel();
 			ReadyNextLevel();
 			m_is_in_level_advancement = false;
 			m_level_action_tracker = 0;
@@ -283,12 +295,61 @@ namespace Tmpl8
 			break;
 		case GameAction::START_GAME:
 			++m_level_action_tracker;
-			LeaveTitleToLevel(1);
+			LeaveTitleToLevel(3);
 			break;
 		case GameAction::PLAYER_SUSPENDED:
 			game_mode = GameMode::GAME_SCREEN;
 			ReadyNextLevel();
 			m_is_in_title_screen = false;
+			m_level_action_tracker = 0;
+			break;
+		}
+	}
+
+
+	void Game::CheckGameOverProgress(GameMessage& message)
+	{
+		switch (message.m_action)
+		{
+		case GameAction::ORBS_REMOVED:
+			++m_level_action_tracker;
+			DisablePlayerCollisions();
+			break;
+		case GameAction::PLAYER_IN_FREE_FALL:
+			++m_level_action_tracker;
+			DisablePlayerCollisions();
+			player.KeepFalling(true);
+			break;
+		case GameAction::PLAYER_AT_MAX_FALL:
+			++m_level_action_tracker;
+			PrepareForEnding();
+			break;
+		case GameAction::PLAYER_SUSPENDED:
+			++m_level_action_tracker;
+			DisplayEnding();
+			m_is_in_game_over = false;
+			m_level_action_tracker = 0;
+			break;
+		}
+	}
+
+
+	void Game::CheckReturnToTitleProgress(GameMessage& message)
+	{
+		switch (message.m_action)
+		{
+		case GameAction::ORBS_REMOVED:
+			++m_level_action_tracker;
+			DisablePlayerCollisions();
+			break;
+		case GameAction::PLAYER_IN_FREE_FALL:
+			++m_level_action_tracker;
+			DisablePlayerCollisions();
+			break;
+		case GameAction::PLAYER_SUSPENDED:
+			++m_level_action_tracker;
+			DisplayTitleScreen();
+			m_is_in_return_to_title = false;
 			m_level_action_tracker = 0;
 			break;
 		}
@@ -306,7 +367,12 @@ namespace Tmpl8
 			break;
 		case GameAction::LEVEL_COMPLETE:
 			m_level_action_tracker = 0;
-			m_is_in_level_advancement = true;
+			AdvanceLevel();			
+			FadeToBlack();
+			break;
+		case GameAction::TUTORIAL_COMPLETE:
+			m_level_action_tracker = 0;
+			m_is_in_return_to_title = true;
 			FadeToBlack();
 			break;
 		}
@@ -316,7 +382,6 @@ namespace Tmpl8
 	// -----------------------------------------------------------
 	// Reset Level
 	// -----------------------------------------------------------
-
 	// Remove all safe glow orbs. Screen should be completely black during transition.
 	void Game::FadeToBlack()
 	{
@@ -343,7 +408,7 @@ namespace Tmpl8
 		player.SetGameScreenMode();
 		player.TransitionToPosition(level_manager.GetPlayerStartPosition());
 		camera.SetCenter(level_manager.GetPlayerStartPosition());
-		camera.RestoreView();
+		camera.FadeIn(1.0f);
 		player.DisableCollisionChecking(false);
 	}
 
@@ -353,14 +418,23 @@ namespace Tmpl8
 	// -----------------------------------------------------------
 	void Game::AdvanceLevel()
 	{
-		++level_id;
+		if (++level_id > 3)
+		{			
+			m_is_in_game_over = true;
+		}
+		else
+		{
+			m_is_in_level_advancement = true;
+		}
 	}
 	
+
 	void Game::ReadyNextLevel()
-	{			
+	{	
 		PrepareForNextLevel();
 		ResetPlayerPosition();
 	}
+
 
 	// -----------------------------------------------------------
 	// Title Screen
@@ -374,29 +448,64 @@ namespace Tmpl8
 		}
 	}
 
+
+	void Game::DisplayTitleScreen()
+	{
+		/*
+			freeze player			
+			recenter (camera follows)
+			turn on echoes (keep velocity 0)
+
+			fade title and buttons into view
+			done?
+		*/
+
+		level_id = -1; // Title.
+
+
+
+	}
+
+
+	// -----------------------------------------------------------
+	// Game ending
+	// -----------------------------------------------------------
+	void Game::PrepareForEnding()
+	{
+		game_mode = GameMode::GAME_OVER;
+		camera.FreezeView();
+		PrepareForNextLevel();
+	}
+
+
+	void Game::DisplayEnding()
+	{
+		camera.MoveToCenter();
+		camera.FadeIn(0.0f);
+	}
+
+
 	// -----------------------------------------------------------
 	// Mouse events
 	// -----------------------------------------------------------
-	void Game::MouseUp(int button)
-	{
-		if (button == SDL_BUTTON_LEFT)
-		{
-			m_mouse_packet.m_was_released = true;
-		}
-	}
-
 	void Game::MouseDown(int button)
 	{
-		if (button == SDL_BUTTON_LEFT)
-		{
-			m_mouse_packet.m_was_pressed = true;
-		}
+		m_mouse_manager.Pressed(button);
 	}
+
+
+	void Game::MouseUp(int button)
+	{
+		m_mouse_manager.Released(button);
+	}	
+
 
 	void Game::MouseMove(int x, int y)
 	{
-		m_mouse_packet.m_x = x;
-		m_mouse_packet.m_y = y;
+		if (game_mode == GameMode::TITLE_SCREEN)
+		{
+			m_mouse_manager.SetPosition(x, y);
+		}
 	}
 
 
@@ -409,41 +518,11 @@ namespace Tmpl8
 
 	void Game::KeyDown(int key_code)
 	{
-		KeyInfo& key = key_manager.GetKey(key_code);
-		
-		if (key.m_is_pressed == false)
-		{
-			key.m_is_active = true;
-			key.m_is_pressed = true;
-
-			switch (key_code)
-			{
-			case SDLK_LEFT:
-				key_manager.GetKey(SDLK_RIGHT).m_is_active = false;
-				break;
-			case SDLK_RIGHT:
-				key_manager.GetKey(SDLK_LEFT).m_is_active = false;
-				break;
-			case SDLK_UP:
-				key_manager.GetKey(SDLK_DOWN).m_is_active = false;
-				break;
-			case SDLK_DOWN:
-				key_manager.GetKey(SDLK_UP).m_is_active = false;
-				break;
-			case SDLK_F1:
-				player.ToggleDebugMode();
-				break;
-			default:
-				break;
-			}
-		}
+		m_keyboard_manager.Pressed(key_code);
 	}
 
 	void Game::KeyUp(int key_code)
 	{
-		KeyInfo& key = key_manager.GetKey(key_code);
-
-		key.m_is_active = false;
-		key.m_is_pressed = false;
+		m_keyboard_manager.Released(key_code);
 	}
 };

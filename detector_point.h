@@ -87,7 +87,7 @@ namespace Tmpl8
 		void DetermineIsTethered(Intersection& intersection_info);
 		void DetermineIsOnDangerousObstacle(Intersection& intersection_info);
 
-		bool GetIsRicochetCollision(EdgeCrossed& collision_edge_crossed);
+		bool GetIsRicochetCollision(EdgeCrossed& collision_edge_crossed, int neighbors);
 
 		void ResolveSmoothCollision(Intersection& intersection_info);
 		void SetRicochetSpeed(Intersection& intersection_info);

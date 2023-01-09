@@ -48,6 +48,6 @@ namespace Tmpl8
 		vec2 m_intersection{ 0.0f, 0.0f };
 		EdgeCrossed m_collision_edge_crossed;
 		CollidableType m_type_of_collision_object;
-		int m_penetration;
+		int m_penetration{ 0 };
 	};
 };

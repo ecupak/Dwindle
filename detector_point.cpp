@@ -21,14 +21,11 @@ namespace Tmpl8
 	constexpr int GROUND{ 1 };
 	constexpr int WALL{ 2 };
 	constexpr int CEILING{ 4 };
-	/* Ricochet x,y modulators. */
-	constexpr float LOW_X_FACTOR{ 0.25f };
-	constexpr float MED_X_FACTOR{ 0.5f };
-	constexpr float HIGH_X_FACTOR{ 0.75f };
-	constexpr float LOW_Y_FACTOR{ 2.0f };
-	constexpr float MED_Y_FACTOR{ 3.0f };
-	constexpr float HIGH_Y_FACTOR{ 4.0f };
-
+	/* Neighbor obstacle directions. */
+	constexpr int TOP_NEIGHBOR{ 1 };
+	constexpr int LEFT_NEIGHBOR{ 2 };
+	constexpr int RIGHT_NEIGHBOR{ 4 };
+	constexpr int BOTTOM_NEIGHBOR{ 8 };
 
 	DetectorPoint::DetectorPoint(int assigned_post) :
 		Collidable{ CollidableInfo{CollidableType::PLAYER_POINT, CollisionLayer::PLAYER, CollisionMask::PLAYER, 0} },
@@ -466,7 +463,7 @@ namespace Tmpl8
 			Get next mode or ricochet velocity (no mode if ricochet).
 		*/
 
-		m_is_ricochet_collisions = GetIsRicochetCollision(intersection_info.m_collision_edge_crossed);
+		m_is_ricochet_collisions = GetIsRicochetCollision(intersection_info.m_collision_edge_crossed, intersection_info.m_collision_object->m_neighbors);
 
 		if (m_is_ricochet_collisions)
 		{
@@ -482,7 +479,7 @@ namespace Tmpl8
 	}
 
 
-	bool DetectorPoint::GetIsRicochetCollision(EdgeCrossed& collision_edge_crossed)
+	bool DetectorPoint::GetIsRicochetCollision(EdgeCrossed& collision_edge_crossed, int neighbors)
 	{
 		/*
 			The cardinal points only ricochet if they don't make a collision opposing
@@ -497,9 +494,29 @@ namespace Tmpl8
 				|				+--
 				|				|
 
-			The angled points will always ricochet if they create the closest collision.
+			The angled points (1, 3, 5, & 7) will always ricochet if they create the closest collision.
 		*/
 
+		// If edge in question is adjacent to another obstacle, it cannot have provided a corner to ricochet off of.
+		switch (collision_edge_crossed)
+		{
+		case EdgeCrossed::TOP:
+			if (neighbors & TOP_NEIGHBOR)
+				return false;
+		case EdgeCrossed::LEFT:
+			if (neighbors & LEFT_NEIGHBOR)
+				return false;
+		case EdgeCrossed::RIGHT:
+			if (neighbors & RIGHT_NEIGHBOR)
+				return false;
+		case EdgeCrossed::BOTTOM:
+			if (neighbors & BOTTOM_NEIGHBOR)
+				return false;
+		default:
+			break;
+		}
+
+		// Otherwise, check if the cardinal point did not hit an opposing edge. That makes a ricochet.
 		switch (post_id)
 		{
 		case RIGHT:

@@ -10,7 +10,12 @@ namespace Tmpl8
 		m_obstacle_layer{ obstacle_layer },
 		m_map_layer{ map_layer },
 		m_offset_index{ direction_info.first == MoveDirection::HORIZONTAL ? 0 : 1 },
-		m_magnitude_coefficient{ (direction_info.second - 1) * TILE_SIZE },
+
+		m_travel_distance{ static_cast<float>((direction_info.second - 1) * TILE_SIZE) },
+		m_min_stop{ m_center[m_offset_index] },
+		m_max_stop{ m_min_stop + static_cast<float>(m_travel_distance) },
+		m_stopping_distance{ TILE_SIZE },
+
 		m_half_size{ TILE_SIZE / 2 },
 		m_clipboard{ TILE_SIZE, TILE_SIZE }
 	{	}
@@ -33,19 +38,37 @@ namespace Tmpl8
 
 	void MovingObstacle::Update(float deltaTime)
 	{
-		m_elapsed_time += deltaTime * m_speed * m_sign_of_direction;
+		// Store last position for delta calculation.
+		m_prev_offset[m_offset_index] = m_offset[m_offset_index];
 
-		if (m_elapsed_time < 0.0f || m_elapsed_time > 1.0f)
+		m_offset[m_offset_index] += m_speed * deltaTime * m_sign_of_direction;
+		m_offset[m_offset_index] = Clamp(m_offset[m_offset_index], 0.0f, m_travel_distance);
+
+		if (m_offset[m_offset_index] == 0.0f || m_offset[m_offset_index] == m_travel_distance)
 		{
-			m_elapsed_time = Clamp(m_elapsed_time, 0.0f, 1.0f);
-			m_sign_of_direction *= -1;
+			m_elapsed_time += deltaTime;
+
+			if (m_elapsed_time >= 2.0f)
+			{
+				m_sign_of_direction *= -1;
+				m_elapsed_time = 0.0f;
+			}
 		}
 
-		// Ease in/out formula (Bezier curve). Credit to Creak at https://stackoverflow.com/questions/13462001/ease-in-and-ease-out-animation-formula
-		m_prev_offset[m_offset_index] = m_offset[m_offset_index];
-		m_offset[m_offset_index] = m_magnitude_coefficient * (m_elapsed_time * m_elapsed_time) * (3 - (2 * m_elapsed_time));
-
 		m_delta_position[m_offset_index] = m_offset[m_offset_index] - m_prev_offset[m_offset_index];
+
+		//m_elapsed_time += deltaTime * m_speed * m_sign_of_direction;
+
+		//if (m_elapsed_time < 0.0f || m_elapsed_time > 1.0f)
+		//{
+		//	m_elapsed_time = Clamp(m_elapsed_time, 0.0f, 1.0f);
+		//	m_sign_of_direction *= -1;
+		//}
+
+		// Ease in/out formula (Bezier curve). Credit to Creak at https://stackoverflow.com/questions/13462001/ease-in-and-ease-out-animation-formula		
+		/*m_offset[m_offset_index] = m_magnitude_coefficient * (m_elapsed_time * m_elapsed_time) * (3 - (2 * m_elapsed_time));
+
+		m_delta_position[m_offset_index] = m_offset[m_offset_index] - m_prev_offset[m_offset_index];*/
 
 		UpdatePosition();
 	}

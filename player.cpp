@@ -151,10 +151,12 @@ namespace Tmpl8
 		});
 	}
 
+	
 	void Player::SetStartingLife(int starting_life)
 	{
 		m_player_max_strength = starting_life;
 	}
+
 
 	// Prepare for start of level (current or new).
 	void Player::SetGameScreenMode()
@@ -269,16 +271,7 @@ namespace Tmpl8
 
 	float Player::GetDistanceToMove(VectorIndex vector_index, float pre_calculated_half_t2)
 	{
-		int vec2_index{ 0 };
-		switch (vector_index)
-		{
-		case VectorIndex::X:
-			vec2_index = 0;
-			break;
-		case VectorIndex::Y:
-			vec2_index = 1;
-			break;
-		}
+		int vec2_index{ vector_index == VectorIndex::X ? 0 : 1};
 
 		// distance = velocity * time + 1/2 * acceleration * time^2.
 		return ((velocity[vec2_index] * m_delta_time) + (velocity[vec2_index] * pre_calculated_half_t2))

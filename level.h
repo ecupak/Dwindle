@@ -65,6 +65,7 @@ namespace Tmpl8
 		void CreateComponentsFromBlueprint();
 		void CreateComponentAtPosition(BlueprintCode& blueprint_code, int x, int y);
 		void CreateCollidableLists();
+		int GetObstacleReserveSize();
 		void SendCollidableLists();
 
 		std::pair<MoveDirection, int> GetMoveDirection(int x, int y);

@@ -134,16 +134,16 @@ namespace Tmpl8
 			Entry{m_guide, vec2{4, 15}, 3,
 				"They had you so busy."
 			},
-			Entry{m_guide, vec2{11, 15}, 2,
+			Entry{m_guide, vec2{10, 15}, 3,
 				"...all the time."
 			},
-			Entry{m_guide, vec2{10, 11}, 2,
+			Entry{m_guide, vec2{10, }, 3,
 				"But we found our time."
 			},			
 			Entry{m_guide, vec2{10, 1}, 3,
 				"This is our moutain climb, isn't it?"
 			},
-			Entry{m_guide, vec2{21, 1}, 3,
+			Entry{m_guide, vec2{20, 1}, 4,
 				"Fall down. I'll catch you. You're almost there."
 			},
 			Entry{m_guide, vec2{22, 8}, 1,
@@ -155,7 +155,7 @@ namespace Tmpl8
 			Entry{m_guide, vec2{21, 15}, 3,
 				"Did you do everthing you wanted to?"
 			},
-			Entry{m_guide, vec2{22, 25}, 3,
+			Entry{m_guide, vec2{20, 25}, 3,
 				"Ahead.. is not a good memory."
 			},
 			Entry{m_guide, vec2{4, 23}, 2,
@@ -166,8 +166,47 @@ namespace Tmpl8
 
 		std::vector<Entry> m_level_3_entries
 		{
-			Entry{m_guide, vec2{5, 14}, 1,
-				"Placeholder."
+			Entry{m_guide, vec2{10, 26}, 5,
+				"I always wondered what happened to that piano."
+			},
+			Entry{m_guide, vec2{19, 26}, 4,
+				"And those racoons from the storm."
+			},
+			Entry{m_guide, vec2{22, 23}, 2,
+				"They were adorable."
+			},
+			Entry{m_guide, vec2{11, 23}, 4,
+				"You'll have to tell me everything I missed."
+			},
+			Entry{m_guide, vec2{18, 19}, 2,
+				"I've mostly missed you."
+			},
+			Entry{m_guide, vec2{9, 13}, 4,
+				"I remember this summer. Not great."
+			},
+			Entry{m_guide, vec2{4, 10}, 4,
+				"Oh. This is when I..."
+			},
+			Entry{m_guide, vec2{16, 14}, 1,
+				"Safe, again."
+			},
+			Entry{m_guide, vec2{25, 13}, 2,
+				"You got some cats?"
+			},
+			Entry{m_guide, vec2{21, 8}, 3,
+				"A lot of cats!"
+			},
+			Entry{m_guide, vec2{10, 7}, 2,
+				"Oh, the quilt!"
+			},			
+			Entry{m_guide, vec2{8, 4}, 3,
+				"That's too many cats."
+			},			
+			Entry{m_guide, vec2{16, 1}, 3,
+				"Down to 1. Sorry, my love."
+			},
+			Entry{m_guide, vec2{4, 1}, 2,
+				"Here we are..."
 			},
 		};
 

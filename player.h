@@ -189,7 +189,7 @@ namespace Tmpl8 {
 		int m_free_fall_frame_count{ 0 };
 
 		float m_game_over_timer{ 0.0f };
-		float m_game_over_timer_limit{ 0.5f };
+		float m_game_over_timer_limit{ 1.5f };
 
 		bool m_allow_horizontal_movement{ true };
 		float m_horizontal_dead_zone{ 0.3f };

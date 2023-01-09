@@ -1,21 +1,10 @@
-﻿  collision_manager.cpp
-  detector_point.cpp
+﻿  blueprints.cpp
+  collision_manager.cpp
   game.cpp
   level.cpp
   message_box.cpp
-  player.cpp
-C:\Users\Sab\OneDrive\Documents\Workspace\ecupak\BREDA Projects\intake\player.cpp(123,66): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-C:\Users\Sab\OneDrive\Documents\Workspace\ecupak\BREDA Projects\intake\player.cpp(123,45): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-C:\Users\Sab\OneDrive\Documents\Workspace\ecupak\BREDA Projects\intake\player.cpp(231,61): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-C:\Users\Sab\OneDrive\Documents\Workspace\ecupak\BREDA Projects\intake\player.cpp(671,18): warning C4804: '-': unsafe use of type 'bool' in operation
-C:\Users\Sab\OneDrive\Documents\Workspace\ecupak\BREDA Projects\intake\player.cpp(671,69): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-C:\Users\Sab\OneDrive\Documents\Workspace\ecupak\BREDA Projects\intake\player.cpp(691,38): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-C:\Users\Sab\OneDrive\Documents\Workspace\ecupak\BREDA Projects\intake\player.cpp(778,35): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-C:\Users\Sab\OneDrive\Documents\Workspace\ecupak\BREDA Projects\intake\player.cpp(789,23): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
   template.cpp
   text_repo.cpp
   Generating Code...
 C:\Users\Sab\OneDrive\Documents\Workspace\ecupak\BREDA Projects\intake\text_repo.cpp(24): warning C4715: 'Tmpl8::TextRepo::GetEntriesForLevel': not all control paths return a value
-C:\Users\Sab\OneDrive\Documents\Workspace\ecupak\BREDA Projects\intake\detector_point.cpp(635): warning C4715: 'Tmpl8::DetectorPoint::GetCollisionBuffer': not all control paths return a value
-C:\Users\Sab\OneDrive\Documents\Workspace\ecupak\BREDA Projects\intake\detector_point.cpp(448): warning C4715: 'Tmpl8::DetectorPoint::GetPenetrationDepth': not all control paths return a value
   tmpl_2019-08.vcxproj -> C:\Users\Sab\OneDrive\Documents\Workspace\ecupak\BREDA Projects\intake\tmpl_2019-08_x86.exe

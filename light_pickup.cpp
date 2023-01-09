@@ -29,12 +29,12 @@ namespace Tmpl8
 
 	void LightPickup::Update(float deltaTime, float opacity)
 	{		
-		m_elapsed_time += deltaTime * m_speed * m_sign_of_direction;
+		m_elapsed_time += deltaTime * m_speed * m_sign_of_travel_direction;
 
 		if (m_elapsed_time < 0.0f || m_elapsed_time > 1.0f)
 		{
 			m_elapsed_time = Clamp(m_elapsed_time, 0.0f, 1.0f);
-			m_sign_of_direction *= -1;
+			m_sign_of_travel_direction *= -1;
 		}
 
 		// Ease in/out formula (Bezier curve). Credit to Creak at https://stackoverflow.com/questions/13462001/ease-in-and-ease-out-animation-formula

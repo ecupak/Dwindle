@@ -26,7 +26,7 @@ namespace Tmpl8
 		float m_elapsed_time{ 0.5f }; // start in middle of curve (normal center).
 		float m_offset_y{ 0 };
 		float m_magnitude_coefficient{ 20.0f };
-		int m_sign_of_direction{ 1 }; // start positive.
+		int m_sign_of_travel_direction{ 1 }; // start positive.
 		int m_half_height{ 0 };
 		bool m_has_been_picked_up{ false };
 		float m_opacity{ 1.0f };

@@ -169,7 +169,7 @@ namespace Tmpl8
 				{
 					bool out_of_bounds = (y < 0 || y >= m_loaded_blueprint_data.m_height || x < 0 || x >= m_loaded_blueprint_data.m_width);
 
-					if (!out_of_bounds && HasDirectionInfo(direction_id, x, y, center_y))
+					if (!out_of_bounds && HasDirectionInfo(direction_id, x, y, center_x))
 						return direction_id;
 				}
 			}
@@ -180,17 +180,18 @@ namespace Tmpl8
 	
 	
 
-	bool Blueprints::HasDirectionInfo(int& direction_id, int x, int y, int center_y)
+	bool Blueprints::HasDirectionInfo(int& direction_id, int x, int y, int center_x)
 	{
 		char id = m_loaded_blueprint_data.m_blueprint[x + (y * m_loaded_blueprint_data.m_width)];
 
+		// char 49 is number 1 (char 57 is number 9).
 		if (id >= 49 && id <= 57)
 		{
 			id -= 48; // Convert to range 1 to 9;
 
-			if (y != center_y)
+			if (x < center_x)
 			{
-				id *= -1; // Negative value denotes on the vertical axis.
+				id *= -1; // Negative value denotes initial move direction to the left.
 			}
 
 			direction_id = id;

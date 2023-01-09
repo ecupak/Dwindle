@@ -7,16 +7,16 @@ namespace Tmpl8
 {
 	MovingObstacle::MovingObstacle(std::pair<MoveDirection, int>direction_info, int x, int y, int TILE_SIZE, int autotile_id, int tile_id, Sprite& sprite, Surface& obstacle_layer, Surface& map_layer) :
 		Obstacle{ CollidableInfo{GetCollidableType(tile_id), CollisionLayer::BOTH, CollisionMask::NONE, GetDrawOrder(tile_id)}, x, y, TILE_SIZE, autotile_id, tile_id, sprite },
+		// Get movement plan.
+		m_sign_of_travel_direction{ direction_info.first == MoveDirection::LEFT ? -1 : 1 },
+		m_travel_distance{ static_cast<float>((direction_info.second - 1) * TILE_SIZE) },
+		m_min_offset{ direction_info.first == MoveDirection::LEFT ? -(m_travel_distance) : 0.0f },
+		m_max_offset{ direction_info.first == MoveDirection::LEFT ? 0.0f : m_travel_distance },
+		// Precalculated for collision box math.
+		m_half_size{ TILE_SIZE / 2 },
+		// For drawing.
 		m_obstacle_layer{ obstacle_layer },
 		m_map_layer{ map_layer },
-		m_offset_index{ direction_info.first == MoveDirection::HORIZONTAL ? 0 : 1 },
-
-		m_travel_distance{ static_cast<float>((direction_info.second - 1) * TILE_SIZE) },
-		m_min_stop{ m_center[m_offset_index] },
-		m_max_stop{ m_min_stop + static_cast<float>(m_travel_distance) },
-		m_stopping_distance{ TILE_SIZE },
-
-		m_half_size{ TILE_SIZE / 2 },
 		m_clipboard{ TILE_SIZE, TILE_SIZE }
 	{	}
 
@@ -39,36 +39,23 @@ namespace Tmpl8
 	void MovingObstacle::Update(float deltaTime)
 	{
 		// Store last position for delta calculation.
-		m_prev_offset[m_offset_index] = m_offset[m_offset_index];
+		m_prev_offset.x = m_offset.x;
 
-		m_offset[m_offset_index] += m_speed * deltaTime * m_sign_of_direction;
-		m_offset[m_offset_index] = Clamp(m_offset[m_offset_index], 0.0f, m_travel_distance);
+		m_offset.x += m_speed * deltaTime * m_sign_of_travel_direction;
+		m_offset.x = Clamp(m_offset.x, m_min_offset, m_max_offset);
 
-		if (m_offset[m_offset_index] == 0.0f || m_offset[m_offset_index] == m_travel_distance)
+		if (m_offset.x == m_min_offset || m_offset.x == m_max_offset)
 		{
 			m_elapsed_time += deltaTime;
 
-			if (m_elapsed_time >= 2.0f)
+			if (m_elapsed_time >= 4.0f)
 			{
-				m_sign_of_direction *= -1;
+				m_sign_of_travel_direction *= -1;
 				m_elapsed_time = 0.0f;
 			}
 		}
 
-		m_delta_position[m_offset_index] = m_offset[m_offset_index] - m_prev_offset[m_offset_index];
-
-		//m_elapsed_time += deltaTime * m_speed * m_sign_of_direction;
-
-		//if (m_elapsed_time < 0.0f || m_elapsed_time > 1.0f)
-		//{
-		//	m_elapsed_time = Clamp(m_elapsed_time, 0.0f, 1.0f);
-		//	m_sign_of_direction *= -1;
-		//}
-
-		// Ease in/out formula (Bezier curve). Credit to Creak at https://stackoverflow.com/questions/13462001/ease-in-and-ease-out-animation-formula		
-		/*m_offset[m_offset_index] = m_magnitude_coefficient * (m_elapsed_time * m_elapsed_time) * (3 - (2 * m_elapsed_time));
-
-		m_delta_position[m_offset_index] = m_offset[m_offset_index] - m_prev_offset[m_offset_index];*/
+		m_delta_position.x = m_offset.x - m_prev_offset.x;
 
 		UpdatePosition();
 	}
@@ -76,16 +63,16 @@ namespace Tmpl8
 
 	void MovingObstacle::UpdatePosition()
 	{
-		prev_left = left;
-		prev_right = right;
-		prev_top = top;
-		prev_bottom = bottom;
+		m_prev_left = left;
+		m_prev_right = right;
+		m_prev_top = top;
+		m_prev_bottom = bottom;
 
 		m_center += m_delta_position;
 
-		left = static_cast<int>(m_center.x - m_half_size);
+		left = static_cast<int>(floor(m_center.x) - m_half_size);
 		right = left + (m_half_size * 2);
-		top = static_cast<int>(m_center.y - m_half_size);
+		top = static_cast<int>(floor(m_center.y) - m_half_size);
 		bottom = top + (m_half_size * 2);
 	}
 
@@ -100,23 +87,44 @@ namespace Tmpl8
 		}
 		else
 		{
-			m_obstacle_layer.Bar(prev_left, prev_top, prev_right, prev_bottom, 0x00000000);
-			m_sprite.Draw(&m_obstacle_layer, left, top);
-
-			RestoreMapLayer();
-			CopyMapLayer();
-			m_sprite.Draw(&m_map_layer, left, top);
+			DrawOntoObstacleLayer();
+			DrawOntoMapLayer();
+			StoreLastDrawnCoordinates();
 		}
 	}
 
 
-	void MovingObstacle::RestoreMapLayer()
+	void MovingObstacle::DrawOntoObstacleLayer()
 	{
-		// Copy clipboard contents onto map layer.
-		
+		// Restore and draw onto obstacle layer.
+		m_obstacle_layer.Bar(m_last_drawn_left, m_last_drawn_top, m_last_drawn_right, m_last_drawn_bottom, 0x00000000);
+		m_sprite.Draw(&m_obstacle_layer, left, top);
+	}
+	
+
+	void MovingObstacle::DrawOntoMapLayer()
+	{
+		// Restore, copy draw area, and draw onto map layer.
+		RestoreMapLayer();
+		CopyMapLayer();
+		m_sprite.Draw(&m_map_layer, left, top);
+	}
+	
+
+	void MovingObstacle::StoreLastDrawnCoordinates()
+	{
+		m_last_drawn_left = left;
+		m_last_drawn_right = right;
+		m_last_drawn_top = top;
+		m_last_drawn_bottom = bottom;
+	}
+
+
+	void MovingObstacle::RestoreMapLayer()
+	{				
 		if (m_is_clipboard_ready)
 		{
-			m_clipboard.CopyTo(&m_map_layer, prev_left, prev_top);
+			m_clipboard.CopyTo(&m_map_layer, m_last_drawn_left, m_last_drawn_top);
 		}
 	}
 

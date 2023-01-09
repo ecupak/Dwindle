@@ -381,7 +381,7 @@ namespace Tmpl8
 	{
 		if (button == SDL_BUTTON_LEFT)
 		{
-			m_mouse_packet.m_was_pressed = true;
+			m_mouse_packet.m_was_released = true;
 		}
 	}
 
@@ -389,7 +389,7 @@ namespace Tmpl8
 	{
 		if (button == SDL_BUTTON_LEFT)
 		{
-			m_mouse_packet.m_was_pressed = false;
+			m_mouse_packet.m_was_pressed = true;
 		}
 	}
 

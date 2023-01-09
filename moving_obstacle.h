@@ -40,7 +40,11 @@ namespace Tmpl8
 		int prev_left{ 0 }, prev_top{ 0 }, prev_right{ 0 }, prev_bottom{ 0 };
 
 		int m_half_size{ 32 };
-		float m_speed{ 0.2f };
+		float m_speed{ 80.0f };
+		float m_travel_distance{ 0 };
+		int m_stopping_distance{ 0 };
+		float m_min_stop{ 0.0f };
+		float m_max_stop{ 0.0f };		
 		float m_elapsed_time{ 0.0f };
 		int m_magnitude_coefficient{ 64 };
 		int m_sign_of_direction{ 1 }; // start positive.

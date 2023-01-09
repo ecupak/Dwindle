@@ -142,15 +142,45 @@ namespace Tmpl8
 			"XXUU.............UXU.....UXX"
 			"UUU..............UUUUUUU.UXX"
 			"..#R...................U.UXX"
-			"..#........^...........U.UXX"
-			"SSSUUU.+9........UUU.....UXX"
+			"..#........^.....O.....U.UXX"
+			"SSSUUU........9+.UUU.....UXX"
 			"XXXU.............UXU.....UXX"
 			"XXXU.............UXUUUUUUUXX"
 			"XXXUWWWWWWWWWWWWWUXXXXXXXXXX"
 			"XXXXXXXXXXXXXXXXXXXXXXXXXXXX"},
 
 
-			BlueprintData{1, 1, "?"}, // Level 3
+			BlueprintData{28, 30, // Level 3: 1792 x 1920
+			"UUUUUUUUUUUUUUUUUUUUUUUUUUUU"	
+			"..#R.......................U"
+			"..#....................^...U"
+			"SSSUU.-5.......5-.-5....UUUU"
+			"XXU.....................UXXX"
+			"XXU...^.................UXXX"
+			"XXU..UU.+5....WWWWWWW.S.UXXX"
+			"XXU.UU..................UUUU"
+			"XXU............^...........U"
+			"XXUU.-8.......UUUUU.......^U"
+			"XXU...............UUU.S.U..U"
+			"XXU..^............UXU...U..U"
+			"XXU.UU.+6.....UU..UUUUUUU..U"
+			"XXU............U...........U"
+			"XXU............U...........U"
+			"XXUUUUUU..UW..WU.........UUU"
+			"XXXXXXXU..UW.^WUS.-6....G#.."
+			"XXXXXXXU..UW..WUW........#.."
+			"XXUUUUUU..UW..WUW.....WUUSSS"
+			"XXU.......UW..WUW.....WXXXXX"
+			"XXU...^...UW.^WUWWWWWWWXXXXX"
+			"XXU..UUUUUUW..WUUUUUUUUUUXXX"
+			"XXU.....................UUXX"
+			"XXU......................UXX"
+			"XXU....^...........^.....UXX"
+			"XXUU.-4...UWWWWW.+4...U..UXX"
+			"XXU......................UXX"
+			"XXU.O....................UXX"
+			"XXUUUUUUUUUUUUUUUUUUUUUUUUXX"
+			"XXXXXXXXXXXXXXXXXXXXXXXXXXXX"}
 		};
 	};
 };

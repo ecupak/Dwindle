@@ -122,6 +122,14 @@ namespace Tmpl8
 				"Hello, Dear."
 			},
 		};
+
+
+		std::vector<Entry> m_level_3_entries
+		{
+			Entry{m_guide, vec2{5, 14}, 1,
+				"Hello, Dear."
+			},
+		};
 	};
 };
 

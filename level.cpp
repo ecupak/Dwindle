@@ -24,7 +24,9 @@ namespace Tmpl8
 		m_obstacle_layer{ ScreenWidth, ScreenHeight },
 		m_map_layer{ ScreenWidth, ScreenHeight },
 		m_revealed_layer{ ScreenWidth, ScreenHeight }
-	{	}
+	{	
+		m_moving_obstacles.reserve(9);
+	}
 			
 
 	// Make components and images.
@@ -32,7 +34,7 @@ namespace Tmpl8
 	{
 		ResetLevel();
 
-		m_level_id = 2; //level_id;
+		m_level_id = 3; //level_id;
 
 		if (level_id >= 0)
 		{
@@ -46,7 +48,6 @@ namespace Tmpl8
 		else
 		{
 			ClearSurfaces();
-			//PrepareMapLayer();
 			m_title.CopyTo(&m_revealed_layer, 494, 355);
 		}
 	}
@@ -270,8 +271,6 @@ namespace Tmpl8
 			break;
 		default:
 		{
-			//Obstacle obstacle{ x, y, TILE_SIZE, GetAutotileId(x, y), tile_id, GetTilemapSprite(tile_id) };
-			//m_obstacles.push_back(obstacle);
 			m_obstacles.emplace_back(x, y, TILE_SIZE, GetAutotileId(x, y), tile_id, GetTilemapSprite(tile_id));
 		}
 			break;
@@ -283,7 +282,7 @@ namespace Tmpl8
 	{
 		int direction_id = m_blueprints.GetDirectionId(x, y);
 
-		MoveDirection direction{ direction_id < 0 ? MoveDirection::VERTICAL : MoveDirection::HORIZONTAL };
+		MoveDirection direction{ direction_id < 0 ? MoveDirection::LEFT : MoveDirection::RIGHT };
 		int tile_span{ abs(direction_id) };
 
 		return std::pair<MoveDirection, int>(direction, tile_span);		
@@ -460,6 +459,9 @@ namespace Tmpl8
 			break;
 		case 2:
 			asset_path = "assets/backgrounds/L02.png"; // Justin Prno at https://dribbble.com/hi_jmp
+			break;
+		case 3:
+			asset_path = "assets/backgrounds/L03.png"; // Justin Prno at https://dribbble.com/hi_jmp
 			break;
 		default:
 			asset_path = "assets/backgrounds/tutorial.png"; // Justin Prno at https://dribbble.com/hi_jmp

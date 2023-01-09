@@ -31,7 +31,6 @@ namespace Tmpl8
 			m_collidables{collidables}
 		{	}
 
-
 		CollisionAction m_action;
 		Collidable* m_collidable{ nullptr };
 		std::vector<Collidable*> m_collidables;

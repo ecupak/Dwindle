@@ -483,6 +483,7 @@ namespace Tmpl8
 				&& obstacle.m_collidable_type != CollidableType::OBSTACLE_MOVING_HIDDEN)
 			{
 				obstacle.Draw(&m_map_layer);
+				obstacle.ApplyOverlap();
 			}
 		}
 
@@ -520,7 +521,6 @@ namespace Tmpl8
 				|| obstacle.m_collidable_type == CollidableType::OBSTACLE_VISIBLE)
 			{
 				obstacle.Draw(&m_revealed_layer);
-				obstacle.ApplyOverlap();
 			}
 		}
 
@@ -533,10 +533,12 @@ namespace Tmpl8
 		}
 	}
 
+
 	int Level::GetPlayerStartingLife()
 	{
 		return m_player_life;
 	}
+
 
 	void Level::SetPlayerStartingHealth()
 	{

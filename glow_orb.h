@@ -8,7 +8,9 @@
 
 namespace Tmpl8
 {
-	// Track state.
+	/// <summary>
+	/// Glow orbs are growing in size (waxing), at maximum size (full), or decreasing in size (waning).	
+	/// </summary>
 	enum class Phase
 	{
 		WAXING,
@@ -16,18 +18,51 @@ namespace Tmpl8
 		WANING
 	};
 
-	// Class definition.
+
+	/// <summary>
+	/// Glow orbs are the "light" that the player creates by bouncing. Each glow orb is assigned a specific Surface that is created and stored by the level.
+	/// Glow orbs copy pixels form their assigned Surface to the screen Surface to give the illusion of illumination.
+	/// </summary>
 	class GlowOrb : public Collidable
 	{
-	public:
-		// METHODS.		
+	public:		
+		/// <summary>
+		/// Constructor.
+		/// </summary>
+		/// <param name="collidable_info">Data package for Collidable constructor.</param>
+		/// <param name="player_strength">Player strength (life) is the strength of the glow orb's "brightness".</param>
+		/// <param name="source_layer">This is the Surface that the glow orb will copy pixels from.</param>
 		GlowOrb(CollidableInfo collidable_info, float player_strength, Surface* source_layer);
 		
+		/// <summary>
+		/// Advances glow orb size change based on Phase.
+		/// </summary>
+		/// <param name="deltaTime">Time elapsed since last call.</param>
 		void Update(float deltaTime);
-		void Draw(Surface* visible_layer, int c_left, int c_top, int in_left, int in_top, int in_right, int in_bottom, float opacity = 1.0f) override;
-		virtual void SetPhase(Phase new_phase);
+		
 
-		int m_parent_id{ 0 };
+		/// <summary>
+		/// Draws glow orb within the bounds of the Surface and within the bounds of the camera view.
+		/// </summary>
+		/// <param name="visible_layer">The screen Surface that is visible to the player.</param>
+		/// <param name="camera_left">The left edge of the Camera collision box.</param>
+		/// <param name="camera_top">The top edge of the Camera collision box.</param>
+		/// <param name="inbound_left">The furthest edge left of center of the Camera collision box that is inbound of the screen Surface.</param>
+		/// <param name="inbound_top">The furthest edge above center of the Camera collision box that is inbound of the screen Surface.</param>
+		/// <param name="inbound_right">The furthest edge right of center of the Camera collision box that is inbound of the screen Surface.</param>
+		/// <param name="inbound_bottom">The furthest edge below center of the Camera collision box that is inbound of the screen Surface.</param>
+		/// <param name="opacity">The Camera's current opacity value.</param>
+		void Draw(Surface* visible_layer, int camera_left, int camera_top, int inbound_left, int inbound_top, int inbound_right, int inbound_bottom, float opacity = 1.0f) override;
+
+
+		/// <summary>
+		/// Manually changes the Phase of the glow orb. Normally used to make safe glow orbs go into waning at end of levels.
+		/// </summary>
+		/// <param name="new_phase">The phase to change to.</param>
+		virtual void SetPhase(Phase new_phase);
+		
+		int GetParentId() { return m_parent_id; }
+		void SetParentId(int parent_id) { m_parent_id = parent_id; }
 
 	protected:
 		virtual void UpdateFullPhase(float deltaTime) {}
@@ -60,6 +95,8 @@ namespace Tmpl8
 		// METHODS.
 		void UpdateByPhase(float deltaTime);
 		
+		int m_parent_id{ 0 };
+
 		Surface* m_source_layer;
 	};
 };

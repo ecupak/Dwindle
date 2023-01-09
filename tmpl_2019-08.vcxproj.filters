@@ -85,11 +85,15 @@
     <ClCompile Include="moving_obstacle.cpp">
       <Filter>Level Files\Moving Obstacle</Filter>
     </ClCompile>
-    <ClCompile Include="mouse_manager.cpp" />
     <ClCompile Include="button.cpp">
       <Filter>Viewport Files\Button</Filter>
     </ClCompile>
-    <ClCompile Include="keyboard_manager.cpp" />
+    <ClCompile Include="keyboard_manager.cpp">
+      <Filter>Game Files\Keyboard</Filter>
+    </ClCompile>
+    <ClCompile Include="mouse_manager.cpp">
+      <Filter>Game Files\Mouse</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="surface.h">
@@ -215,11 +219,15 @@
     <ClInclude Include="game_enums.h">
       <Filter>Game Files\Game</Filter>
     </ClInclude>
-    <ClInclude Include="mouse_manager.h" />
     <ClInclude Include="button.h">
       <Filter>Viewport Files\Button</Filter>
     </ClInclude>
-    <ClInclude Include="keyboard_manager.h" />
+    <ClInclude Include="keyboard_manager.h">
+      <Filter>Game Files\Keyboard</Filter>
+    </ClInclude>
+    <ClInclude Include="mouse_manager.h">
+      <Filter>Game Files\Mouse</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="template code">
@@ -323,6 +331,12 @@
     </Filter>
     <Filter Include="Viewport Files\Button">
       <UniqueIdentifier>{65fbe2a1-2352-4455-8c61-b424827d26d0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game Files\Keyboard">
+      <UniqueIdentifier>{7722632e-d9a8-4f5e-8bcb-1f7174f222c7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game Files\Mouse">
+      <UniqueIdentifier>{a4a37436-e520-40bc-910e-5b4a0b2946af}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

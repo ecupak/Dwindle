@@ -33,6 +33,8 @@ namespace Tmpl8
 
 	void Obstacle::ApplyOverlap()
 	{
+		if (m_is_overlap_applied) return;
+
 		// Extend bounding box into neighbor by 1 pixel.
 		// Solution to detector points sometimes "slipping" between obstacles.
 		if (m_collidable_type != CollidableType::OBSTACLE_UNREACHABLE)
@@ -61,6 +63,8 @@ namespace Tmpl8
 				m_neighbors |= 0x1000;
 			}
 		}
+
+		m_is_overlap_applied = true;
 	}
 
 

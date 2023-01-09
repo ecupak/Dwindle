@@ -40,7 +40,9 @@ namespace Tmpl8
 
 		if (m_is_orb_list_changed)
 		{
-			m_collision_socket->SendMessage(CollisionMessage{ CollisionAction::UPDATE_ORB_LIST, m_collidables });
+			m_collision_socket->SendMessage(
+				CollisionMessage{ 
+					CollisionAction::UPDATE_ORB_LIST, m_collidables });
 		}
 
 		if (m_is_resetting_level && HasRemovedAllSafeGlowOrbs())
@@ -146,7 +148,7 @@ namespace Tmpl8
 		// Remove 1 specific orb.
 		int this_id{ message.m_parent_id };
 		std::function<bool(std::shared_ptr<GlowOrb>& orb)> find_this{
-			[this_id](std::shared_ptr<GlowOrb>& orb) {return (*orb).m_parent_id == this_id;}
+			[this_id](std::shared_ptr<GlowOrb>& orb) {return (*orb).GetParentId() == this_id;}
 		};
 
 		FindAndRemove(find_this);

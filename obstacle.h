@@ -28,6 +28,7 @@ namespace Tmpl8
 		int GetFrameId(int autotile_id);
 		
 		int m_autotile_id{ 0 };
+		bool m_is_overlap_applied{ false };
 	};
 
 };

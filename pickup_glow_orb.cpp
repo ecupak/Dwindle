@@ -5,7 +5,7 @@ namespace Tmpl8
 	PickupGlowOrb::PickupGlowOrb(vec2 position, float player_strength, Surface* source_layer, int parent_id) :
 		GlowOrb{ CollidableInfo{CollidableType::GLOW_ORB_PICKUP, CollisionLayer::CAMERA, CollisionMask::NONE, 1, position}, player_strength, source_layer }
 	{
-		m_parent_id = parent_id;
+		SetParentId(parent_id);
 
 		radius_max = 110.0f;
 		radius = radius_max;

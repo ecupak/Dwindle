@@ -129,25 +129,28 @@ namespace Tmpl8
 		std::vector<Entry> m_level_2_entries
 		{
 			Entry{m_guide, vec2{4, 9}, 3,
-				"I'm not fond of these memories ahead."
+				"I'm not fond of the memories ahead."
 			},
 			Entry{m_guide, vec2{4, 15}, 3,
-				"They had you so busy."
+				"They kept you so busy."
 			},
-			Entry{m_guide, vec2{10, 15}, 3,
+			Entry{m_guide, vec2{9, 15}, 3,
 				"...all the time."
 			},
-			Entry{m_guide, vec2{10, }, 3,
+			Entry{m_guide, vec2{10, 7}, 3,
 				"But we found our time."
 			},			
-			Entry{m_guide, vec2{10, 1}, 3,
+			Entry{m_guide, vec2{11, 1}, 3,
 				"This is our moutain climb, isn't it?"
 			},
 			Entry{m_guide, vec2{20, 1}, 4,
-				"Fall down. I'll catch you. You're almost there."
+				"Fall down. I'll catch you."
 			},
-			Entry{m_guide, vec2{22, 8}, 1,
+			Entry{m_guide, vec2{22, 8}, 2,
 				"Safe!"
+			},
+			Entry{m_guide, vec2{16, 8}, 2,
+				"Almost there."
 			},
 			Entry{m_guide, vec2{15, 15}, 3,
 				"You were always working on something new."

@@ -96,17 +96,7 @@ namespace Tmpl8
 
 
 	int Blueprints::GetAutotileId(int center_x, int center_y)
-	{
-		/* Autotile mapping credit: Godot docs (https://docs.godotengine.org/en/stable/tutorials/2d/using_tilemaps.html)
-			Loop over the 8 adjacent tiles, starting in the upper-left to the lower-right.
-			If the tile is a wall, add the tile's value to the autotile id. Any tile that
-			is out of bounds is considered a wall (this prevents wall border lines being drawn
-			along the edge of the entire leve - the walls will appear to go beyond the visible level_manager).
-
-			Each tile has a bit value that increases by the power of 2 (b1, b10, b100, etc). This value
-			is added to the autotile id if the tile is a wall.
-		*/
-
+	{		
 		if (m_loaded_blueprint_data.m_blueprint.size() == 0) return 0;
 
 		int autotile_id{ 0 }, tile_value{ 1 };

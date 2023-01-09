@@ -99,7 +99,7 @@ namespace Tmpl8
 
 
 			BlueprintData{28, 17, // Level 1: 1792 x 1088
-			"XXXXXXXXXXXXXUUUUUUUUUUUUXXX"
+			"XXXXXXXXXXXXXUUUUUUUUUUUUUXX"
 			"XXXXXXXXXXXXXU...........UUU"
 			"XXXXXXXXXXXXXU..........G#.."
 			"XXXXXXXUUUUUUU.U.........#.."
@@ -121,7 +121,7 @@ namespace Tmpl8
 			BlueprintData{28, 30, // Level 2: 1792 x  1920
 			"XXXXXXXXXUUUUUUUUUUUUUUUUXXX"
 			"XXXXXXXXXU..............UXXX"
-			"XXXXXXXXXU....^.........UXXX"
+			"XXXXXXXXXU.....^........UXXX"
 			"XXXXXXXXXU.UUUUUWWWWWU..UXXX"
 			"XXXXXXXXXU...UU.........UXXX"
 			"XXXXXXXXXU...UU.........UXXX"
@@ -162,7 +162,7 @@ namespace Tmpl8
 			"XXU..UU.+5....WWWWWWW.S.UXXX"
 			"XXU.....................UUUU"
 			"XXU.....................UUUU"
-			"XXU.............^O.........U"
+			"XXU.............^..........U"
 			"XXUU.-4.....4-.UUUU.......^U"
 			"XXU...............UUU.S.U..U"
 			"XXU...............UXU.U.U..U"
@@ -183,7 +183,7 @@ namespace Tmpl8
 			"XXUS.-4...UWWWWW.+4...U..UXX"
 			"XXU......................UXX"
 			"XXU......................UXX"
-			"XXU......................UXX"
+			"XXU..O...................UXX"
 			"XXUUSSSUUUUUUUUUUUUUUUUUUUXX"
 			"XXXXXXXXXXXXXXXXXXXXXXXXXXXX"},
 

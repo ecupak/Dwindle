@@ -32,7 +32,7 @@ namespace Tmpl8
 
 
 	// Constructor.
-	Player::Player(keyboard_manager2& keyboard_manager) :
+	Player::Player(KeyboardManager& keyboard_manager) :
 		Collidable{ CollidableInfo{ CollidableType::PLAYER, CollisionLayer::CAMERA, CollisionMask::NONE, 10 } },
 		m_sprite{ Sprite{new Surface("assets/ball.png"), 3, true} },
 		m_keyboard_manager{ keyboard_manager },
@@ -52,7 +52,6 @@ namespace Tmpl8
 
 
 		// If dead, determine when free fall happens.
-		//if (state == State::DEAD && mode != Mode::FREE_FALL && mode != Mode::SUSPENDED)
 		if (m_is_dead_timer_enabled)
 		{
 			m_dead_timer += deltaTime;
@@ -64,6 +63,12 @@ namespace Tmpl8
 				mode = Mode::FREE_FALL;
 				m_is_dead_timer_enabled = false;
 			}
+		}
+
+		// Debug collision mode toggle.
+		if (state == State::ALIVE && m_keyboard_manager.IsJustPressed(SDL_SCANCODE_F1))
+		{
+			ToggleDebugMode();
 		}
 
 
@@ -144,12 +149,7 @@ namespace Tmpl8
 		SetGameScreenMode();
 		mode = Mode::SUSPENDED;
 		state = State::DEAD;
-
-		// Adjust position so center is at given coordinates.
-		/*SetPosition(vec2{
-			position.x - (m_sprite.GetWidth() / 2),
-			position.y - (m_sprite.GetHeight() / 2)
-		});*/
+		velocity.y = 0.0f;
 	}
 
 	
@@ -207,6 +207,11 @@ namespace Tmpl8
 		SetPosition(new_position);
 	}
 
+
+	void Player::EnableEchoUpdate()
+	{
+		m_is_echo_update_enabled = true;
+	}
 
 	void Player::KeepFalling(bool is_set_to_keep_falling)
 	{

@@ -235,7 +235,7 @@
     <ClCompile Include="game.cpp" />
     <ClCompile Include="glow_manager.cpp" />
     <ClCompile Include="glow_orb.cpp" />
-    <ClCompile Include="keyboard_manager2.cpp" />
+    <ClCompile Include="keyboard_manager.cpp" />
     <ClCompile Include="level.cpp" />
     <ClCompile Include="life_hud.cpp" />
     <ClCompile Include="light_pickup.cpp" />
@@ -275,7 +275,7 @@
     <ClInclude Include="glow_orb.h" />
     <ClInclude Include="glow_socket.h" />
     <ClInclude Include="camera_socket.h" />
-    <ClInclude Include="keyboard_manager2.h" />
+    <ClInclude Include="keyboard_manager.h" />
     <ClInclude Include="mouse_manager.h" />
     <ClInclude Include="moving_obstacle.h" />
     <ClInclude Include="obstacle_consts.h" />

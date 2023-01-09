@@ -1,20 +1,18 @@
-#include "keyboard_manager2.h"
-
-
+#include "keyboard_manager.h"
 
 
 namespace Tmpl8
 {
-	keyboard_manager2::keyboard_manager2()
+	KeyboardManager::KeyboardManager()
 	{
-		for (int i{ 0 }; i < 5; ++i) // 1 more than the keys we use. Index 0 is a dummy KeyboardPacket.
+		for (int i{ 0 }; i < 6; ++i) // 1 more than the keys we use. Index 0 is a dummy KeyboardPacket.
 		{
 			keyboard_packets.push_back(KeyboardPacket{ i });
 		}
 	}
 
 
-	void keyboard_manager2::Update()
+	void KeyboardManager::Update()
 	{
 		for (KeyboardPacket& keypack : keyboard_packets)
 		{
@@ -37,37 +35,37 @@ namespace Tmpl8
 	}
 
 
-	void keyboard_manager2::Pressed(int SDL_code)
+	void KeyboardManager::Pressed(int SDL_code)
 	{
 		keyboard_packets[GetSDLMapping(SDL_code)].m_was_pressed = true;
 	}
 
 
-	void keyboard_manager2::Released(int SDL_code)
+	void KeyboardManager::Released(int SDL_code)
 	{
 		keyboard_packets[GetSDLMapping(SDL_code)].m_was_released = true;
 	}
 
 
-	bool keyboard_manager2::IsPressed(int SDL_code)
+	bool KeyboardManager::IsPressed(int SDL_code)
 	{
 		return keyboard_packets[GetSDLMapping(SDL_code)].m_is_pressed;
 	}
 
 
-	bool keyboard_manager2::IsJustPressed(int SDL_code)
+	bool KeyboardManager::IsJustPressed(int SDL_code)
 	{
 		return keyboard_packets[GetSDLMapping(SDL_code)].m_is_just_pressed;
 	}
 	
 	
-	bool keyboard_manager2::IsJustReleased(int SDL_code)
+	bool KeyboardManager::IsJustReleased(int SDL_code)
 	{
 		return keyboard_packets[GetSDLMapping(SDL_code)].m_is_just_released;
 	}
 
 
-	int keyboard_manager2::GetSDLMapping(int SDL_code)
+	int KeyboardManager::GetSDLMapping(int SDL_code)
 	{
 		switch (SDL_code)
 		{
@@ -83,6 +81,8 @@ namespace Tmpl8
 		case SDL_SCANCODE_S:
 		case SDL_SCANCODE_DOWN:
 			return 4;
+		case SDL_SCANCODE_F1:
+			return 5;
 		default:
 			return 0; // All other keypresses are dumped into a dummy KeyboardPacket.
 		}

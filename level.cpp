@@ -48,6 +48,10 @@ namespace Tmpl8
 		else
 		{
 			ClearSurfaces();
+			m_player_start_position = vec2{
+				static_cast<float>(ScreenWidth) / 2.0f,
+				static_cast<float>(ScreenHeight) / 2.0f
+			};
 			m_title.CopyTo(&m_revealed_layer, 514, 375);
 		}
 	}

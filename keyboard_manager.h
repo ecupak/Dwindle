@@ -28,10 +28,10 @@ namespace Tmpl8
 		bool m_is_just_released{ false };
 	};
 
-	class keyboard_manager2
+	class KeyboardManager
 	{
 	public:
-		keyboard_manager2();
+		KeyboardManager();
 
 		int GetSDLMapping(int SDL_code);
 		void Update();

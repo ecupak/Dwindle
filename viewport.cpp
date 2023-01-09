@@ -81,6 +81,12 @@ namespace Tmpl8
 	}
 
 
+	void Viewport::ResetButtons()
+	{
+		m_is_selection_made = false;
+	}
+
+
 	void Viewport::Update(float deltaTime)
 	{
 		m_camera.Update(deltaTime);

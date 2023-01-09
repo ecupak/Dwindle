@@ -56,7 +56,7 @@ namespace Tmpl8
 			"XXS......SXXXS.SXS.SXXXS.SXXX"
 			"XXS......SXXXS.SXS.SXXXS.SXXX"
 			"XXS......SXXXS.SXS.SXXXS.SXXX"
-			"XXS....O.SXXXS.SXS.SXXXS.SXXX"
+			"XXS.O....SXXXS.SXS.SXXXS.SXXX"
 			"XXSSSSSSSSXXXS.SSS.SXXXS.SXXX"
 			"XXXXXXXXXXXXXS.....SXXXS.SXXX"
 			"XXXXXXXXXXXXXS.....SXXXS.SXXX"
@@ -102,7 +102,7 @@ namespace Tmpl8
 			"XXXXXXXXXXXXXUUUUUUUUUUUUXXX"
 			"XXXXXXXXXXXXXU...........UUU"
 			"XXXXXXXXXXXXXU..........G#.."
-			"XXXXXXXUUUUUUU.UU.....O..#.."
+			"XXXXXXXUUUUUUU.UU........#.."
 			"XXXXXXXU...UXU.U...UUUUUUSSS"
 			"UUUUUUXU...UUU.U..UU....UXXX"
 			"..#R.UUU.U.....U..UU...^UXXX"
@@ -114,7 +114,7 @@ namespace Tmpl8
 			"XXXU.............U.UXU..UXXX"
 			"XXXU.............U.UUU..UXXX"
 			"XXXU.....UU.............UXXX"
-			"XXXU...UUUUUU...........UXXX"
+			"XXXU.O.UUUUUU...........UXXX"
 			"XXXUSSSUXXXXUUUUUUUUUUUUUXXX"},
 
 
@@ -129,7 +129,7 @@ namespace Tmpl8
 			"XXXXXXXXXU..............UXXX"
 			"XUUUUUUUUU..UUU.........UXXX"
 			"XU......UU...UU.........UXXX"
-			"XU......UU.UUUU..U.UU.SSUXXX"
+			"XU..O...UU.UUUU..U.UU.SSUXXX"
 			"XUSSSS..UU...UU..U.UU.UXXXXX"
 			"XU......UU.^.UU..U.UU.UXXXXX"
 			"XU......UU...UU..UWUUWUXXXXX"
@@ -143,7 +143,7 @@ namespace Tmpl8
 			"XXUU.............UXU.....UXX"
 			"UUU..............UUUUUUU.UXX"
 			"..#R...................U.UXX"
-			"..#.O......^...........U.UXX"
+			"..#........^...........U.UXX"
 			"SSSUUU........9+.UUU.....UXX"
 			"XXXU.............UXU.....UXX"
 			"XXXU.............UXUUUUUUUXX"
@@ -154,7 +154,7 @@ namespace Tmpl8
 			BlueprintData{28, 30, // Level 3: 1792 x 1920
 			"UUUUUUUUUUUUUUUUUUUUUUUUUUUU"	
 			"..#R.......................U"
-			"..#.O..................^...U"
+			"..#....................^...U"
 			"SSSUU.-5.......5-.-5....UUUU"
 			"XXUU....................UXXX"
 			"XXU...^.................UXXX"
@@ -179,8 +179,8 @@ namespace Tmpl8
 			"XXU....^...........^.....UXX"
 			"XXUU.-4...UWWWWW.+4...U..UXX"
 			"XXU......................UXX"
-			"XXU......................UXX"
-			"XXUUUUUUUUUUUUUUUUUUUUUUUUXX"
+			"XXU..O...................UXX"
+			"XXUUSSSUUUUUUUUUUUUUUUUUUUXX"
 			"XXXXXXXXXXXXXXXXXXXXXXXXXXXX"},
 
 

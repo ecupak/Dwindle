@@ -3,7 +3,7 @@
 #include <memory>
 
 //#include "key_manager.h"
-#include "keyboard_manager2.h"
+#include "keyboard_manager.h"
 
 #include "collidable.h"
 #include "detector_point.h"
@@ -56,7 +56,7 @@ namespace Tmpl8 {
 	public:
 		// Methods.
 		// Structor.
-		Player(keyboard_manager2& keyboard_manager);
+		Player(KeyboardManager& keyboard_manager);
 		
 		void SetPosition(vec2& start_position);
 		void Update(float deltaTime);
@@ -83,7 +83,7 @@ namespace Tmpl8 {
 		void RegisterWithCollisionManager();
 
 		int GetStartingLife();
-		
+		void EnableEchoUpdate();
 		void SetIsTutorialMode(bool is_tutorial_mode) { m_is_tutorial_mode = is_tutorial_mode; }
 		void DisableCollisionChecking(bool is_disabled) { m_is_collision_state_disabled = is_disabled; }
 		void KeepFalling(bool is_set_to_keep_falling);
@@ -180,7 +180,7 @@ namespace Tmpl8 {
 
 		bool m_is_tutorial_mode{ false };
 
-		keyboard_manager2& m_keyboard_manager;
+		KeyboardManager& m_keyboard_manager;
 
 		float m_delta_time{ 0.0f };
 		float m_dead_timer{ 0.0f };
@@ -207,7 +207,7 @@ namespace Tmpl8 {
 
 		vec2 prev_center{ 0.0f, 0.0f };
 
-		vec2 position{ 20.0f, 200.0f };
+		vec2 position{ 640.0f, 360.0f };
 		vec2 prev_position{ 0.0f, 0.0f };
 		vec2 distance{ 0.0f, 0.0f };
 

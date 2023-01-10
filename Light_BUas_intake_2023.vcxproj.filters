@@ -1,0 +1,348 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="blueprints.cpp">
+      <Filter>Level Files\Blueprint</Filter>
+    </ClCompile>
+    <ClCompile Include="button.cpp">
+      <Filter>Viewport Files\Button</Filter>
+    </ClCompile>
+    <ClCompile Include="camera.cpp">
+      <Filter>Viewport Files\Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="collision_manager.cpp">
+      <Filter>Collision Files\Collision Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="detector_point.cpp">
+      <Filter>Player Files\Detector Point</Filter>
+    </ClCompile>
+    <ClCompile Include="full_glow_orb.cpp">
+      <Filter>Glow Orb Files\Full Glow Orb</Filter>
+    </ClCompile>
+    <ClCompile Include="game.cpp">
+      <Filter>Game Files\Game</Filter>
+    </ClCompile>
+    <ClCompile Include="glow_manager.cpp">
+      <Filter>Glow Orb Files\Glow Orb Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="keyboard_manager.cpp">
+      <Filter>Game Files\Keyboard Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="level.cpp">
+      <Filter>Level Files\Level Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="life_hud.cpp">
+      <Filter>Viewport Files\Life HUD</Filter>
+    </ClCompile>
+    <ClCompile Include="light_pickup.cpp">
+      <Filter>Level Files\Life Pickup</Filter>
+    </ClCompile>
+    <ClCompile Include="message_box.cpp">
+      <Filter>Level Files\Message Box</Filter>
+    </ClCompile>
+    <ClCompile Include="mouse_manager.cpp">
+      <Filter>Game Files\Mouse Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="moving_obstacle.cpp">
+      <Filter>Level Files\Moving Obstacle</Filter>
+    </ClCompile>
+    <ClCompile Include="obstacle.cpp">
+      <Filter>Level Files\Obstacle</Filter>
+    </ClCompile>
+    <ClCompile Include="pickup_glow_orb.cpp">
+      <Filter>Glow Orb Files\Pickup Glow Orb</Filter>
+    </ClCompile>
+    <ClCompile Include="safe_glow_orb.cpp">
+      <Filter>Glow Orb Files\Safe Glow Orb</Filter>
+    </ClCompile>
+    <ClCompile Include="temp_glow_orb.cpp">
+      <Filter>Glow Orb Files\Temp Glow Orb</Filter>
+    </ClCompile>
+    <ClCompile Include="player.cpp">
+      <Filter>Player Files\Player</Filter>
+    </ClCompile>
+    <ClCompile Include="first_echo.cpp">
+      <Filter>Player Files\Echo\First Echo</Filter>
+    </ClCompile>
+    <ClCompile Include="collidable.cpp">
+      <Filter>Base Class Files\Collidable</Filter>
+    </ClCompile>
+    <ClCompile Include="glow_orb.cpp">
+      <Filter>Base Class Files\Glow Orb</Filter>
+    </ClCompile>
+    <ClCompile Include="player_echo.cpp">
+      <Filter>Base Class Files\Player Echo</Filter>
+    </ClCompile>
+    <ClCompile Include="second_echo.cpp">
+      <Filter>Player Files\Echo\Second Echo</Filter>
+    </ClCompile>
+    <ClCompile Include="text_repo.cpp">
+      <Filter>Game Files\Text Repo</Filter>
+    </ClCompile>
+    <ClCompile Include="text_sprite_maker.cpp">
+      <Filter>Game Files\Text Sprite Maker</Filter>
+    </ClCompile>
+    <ClCompile Include="viewport.cpp">
+      <Filter>Viewport Files\Viewport</Filter>
+    </ClCompile>
+    <ClCompile Include="surface.cpp">
+      <Filter>Template Files\Surface</Filter>
+    </ClCompile>
+    <ClCompile Include="template.cpp">
+      <Filter>Template Files\Template</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="socket.h">
+      <Filter>Base Class Files</Filter>
+    </ClInclude>
+    <ClInclude Include="blueprint_code.h">
+      <Filter>Level Files\Blueprint</Filter>
+    </ClInclude>
+    <ClInclude Include="blueprints.h">
+      <Filter>Level Files\Blueprint</Filter>
+    </ClInclude>
+    <ClInclude Include="button.h">
+      <Filter>Viewport Files\Button</Filter>
+    </ClInclude>
+    <ClInclude Include="camera_socket.h">
+      <Filter>Viewport Files\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="camera.h">
+      <Filter>Viewport Files\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="collision_manager.h">
+      <Filter>Collision Files\Collision Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="detector_point.h">
+      <Filter>Player Files\Detector Point</Filter>
+    </ClInclude>
+    <ClInclude Include="finish_line.h">
+      <Filter>Level Files\Finish Line</Filter>
+    </ClInclude>
+    <ClInclude Include="full_glow_orb.h">
+      <Filter>Glow Orb Files\Full Glow Orb</Filter>
+    </ClInclude>
+    <ClInclude Include="game.h">
+      <Filter>Game Files\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="glow_manager.h">
+      <Filter>Glow Orb Files\Glow Orb Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="intersection.h">
+      <Filter>Collision Files</Filter>
+    </ClInclude>
+    <ClInclude Include="keyboard_manager.h">
+      <Filter>Game Files\Keyboard Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="level.h">
+      <Filter>Level Files\Level Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="life_hud.h">
+      <Filter>Viewport Files\Life HUD</Filter>
+    </ClInclude>
+    <ClInclude Include="light_pickup.h">
+      <Filter>Level Files\Life Pickup</Filter>
+    </ClInclude>
+    <ClInclude Include="message_box.h">
+      <Filter>Level Files\Message Box</Filter>
+    </ClInclude>
+    <ClInclude Include="message_enums.h">
+      <Filter>Level Files\Message Box</Filter>
+    </ClInclude>
+    <ClInclude Include="collision_socket.h">
+      <Filter>Collision Files\Collision Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="glow_socket.h">
+      <Filter>Glow Orb Files\Glow Orb Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="game_enums.h">
+      <Filter>Game Files\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="game_socket.h">
+      <Filter>Game Files\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="life_socket.h">
+      <Filter>Viewport Files\Life HUD</Filter>
+    </ClInclude>
+    <ClInclude Include="mouse_manager.h">
+      <Filter>Game Files\Mouse Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="moving_obstacle.h">
+      <Filter>Level Files\Moving Obstacle</Filter>
+    </ClInclude>
+    <ClInclude Include="obstacle.h">
+      <Filter>Level Files\Obstacle</Filter>
+    </ClInclude>
+    <ClInclude Include="obstacle_consts.h">
+      <Filter>Level Files\Obstacle</Filter>
+    </ClInclude>
+    <ClInclude Include="pickup_glow_orb.h">
+      <Filter>Glow Orb Files\Pickup Glow Orb</Filter>
+    </ClInclude>
+    <ClInclude Include="safe_glow_orb.h">
+      <Filter>Glow Orb Files\Safe Glow Orb</Filter>
+    </ClInclude>
+    <ClInclude Include="temp_glow_orb.h">
+      <Filter>Glow Orb Files\Temp Glow Orb</Filter>
+    </ClInclude>
+    <ClInclude Include="player.h">
+      <Filter>Player Files\Player</Filter>
+    </ClInclude>
+    <ClInclude Include="first_echo.h">
+      <Filter>Player Files\Echo\First Echo</Filter>
+    </ClInclude>
+    <ClInclude Include="collidable.h">
+      <Filter>Base Class Files\Collidable</Filter>
+    </ClInclude>
+    <ClInclude Include="glow_orb.h">
+      <Filter>Base Class Files\Glow Orb</Filter>
+    </ClInclude>
+    <ClInclude Include="player_echo.h">
+      <Filter>Base Class Files\Player Echo</Filter>
+    </ClInclude>
+    <ClInclude Include="second_echo.h">
+      <Filter>Player Files\Echo\Second Echo</Filter>
+    </ClInclude>
+    <ClInclude Include="standard_form.h">
+      <Filter>Collision Files</Filter>
+    </ClInclude>
+    <ClInclude Include="text_repo.h">
+      <Filter>Game Files\Text Repo</Filter>
+    </ClInclude>
+    <ClInclude Include="text_sprite_maker.h">
+      <Filter>Game Files\Text Sprite Maker</Filter>
+    </ClInclude>
+    <ClInclude Include="viewport.h">
+      <Filter>Viewport Files\Viewport</Filter>
+    </ClInclude>
+    <ClInclude Include="surface.h">
+      <Filter>Template Files\Surface</Filter>
+    </ClInclude>
+    <ClInclude Include="template.h">
+      <Filter>Template Files\Template</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Base Class Files">
+      <UniqueIdentifier>{75941383-4ac8-4737-9f13-1b76bbe9e1ce}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Level Files">
+      <UniqueIdentifier>{deeab63d-06dc-48da-91f2-88e9c584d09d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Level Files\Blueprint">
+      <UniqueIdentifier>{2a9df113-2143-4d33-bdd8-1b87bb6d18b0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Collision Files">
+      <UniqueIdentifier>{40dedd21-a372-471d-af11-74fd245bcd4d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Collision Files\Collision Manager">
+      <UniqueIdentifier>{7689e98e-9dfe-460f-a801-fba6917e3f09}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Player Files">
+      <UniqueIdentifier>{5f8cbfc1-478b-4b7e-b1d2-084f7bacffbd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Player Files\Detector Point">
+      <UniqueIdentifier>{b47bc79e-8406-47fe-a3b8-51ee78864cfc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Level Files\Finish Line">
+      <UniqueIdentifier>{c044d8f4-3be9-4364-ab33-fad94a885568}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Player Files\Echo">
+      <UniqueIdentifier>{cc2e83eb-71be-4002-beed-b93ecc7e24cc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Glow Orb Files">
+      <UniqueIdentifier>{294ce928-93c0-4e3b-bf52-cf12eac8ffa5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Glow Orb Files\Full Glow Orb">
+      <UniqueIdentifier>{b8fbca4b-b556-4ec0-a286-0a1b0d2c95a1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game Files">
+      <UniqueIdentifier>{404171bf-53c7-406e-80f2-40b6de9ca3cf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game Files\Game">
+      <UniqueIdentifier>{be252875-67ee-45b7-a35d-5f88aa138639}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Glow Orb Files\Glow Orb Manager">
+      <UniqueIdentifier>{baa72069-4048-470f-9191-a8555fe5bdde}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game Files\Keyboard Manager">
+      <UniqueIdentifier>{ac42ee94-49c0-44e4-ac0b-f43b54531ddd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game Files\Mouse Manager">
+      <UniqueIdentifier>{0a44d33e-a3f5-4fb9-934e-3a89b1e514a4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Level Files\Level Manager">
+      <UniqueIdentifier>{2f6c49fe-6a2b-4f7e-9bf7-c3fd2b15104b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Viewport Files">
+      <UniqueIdentifier>{8cc856f3-5264-43a1-a476-3c195d256381}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Viewport Files\Camera">
+      <UniqueIdentifier>{5708f275-2cdd-4062-baee-317368497381}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Viewport Files\Button">
+      <UniqueIdentifier>{7f1edf31-f197-495b-b865-a84792518b07}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Viewport Files\Life HUD">
+      <UniqueIdentifier>{e57f5920-2b21-41ac-b61a-442c0d05973b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Level Files\Life Pickup">
+      <UniqueIdentifier>{089d4e33-0ad4-4d0f-a578-634582040da5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Level Files\Message Box">
+      <UniqueIdentifier>{467ba07a-46ef-4f5a-8f07-5c42c62b602f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Level Files\Moving Obstacle">
+      <UniqueIdentifier>{ee973672-7c70-4880-ad4a-27fb4d7a9a7e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Level Files\Obstacle">
+      <UniqueIdentifier>{38b86646-5803-4462-b760-4e1b6d235878}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Glow Orb Files\Pickup Glow Orb">
+      <UniqueIdentifier>{b6edbbaa-c28b-40fd-bd39-42fcdbcb75d9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Glow Orb Files\Temp Glow Orb">
+      <UniqueIdentifier>{fd8332dc-34d4-4986-a892-6217875dfbc3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Glow Orb Files\Safe Glow Orb">
+      <UniqueIdentifier>{a33dfe48-5889-4a42-83ed-be55919d0843}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Player Files\Player">
+      <UniqueIdentifier>{d925c7d9-b5f2-46a8-b62b-9742d3b7a0a0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Player Files\Echo\First Echo">
+      <UniqueIdentifier>{81645e35-cbed-4ade-baea-7cb12ad922c2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Player Files\Echo\Second Echo">
+      <UniqueIdentifier>{f6da2352-0b01-4a4f-8b9b-bf9fd71978ad}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Base Class Files\Collidable">
+      <UniqueIdentifier>{dd2a4cb3-dd29-4847-b09d-d7919e133d4f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Base Class Files\Glow Orb">
+      <UniqueIdentifier>{fc0a5cef-653a-41b7-98d3-e06c47b524f4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Base Class Files\Player Echo">
+      <UniqueIdentifier>{940a9b66-e796-43d6-8bfe-12fec512f4b1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game Files\Text Repo">
+      <UniqueIdentifier>{839c51c5-436b-4950-ae0a-0dcd48e61ea9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game Files\Text Sprite Maker">
+      <UniqueIdentifier>{b9a5ecce-5f4e-4ec6-8a12-3c2f41633bd6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Viewport Files\Viewport">
+      <UniqueIdentifier>{d87dff1e-e0ed-4ffc-870d-c4d68bf87c78}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Template Files">
+      <UniqueIdentifier>{95d8868e-777a-4b3e-ba97-108641d57524}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Template Files\Template">
+      <UniqueIdentifier>{7a1689e3-045e-43ff-bbe6-0f43cfda01af}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Template Files\Surface">
+      <UniqueIdentifier>{ba386364-d71b-42c7-b3c8-07d33d7ef535}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

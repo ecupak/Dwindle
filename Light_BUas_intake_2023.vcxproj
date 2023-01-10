@@ -301,10 +301,6 @@
     <ClInclude Include="text_sprite_maker.h" />
     <ClInclude Include="text_repo.h" />
     <ClInclude Include="viewport.h" />
-    <ClInclude Include="viewport_socket.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="_readme.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -2,7 +2,6 @@
 
 #include <vector>
 
-#include "viewport_socket.h"
 #include "mouse_manager.h"
 
 #include "camera.h"

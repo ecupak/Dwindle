@@ -18,7 +18,6 @@
 
 #include "glow_socket.h"
 #include "collision_socket.h"
-#include "viewport_socket.h"
 
 
 namespace Tmpl8

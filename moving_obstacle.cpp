@@ -107,7 +107,7 @@ namespace Tmpl8
 		// Restore, copy draw area, and draw onto map layer.
 		RestoreMapLayer();
 		CopyMapLayer();
-		m_sprite.Draw(&m_map_layer, left, top);
+		m_sprite.Draw(&m_map_layer, left, top);		
 	}
 	
 

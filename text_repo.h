@@ -173,9 +173,9 @@ namespace Tmpl8
 				"I always wondered what happened to that piano."
 			},
 			Entry{m_guide, vec2{19, 30}, 4,
-				"And to those racoons from the storm."
+				"And to those raccoons from the storm."
 			},
-			Entry{m_guide, vec2{23, 28}, 2,
+			Entry{m_guide, vec2{22, 26}, 2,
 				"They were adorable."
 			},
 			Entry{m_guide, vec2{11, 26}, 4,
@@ -190,14 +190,17 @@ namespace Tmpl8
 			Entry{m_guide, vec2{21, 10}, 3,
 				"A lot of cats!"
 			},
-			Entry{m_guide, vec2{5, 5}, 2,
+			Entry{m_guide, vec2{15, 9}, 3,
 				"That's too many cats."
+			},
+			Entry{m_guide, vec2{5, 5}, 2,
+				"I've missed you."
 			},			
-			Entry{m_guide, vec2{16, 1}, 3,
-				"Sorry, my love."
+			Entry{m_guide, vec2{15, 1}, 4,
+				"It's almost time"
 			},
 			Entry{m_guide, vec2{4, 1}, 2,
-				"Here we are..."
+				"At last."
 			},
 		};
 

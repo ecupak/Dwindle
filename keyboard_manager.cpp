@@ -25,11 +25,10 @@ namespace Tmpl8
 			
 			if (keypack.m_was_released)
 			{
-				keypack.m_is_just_released = !keypack.m_is_pressed;
+				keypack.m_is_just_released = keypack.m_is_pressed;
 				keypack.m_is_pressed = false;
 				keypack.m_is_just_pressed = false;
-			}			
-
+			}		
 			keypack.Reset();
 		}
 	}
@@ -42,7 +41,7 @@ namespace Tmpl8
 
 
 	void KeyboardManager::Released(int SDL_code)
-	{
+	{	
 		keyboard_packets[GetSDLMapping(SDL_code)].m_was_released = true;
 	}
 

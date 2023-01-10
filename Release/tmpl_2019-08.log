@@ -1,9 +1,0 @@
-﻿  collision_manager.cpp
-  game.cpp
-  level.cpp
-  message_box.cpp
-  template.cpp
-  text_repo.cpp
-  Generating Code...
-C:\Users\Sab\OneDrive\Documents\Workspace\ecupak\BREDA Projects\intake\text_repo.cpp(24): warning C4715: 'Tmpl8::TextRepo::GetEntriesForLevel': not all control paths return a value
-  tmpl_2019-08.vcxproj -> C:\Users\Sab\OneDrive\Documents\Workspace\ecupak\BREDA Projects\intake\tmpl_2019-08_x86.exe

@@ -66,9 +66,17 @@ namespace Tmpl8
 		}
 
 		// Debug collision mode toggle.
-		if (state == State::ALIVE && m_keyboard_manager.IsJustPressed(SDL_SCANCODE_F1))
+		if (m_has_key_up_happened)
 		{
-			ToggleDebugMode();
+			if (state == State::ALIVE && m_keyboard_manager.IsJustPressed(SDL_SCANCODE_F1))
+			{
+				ToggleDebugMode();
+				m_has_key_up_happened = false;
+			}
+		}
+		else
+		{
+			m_has_key_up_happened = m_keyboard_manager.IsJustReleased(SDL_SCANCODE_F1);
 		}
 
 
@@ -749,8 +757,7 @@ namespace Tmpl8
 		{
 			m_allow_horizontal_movement = false;
 
-			setSquashFrameCount();
-			setStretchFrameCount();
+			SetSquashDelay();
 			setFrameNormal2Squash();
 		}
 
@@ -765,28 +772,9 @@ namespace Tmpl8
 	}
 
 
-	void Player::setSquashFrameCount()
+	void Player::SetSquashDelay()
 	{
-		/* Squash delay / animation is a function of impact velocity. All in an effort
-			to reduce / remove squashing when at low speeds. Around 4 velocity there
-			should be no squashing at all, but kept it generalized just in case. */
-
-		// Easier to step through when spaced out.
-		float squashValue = fabsf(velocity.y);
-		squashValue -= squashDampeningMagnitude;
-		squashValue *= squashDampeningCoefficient;
-		squashValue = ceil(squashValue) - 1;
-
 		m_squash_frame_seconds = 0.24f; //static_cast<int>(squashValue);		
-	}
-
-
-	void Player::setStretchFrameCount()
-	{
-		/* Stretch animation is a function of squash delay. Must be calculated
-			before the squash frames begin counting down. */
-
-		stretchFrameCount = m_squash_frame_seconds;
 	}
 
 
@@ -867,7 +855,7 @@ namespace Tmpl8
 			// Need to figure out how to rotate sprite for side squash. Matrix rotation preferred.
 			// But can also create static sprite frames for each wall and ceiling.
 			
-			/*setSquashFrameCount();
+			/*SetSquashDelay();
 			setStretchFrameCount();
 			setFrameNormal2Squash();*/
 		}

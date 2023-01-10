@@ -196,6 +196,7 @@ namespace Tmpl8
 	}
 
 
+	// All messages start here and get routed to their respective flows.
 	void Game::ProcessMessages()
 	{
 		std::vector<GameMessage> messages = m_game_hub.ReadMessages();
@@ -231,6 +232,7 @@ namespace Tmpl8
 	}
 
 
+	// On player death, begin sequence to restart level.
 	void Game::CheckLevelResetProgress(GameMessage& message)
 	{
 		switch (message.m_action)
@@ -252,6 +254,7 @@ namespace Tmpl8
 	}
 
 
+	// On level complete, begin sequence to advance level.
 	void Game::CheckLevelAdvancementProgress(GameMessage& message)
 	{
 		switch (message.m_action)
@@ -273,6 +276,7 @@ namespace Tmpl8
 	}
 
 
+	// On title screen, wait for input then take to game screen.
 	void Game::CheckTitleScreenProgress(GameMessage& message)
 	{
 		switch (message.m_action)
@@ -295,6 +299,7 @@ namespace Tmpl8
 	}
 
 
+	// On game completion, take to gameover screen.
 	void Game::CheckGameOverProgress(GameMessage& message)
 	{
 		switch (message.m_action)
@@ -322,6 +327,7 @@ namespace Tmpl8
 	}
 
 
+	// On tutorial completion, take to title screen.
 	void Game::CheckReturnToTitleProgress(GameMessage& message)
 	{
 		switch (message.m_action)
@@ -345,6 +351,7 @@ namespace Tmpl8
 	}
 
 
+	// Default route destination, if no other routes are active.
 	void Game::CheckMessage(GameMessage& message)
 	{
 		switch (message.m_action)

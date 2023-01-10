@@ -6,7 +6,6 @@
 #include "mouse_manager.h"
 #include "keyboard_manager.h"
 
-
 #include "player.h"
 #include "level.h"
 #include "text_repo.h"

@@ -45,9 +45,6 @@ namespace Tmpl8
 
 	private:
 		std::vector<KeyboardPacket> keyboard_packets;
-		
-
-
 	};
 };
 

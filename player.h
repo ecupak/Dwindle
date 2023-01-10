@@ -105,8 +105,7 @@ namespace Tmpl8 {
 		void handleGroundCollision();
 		void stopBouncing();
 		void prepareForGroundMode();
-		void setSquashFrameCount();
-		void setStretchFrameCount();
+		void SetSquashDelay();
 		void handleWallCollision(int post_id);
 		void prepareForWallMode(Trigger trigger);
 		void handleCeilingCollision();
@@ -179,6 +178,7 @@ namespace Tmpl8 {
 		State state{ State::DEAD };
 
 		bool m_is_tutorial_mode{ false };
+		bool m_has_key_up_happened{ true };
 
 		KeyboardManager& m_keyboard_manager;
 
@@ -220,21 +220,13 @@ namespace Tmpl8 {
 		// Wall bounce related.
 		Trigger wallBounceTrigger{}; // What direction to press to do strong bounce.
 		BounceStrength wall_bounce_y_power{}; // Strength of wall bounce.
-		BounceStrength wall_bounce_x_power{};
-
-		// Intrinsic properties.		
-		float squashDampeningMagnitude{ 0.5f }; // Subtracts from squash value to get squash duration.
-		float squashDampeningCoefficient{ 0.25f }; // Multiplies by squash value to get squash duration.		
+		BounceStrength wall_bounce_x_power{};	
 
 		// Frame counts determine how long certain conditions last.
-		//int directionLockedFrameCount{ 0 };
-		float m_squash_frame_seconds{ 0 };
-		int stretchFrameCount{ 0 };
-		float triggerFrameCount{ 0 };
+		float m_squash_frame_seconds{ 0 };		
 
 		bool m_is_vertical_at_rest{ false };
-		bool m_is_horizontal_at_rest{ false };
-		bool m_is_1_way_rest_gate_open{ true };
+		bool m_is_horizontal_at_rest{ false };		
 
 		bool m_is_echo_update_enabled{ true };
 		bool m_is_at_finish_line{ false };		
